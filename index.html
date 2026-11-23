@@ -1,0 +1,2056 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>실손 심사 도우미 · 1~5세대</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="삼성생명 1~5세대 실손·인보험 심사 실무용 모바일 도구. 세대비교, 지급·비례계산, 3대비급여·약제검색, 담보·체크리스트, 심사메모.">
+<meta name="theme-color" content="#12294d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="실손도우미">
+<meta name="format-detection" content="telephone=no">
+<meta name="color-scheme" content="light">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#eef1f7; --card:#ffffff; --ink:#111c2e; --muted:#68758c; --line:#e3e8f1;
+  --navy:#12294d; --navy2:#1e3c6b; --primary:#1f6feb; --teal:#0d7f74;
+  --ok:#0f7b4f; --warn:#a9550a; --danger:#bf3a2b; --chip:#eef3fb; --chipon:#1f6feb;
+  --radius:16px; --shadow:0 1px 2px rgba(16,32,64,.05), 0 10px 24px -14px rgba(16,32,64,.28);
+  --safe-t:env(safe-area-inset-top,0px); --safe-b:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+html,body{margin:0; padding:0;}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+  background:var(--bg); color:var(--ink); font-size:15px; line-height:1.5;
+  -webkit-text-size-adjust:100%; overscroll-behavior-y:none;
+  height:100vh; height:100dvh; display:flex; flex-direction:column; overflow:hidden;
+}
+button,input,select,textarea{font-family:inherit; font-size:16px; color:inherit;}
+button{cursor:pointer; border:0; background:none;}
+input,textarea,select{-webkit-appearance:none; appearance:none;}
+input[type=search]::-webkit-search-cancel-button,
+input[type=search]::-webkit-search-decoration{-webkit-appearance:none; display:none;}
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none; margin:0;}
+h1,h2,h3,h4,p{margin:0;}
+
+/* ── header ── */
+.app-head{
+  background:linear-gradient(160deg,#16305a 0%,#12294d 55%,#0d1f3b 100%);
+  color:#fff; padding:calc(var(--safe-t) + 12px) 14px 12px; flex:0 0 auto;
+  border-radius:0 0 20px 20px; box-shadow:0 6px 18px -10px rgba(9,20,40,.6); z-index:3;
+}
+.brand{display:flex; align-items:center; gap:10px;}
+.logo{
+  width:36px; height:36px; border-radius:11px; flex:0 0 auto; display:grid; place-items:center;
+  background:linear-gradient(150deg,#3f9bff,#0d7f74); font-weight:800; font-size:16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35);
+}
+.brand h1{font-size:17px; font-weight:700; letter-spacing:-.2px;}
+.brand .sub{font-size:11.5px; color:#b9c8e2; margin-top:1px;}
+.icon-btn{
+  margin-left:auto; width:44px; height:44px; border-radius:12px; color:#dce6f7;
+  background:rgba(255,255,255,.10); font-size:15px; font-weight:700; display:grid; place-items:center;
+}
+.icon-btn:active{background:rgba(255,255,255,.22);}
+.head-badges{display:flex; gap:6px; margin-top:10px; flex-wrap:wrap;}
+.badge{
+  font-size:10.5px; padding:3px 8px; border-radius:999px; background:rgba(255,255,255,.12);
+  color:#cfdcf1; border:1px solid rgba(255,255,255,.14); white-space:nowrap;
+}
+.badge.live{background:rgba(29,178,140,.18); border-color:rgba(29,178,140,.35); color:#8ee6c9;}
+
+/* ── views ── */
+main{flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; scroll-behavior:smooth;}
+.view{display:none; padding:14px 14px 28px; animation:fade .22s ease;}
+.view.active{display:block;}
+@keyframes fade{from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;}}
+.section-title{font-size:12.5px; font-weight:700; color:var(--muted); letter-spacing:.02em; margin:18px 2px 8px;}
+.section-title:first-child{margin-top:2px;}
+
+/* ── cards ── */
+.card{
+  background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow);
+  padding:14px; margin-bottom:12px; border:1px solid rgba(20,40,80,.04);
+}
+.card.tight{padding:12px;}
+.card-h{font-size:13.5px; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:6px; margin-bottom:10px;}
+.card-h .n{
+  width:20px; height:20px; border-radius:6px; background:var(--navy); color:#fff; font-size:11px;
+  display:grid; place-items:center; font-weight:700; flex:0 0 auto;
+}
+.card-h .sp{margin-left:auto; font-size:11.5px; font-weight:500; color:var(--muted);}
+.hint{font-size:11.5px; color:var(--muted); line-height:1.5;}
+.muted{color:var(--muted);}
+.mono{font-variant-numeric:tabular-nums;}
+.row{display:flex; align-items:center; gap:8px;}
+.row.wrap{flex-wrap:wrap;}
+.spacer{flex:1;}
+
+/* ── inputs ── */
+.searchbar{position:relative; margin-bottom:10px;}
+.searchbar input{
+  width:100%; height:48px; border-radius:13px; border:1px solid var(--line); background:#fff;
+  padding:0 46px 0 38px; box-shadow:var(--shadow); font-size:16px; outline:none;
+}
+.searchbar input:focus{border-color:#9dbcff; box-shadow:0 0 0 3px rgba(31,111,235,.12);}
+.searchbar .ico{position:absolute; left:13px; top:13px; width:20px; height:20px; color:var(--muted);}
+.searchbar .clr{position:absolute; right:2px; top:2px; width:44px; height:44px; border-radius:10px; color:var(--muted); display:none; font-size:14px;}
+.searchbar .clr.on{display:block;}
+
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin:2px 0 10px;}
+.chip{
+  min-height:44px; padding:0 14px; border-radius:999px; background:#fff; border:1px solid var(--line);
+  font-size:13px; font-weight:600; color:#41506a; display:inline-flex; align-items:center; gap:5px;
+}
+.chip:active{transform:scale(.98);}
+.chip.on{background:var(--chipon); border-color:var(--chipon); color:#fff;}
+.chip .cnt{font-size:10.5px; opacity:.65;}
+.chip.ghost{background:transparent;}
+
+.seg{display:flex; background:#e6ebf4; border-radius:12px; padding:3px; margin-bottom:12px;}
+.seg button{
+  flex:1; min-height:42px; border-radius:9px; font-size:13px; font-weight:700; color:#4a5a75;
+  transition:.16s; padding:0 4px; line-height:1.2;
+}
+.seg button.on{background:#fff; color:var(--navy); box-shadow:0 1px 3px rgba(16,32,64,.16);}
+
+.field{margin-bottom:10px;}
+.field > label{display:block; font-size:12px; font-weight:700; color:#3b4a63; margin-bottom:5px;}
+.field .note{font-size:11px; color:var(--muted); margin-top:4px; line-height:1.45;}
+input[type=number],input[type=text],textarea,select{
+  width:100%; border:1px solid var(--line); border-radius:11px; background:#fff; padding:11px 12px;
+  font-size:16px; outline:none; min-height:46px;
+}
+input:focus,textarea:focus,select:focus{border-color:#9dbcff; box-shadow:0 0 0 3px rgba(31,111,235,.12);}
+select{background-image:linear-gradient(45deg,transparent 50%,#7b879b 50%),linear-gradient(135deg,#7b879b 50%,transparent 50%); background-position:calc(100% - 16px) 50%,calc(100% - 11px) 50%; background-size:5px 5px,5px 5px; background-repeat:no-repeat; padding-right:30px;}
+textarea{resize:vertical; min-height:140px; line-height:1.55;}
+.amt{display:flex; align-items:center; gap:8px;}
+.amt input{text-align:right; font-variant-numeric:tabular-nums; font-weight:600;}
+.amt .unit{font-size:12px; color:var(--muted); flex:0 0 auto;}
+
+.btn{
+  min-height:44px; padding:0 16px; border-radius:12px; font-size:14px; font-weight:700;
+  background:var(--navy); color:#fff; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+}
+.btn:active{opacity:.86;}
+.btn.sec{background:#fff; color:var(--navy); border:1px solid #cfd8e8;}
+.btn.soft{background:var(--chip); color:#1b4a94;}
+.btn.danger{background:#fff; color:var(--danger); border:1px solid #f0c8c2;}
+.btn.sm{min-height:40px; padding:0 12px; font-size:12.5px; border-radius:10px;}
+.btn.block{width:100%;}
+.btn-row{display:flex; gap:8px; margin-top:10px;}
+.btn-row > .btn{flex:1;}
+
+/* ── table-ish ── */
+.tbl{width:100%; border-collapse:collapse; font-size:12.5px;}
+.tbl th{font-size:11px; color:var(--muted); font-weight:700; text-align:left; padding:6px 4px; border-bottom:1px solid var(--line);}
+.tbl td{padding:7px 4px; border-bottom:1px solid #f1f4fa; vertical-align:top;}
+.tbl tr:last-child td{border-bottom:0;}
+.tbl .r{text-align:right; font-variant-numeric:tabular-nums;}
+
+/* ── compare ── */
+.cmp-card{padding:0; overflow:hidden;}
+.cmp-head{
+  display:flex; align-items:center; gap:8px; padding:12px 14px; background:#fbfcff;
+  border-bottom:1px solid var(--line);
+}
+.cmp-head h3{font-size:13.5px; font-weight:700; color:var(--navy); line-height:1.35; min-width:0;}
+.cmp-head .go{margin-left:auto; font-size:11px; color:var(--muted);}
+.cmp-body{padding:6px 10px 10px;}
+.grow{display:flex; gap:8px; padding:8px 4px; border-bottom:1px solid #f3f5fa;}
+.grow:last-child{border-bottom:0;}
+.gtag{
+  flex:0 0 52px; font-size:11px; font-weight:800; color:#fff; background:#93a3bd; border-radius:8px;
+  height:24px; display:grid; place-items:center; letter-spacing:-.2px;
+}
+.gtag.g1{background:#8b95a8;} .gtag.g2{background:#5b7fb8;} .gtag.g3{background:#3f6fa8;}
+.gtag.g4{background:#2b5a92;} .gtag.g5{background:#0d7f74;}
+.gtext{flex:1; font-size:12.5px; white-space:pre-line; word-break:break-word; line-height:1.55;}
+.gtext mark{background:#fff3b0; padding:0 1px; border-radius:2px; color:inherit;}
+.gens-row{display:flex; gap:6px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:6px; margin-bottom:10px;}
+.gens-row .gchip{
+  flex:0 0 auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:8px 10px; min-width:92px;
+  box-shadow:var(--shadow);
+}
+.gens-row .gchip b{display:block; font-size:12.5px; color:var(--navy);}
+.gens-row .gchip span{font-size:10.5px; color:var(--muted);}
+
+/* ── result ── */
+.res-hero{
+  background:linear-gradient(150deg,#14335f,#0d7f74); color:#fff; border-radius:14px; padding:14px; margin:-2px -2px 12px;
+}
+.res-hero .lab{font-size:11.5px; color:#cfe0f5;}
+.res-hero .big{font-size:clamp(21px,6.6vw,27px); font-weight:800; letter-spacing:-.6px; font-variant-numeric:tabular-nums; margin-top:2px;}
+.res-hero .sub2{font-size:11.5px; color:#cfe0f5; margin-top:6px; line-height:1.45;}
+.split{display:flex; gap:10px; margin-top:10px;}
+.split > div{flex:1; background:rgba(255,255,255,.12); border-radius:10px; padding:8px 10px;}
+.split .l{font-size:10.5px; color:#cfe0f5;}
+.split .v{font-size:14px; font-weight:700; font-variant-numeric:tabular-nums;}
+
+.line{
+  display:flex; align-items:flex-start; gap:10px; padding:9px 0; border-bottom:1px solid #f1f4fa;
+}
+.line:last-child{border-bottom:0;}
+.line .nm{flex:1; min-width:0;}
+.line .nm b{font-size:12.5px; font-weight:700;}
+.line .nm span{display:block; font-size:11px; color:var(--muted); margin-top:2px;}
+.line .amt2{flex:0 0 auto; text-align:right; font-variant-numeric:tabular-nums;}
+.line .amt2 b{font-size:14px; font-weight:800; color:var(--ok);}
+.line .amt2 span{display:block; font-size:10.5px; color:var(--muted);}
+.exempt{opacity:.72;}
+.exempt .amt2 b{color:var(--danger); font-size:12.5px;}
+
+.tag{display:inline-block; font-size:10px; font-weight:700; padding:1px 6px; border-radius:6px; vertical-align:1px;}
+.tag.blue{background:#e7f0ff; color:#1b4a94;}
+.tag.green{background:#e4f6ee; color:#0f7b4f;}
+.tag.orange{background:#fdf0e3; color:#a9550a;}
+.tag.red{background:#fdecea; color:#bf3a2b;}
+.tag.gray{background:#eef1f6; color:#5a6780;}
+
+.notice{
+  border-left:3px solid var(--primary); background:#f4f8ff; border-radius:0 10px 10px 0; padding:9px 11px;
+  font-size:11.5px; color:#2f4463; line-height:1.55; margin-top:10px;
+}
+.notice.warn{border-color:#e08a1e; background:#fffaf0; color:#7a4a08;}
+.notice.ok{border-color:#12a37f; background:#f2fbf7; color:#0a5c46;}
+
+/* ── memo ── */
+.memo-item{padding:12px 0; border-bottom:1px solid #f1f4fa;}
+.memo-item:last-child{border-bottom:0;}
+.memo-item h4{font-size:13.5px; font-weight:700; margin-bottom:3px; word-break:break-word;}
+.memo-item p{font-size:12.5px; color:#3d4a60; white-space:pre-line; word-break:break-word;
+  display:-webkit-box; -webkit-line-clamp:4; -webkit-box-orient:vertical; overflow:hidden;}
+.memo-item .meta{font-size:10.5px; color:var(--muted); margin-top:6px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;}
+.memo-item .acts{margin-left:auto; display:flex; gap:6px;}
+.empty{text-align:center; color:var(--muted); font-size:12.5px; padding:26px 10px; line-height:1.7;}
+
+/* ── tabbar ── */
+.tabbar{
+  flex:0 0 auto; display:grid; grid-template-columns:repeat(6,1fr); gap:0;
+  background:rgba(255,255,255,.97); border-top:1px solid var(--line);
+  padding:6px 6px calc(6px + var(--safe-b)); -webkit-backdrop-filter:saturate(180%) blur(12px); backdrop-filter:saturate(180%) blur(12px); z-index:5;
+}
+.tabbar button{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  min-height:52px; border-radius:10px; color:#8592a8; font-size:9.5px; font-weight:700;
+  letter-spacing:-.35px; white-space:nowrap; padding:0 1px;
+}
+.tabbar button svg{width:21px; height:21px; stroke:currentColor; fill:none; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+.tabbar button.on{color:var(--navy); background:#eef3fb;}
+.tabbar button.on svg{stroke:var(--navy);}
+
+/* ── modal ── */
+.modal{position:fixed; inset:0; z-index:50; display:none;}
+.modal.on{display:block;}
+.modal .bd{position:absolute; inset:0; background:rgba(10,20,38,.45);}
+.sheet{
+  position:absolute; left:0; right:0; bottom:0; background:#fff; border-radius:20px 20px 0 0;
+  padding:10px 16px calc(16px + var(--safe-b)); max-height:88vh; overflow-y:auto;
+  animation:up .24s cubic-bezier(.2,.8,.3,1);
+}
+@keyframes up{from{transform:translateY(24px); opacity:.6;} to{transform:none; opacity:1;}}
+.sheet .grab{width:38px; height:4px; border-radius:2px; background:#d9dfea; margin:0 auto 12px;}
+.sheet h3{font-size:16px; font-weight:700; margin-bottom:12px;}
+.toast{
+  position:fixed; left:50%; bottom:calc(74px + var(--safe-b)); transform:translate(-50%,10px);
+  background:rgba(17,28,46,.94); color:#fff; font-size:12.5px; padding:10px 16px; border-radius:999px;
+  opacity:0; pointer-events:none; transition:.22s; z-index:60; max-width:88vw; text-align:center;
+}
+.toast.on{opacity:1; transform:translate(-50%,0);}
+</style>
+</head>
+<body>
+
+<header class="app-head">
+  <div class="brand">
+    <div class="logo">실</div>
+    <div>
+      <h1>실손 심사 도우미</h1>
+      <p class="sub">삼성생명 1~5세대 · 지급·비례·3대비급여</p>
+    </div>
+    <button class="icon-btn" id="btnInfo" aria-label="앱 정보">i</button>
+  </div>
+  <div class="head-badges">
+    <span class="badge">기준일 2026-11-23</span>
+    <span class="badge live">기기 저장 · 외부 전송 없음</span>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ① 세대비교 -->
+  <section class="view active" id="view-compare">
+    <div class="searchbar">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="cmpQ" placeholder="키워드 검색 (도수, 재가입, 5세대 MRI…)" autocomplete="off">
+      <button class="clr" data-clear="cmpQ" aria-label="지우기">✕</button>
+    </div>
+    <div class="gens-row" id="genLegend"></div>
+    <div class="chips" id="cmpGen"></div>
+    <div class="hint" id="cmpCount" style="margin:0 2px 10px;"></div>
+    <div id="cmpList"></div>
+  </section>
+
+  <!-- ② 계산기 -->
+  <section class="view" id="view-calc">
+    <div class="seg" id="calcSeg">
+      <button class="on" data-cseg="single">단일 계산</button>
+      <button data-cseg="multi">다수계약 비례분담</button>
+    </div>
+
+    <div id="panel-single">
+      <div class="card">
+        <div class="card-h"><span class="n">1</span>세대 · 계약 조건</div>
+        <div class="chips" id="calcGenChips"></div>
+        <div class="seg" id="calcModeSeg">
+          <button class="on" data-cmode="in">입원</button>
+          <button data-cmode="out">통원</button>
+        </div>
+        <div class="field">
+          <label>병원 규모 <span class="muted" style="font-weight:400">· 통원 공제·입원 한도에 적용</span></label>
+          <div class="chips" id="calcHospChips" style="margin-bottom:0"></div>
+        </div>
+        <div id="calcCond"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><span class="n">2</span>금액 입력 <span class="sp">원 · 보장대상 의료비</span></div>
+        <div id="calcInputs"></div>
+        <div class="hint" id="calcInputHint" style="margin-top:8px;"></div>
+      </div>
+
+      <div id="calcResult"></div>
+    </div>
+
+    <div id="panel-multi" hidden>
+      <div class="card">
+        <div class="card-h"><span class="n">1</span>이번 사고의 실제 손해액</div>
+        <div class="amt">
+          <input type="number" id="mDamage" inputmode="numeric" value="3000000" min="0" step="1000">
+          <span class="unit">원</span>
+        </div>
+        <div class="hint" style="margin-top:6px;">급여 본인부담 + 비급여 합계(상급병실료 차액·면책 항목 제외).</div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><span class="n">2</span>계약별 독립책임액 <span class="sp" id="mCount">3건</span></div>
+        <div id="mList"></div>
+        <div class="btn-row">
+          <button class="btn sec sm" id="mAdd">+ 계약 추가</button>
+          <button class="btn soft sm" id="mAutoAll">단일계산 값으로 자동 산출</button>
+        </div>
+        <div class="hint" style="margin-top:8px;">독립책임액 = 그 계약만 있었을 때 약관대로 계산한 지급액. 세대를 고르고 <b>자동</b>을 누르면 위 ‘단일 계산’의 입력 금액으로 산출합니다.</div>
+      </div>
+
+      <div id="mResult"></div>
+    </div>
+  </section>
+
+  <!-- ③ 3대비급여·약제 -->
+  <section class="view" id="view-benefit">
+    <div class="searchbar">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="bQ" placeholder="항목·약제·분류번호 검색 (항생제 612, D등급…)" autocomplete="off">
+      <button class="clr" data-clear="bQ" aria-label="지우기">✕</button>
+    </div>
+    <div class="seg" id="bSeg">
+      <button class="on" data-bseg="flow">기본계약 전환</button>
+      <button data-bseg="exempt">면책</button>
+      <button data-bseg="drug">약제 분류번호</button>
+    </div>
+    <div class="chips" id="bChips"></div>
+    <div id="bList"></div>
+  </section>
+
+  <!-- ④ 담보·체크 -->
+  <section class="view" id="view-check">
+    <div class="searchbar">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="cQ" placeholder="담보·KCD·제도 검색 (K64, 수술비, 상한제…)" autocomplete="off">
+      <button class="clr" data-clear="cQ" aria-label="지우기">✕</button>
+    </div>
+    <div class="chips" id="cChips"></div>
+    <div id="cList"></div>
+  </section>
+
+  <!-- ⑤ 판례·심결 -->
+  <section class="view" id="view-law">
+    <div class="searchbar">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="lawQ" placeholder="사건번호·쟁점·진료과 검색 (2023다283913, 백내장…)" autocomplete="off">
+      <button class="clr" data-clear="lawQ" aria-label="지우기">✕</button>
+    </div>
+    <div class="seg" id="lawSeg">
+      <button class="on" data-lseg="laws">대법원 판례</button>
+      <button data-lseg="fss">분조위·경보</button>
+      <button data-lseg="cap">상한제</button>
+    </div>
+    <div class="chips" id="lawChips"></div>
+    <div id="lawList"></div>
+  </section>
+
+  <!-- ⑥ 메모 -->
+  <section class="view" id="view-memo">
+    <div class="card">
+      <div class="card-h"><span class="n">✓</span>내 심사메모 <span class="sp" id="memoStat">0건</span></div>
+      <div class="hint">이 기기의 브라우저 저장소(localStorage)에만 저장됩니다. 사내 정보가 서버로 전송되지 않습니다. 백업은 JSON 파일로 내보내 두세요.</div>
+      <div class="btn-row">
+        <button class="btn block" id="memoNew">+ 새 메모</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn sec" id="memoExport">JSON 내보내기</button>
+        <button class="btn sec" id="memoImport">JSON 불러오기</button>
+      </div>
+      <input type="file" id="memoFile" accept="application/json,.json" hidden>
+    </div>
+    <div class="searchbar">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="memoQ" placeholder="메모 검색 (제목·내용·태그)" autocomplete="off">
+      <button class="clr" data-clear="memoQ" aria-label="지우기">✕</button>
+    </div>
+    <div class="chips" id="memoTags"></div>
+    <div class="card" id="memoList"></div>
+  </section>
+
+</main>
+
+<nav class="tabbar" id="tabbar">
+  <button class="on" data-tab="compare" aria-label="세대비교">
+    <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h10"/><circle cx="19" cy="17" r="2.2"/></svg>
+    <span>세대비교</span>
+  </button>
+  <button data-tab="calc" aria-label="계산기">
+    <svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M8.5 7.5h7M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></svg>
+    <span>계산기</span>
+  </button>
+  <button data-tab="benefit" aria-label="3대비급여 약제">
+    <svg viewBox="0 0 24 24"><path d="M12 3.5 4.5 7v5c0 4.2 3 7.6 7.5 8.5 4.5-.9 7.5-4.3 7.5-8.5V7L12 3.5Z"/><path d="M9.5 12h5M12 9.5v5"/></svg>
+    <span>3대비·약제</span>
+  </button>
+  <button data-tab="check" aria-label="담보 체크리스트">
+    <svg viewBox="0 0 24 24"><path d="M6 4h9l4 4v12a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Z"/><path d="M9 12l2 2 4-4"/></svg>
+    <span>담보·체크</span>
+  </button>
+  <button data-tab="memo" aria-label="심사메모">
+    <svg viewBox="0 0 24 24"><path d="M5 4.5h14a1 1 0 0 1 1 1V16l-4.5 4.5H5a1 1 0 0 1-1-1v-14a1 1 0 0 1 1-1Z"/><path d="M15.5 20.5V16H20"/><path d="M8 9h8M8 12.5h5"/></svg>
+    <span>메모</span>
+  </button>
+  <button data-tab="law" aria-label="판례·분조위·상한제">
+    <svg viewBox="0 0 24 24"><path d="M12 4v16M5 8h14M7 8l-2.5 6h5L7 8Zm10 0-2.5 6h5L17 8Z"/><path d="M8 20h8"/></svg>
+    <span>판례·심결</span>
+  </button>
+</nav>
+
+<div class="modal" id="modal">
+  <div class="bd" data-close="modal"></div>
+  <div class="sheet" id="sheet"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script id="core">
+/* 실손 심사 도우미 코어 — 데이터·계산 로직 (DOM 비의존) */
+window.SILSON = (function () {
+  'use strict';
+
+  const UPDATED = '2026-11-23';
+
+  const GENS = [
+    { id: 1, label: '1세대', period: '~2009.09', short: '~09.09', note: '비표준화' },
+    { id: 2, label: '2세대', period: '2009.10~2017.03', short: '09.10~', note: '표준화' },
+    { id: 3, label: '3세대', period: '2017.04~2021.06', short: '17.04~', note: '3대비급여 특약' },
+    { id: 4, label: '4세대', period: '2021.07~2026.05.05', short: '21.07~', note: '급여/비급여 분리' },
+    { id: 5, label: '5세대', period: '2026.05.06~', short: '26.05~', note: '중증/비중증' }
+  ];
+
+  /* ── 세대별 약관 비교 ── */
+  const COMPARE = [
+    { item: '세대 정의', v: [
+      '표준화 이전(비표준화)\n상품·회사별 보장 상이',
+      '실손 표준화\n(전 보험사 공통약관)',
+      '‘착한실손’\n비급여 3종 특약 분리',
+      '급여/비급여 분리\n비급여 할인·할증 도입',
+      '비급여 중증/비중증 분리\n(산정특례 기준)'] },
+    { item: '판매(가입) 시기', v: [
+      '~ 2009.09',
+      '2009.10 ~ 2017.03\n(1차 1304 / 2차 1509 /\n3차 1601 개정)',
+      '2017.04 ~ 2021.06',
+      '2021.07 ~ 2026.05.05',
+      '2026.05.06 ~\n(2605 약관 / 2026.09.23 개정)'] },
+    { item: '삼성생명 대표 상품명·약관', v: [
+      '비표준화: 상품별 개별 약관\n(약관 판 0804·0904 등)\n※ 정확한 상품명은 증권 표기 확인',
+      '삼성 실손의료비보장보험(0910)\n계열(표준화 약관 0910~1601)\n※ 상품명 공시실 원문 확인 필요',
+      '삼성 실손의료비보장보험(1704)\n계열(3대 비급여 특약 분리)\n※ 상품명 공시실 원문 확인 필요',
+      '삼성 (인터넷)급여 실손의료비\n보장보험(2107) 계열\n※ 상품명 공시실 원문 확인 필요',
+      '· 삼성 급여 실손의료비보장보험(2605)\n  (2026.07.01 판매)\n· 삼성급여실손의료비보장보험(2605)\n  [계약전환용]/[단체전환및계약재개용]\n  (2026.05.06)\n· 삼성인터넷급여실손의료비보장보험\n  (2605)[계약전환용] (2026.09.23 개정)'] },
+    { item: '담보 구조', v: [
+      '질병입원·질병통원·상해입원·\n상해통원(±일반상해의료비)',
+      '질병입원·질병통원·상해입원·\n상해통원(급여+비급여 통합)',
+      '기본형(표준형/선택형Ⅱ) +\n3대 비급여 특약(선택)',
+      '주계약=급여(질병/상해급여형)\n특약=비급여(질병/상해/3대)',
+      '주계약=급여(질병·상해급여형)\n특약1=중증 비급여(3대 포함)\n특약2=비중증 비급여(비급여 MRI 포함)'] },
+    { item: '갱신 주기', v: ['1~5년(상품별)\n삼성생명 1세대 대표 3년', '3년(2013.01 이전)\n→ 1년(1304 판 이후)', '1년', '1년', '1년'] },
+    { item: '재가입(보장내용 변경) 주기', v: ['없음\n(재가입 조건 없음)', '없음(1303 이전)\n→ 15년(2013.01 신설)', '15년\n(보험나이 100세까지)', '5년', '5년'] },
+    { item: '급여 입원 보상', v: [
+      '본인부담금의 80% 보상\n(자기부담 20%)\n※ 상품별 80~100% 상이',
+      '표준형 80% / 선택형 90%\n(2015.09~ 선택형Ⅱ:\n급여 90%·비급여 80%)',
+      '표준형 80% / 선택형Ⅱ 90%',
+      '80%\n(자기부담 20%)',
+      '80%\n(자기부담 20%)\n입·통원 합산 연 5천만원'] },
+    { item: '급여 통원 보상·공제', v: [
+      '회당 10만원 한도(처방 5만원)\n공제 5천원 + (5천원 공제 후) 20%\n※ 처방조제는 3천원 공제',
+      '회당 30만원 한도\n(외래 25만 + 처방 5만)\n공제: 의원 1만 / 병원 1.5만 /\n상급·종합 2만 / 약국 8천\n(1304 판 이후 ‘정액과 20% 중 큰 금액’)',
+      '회당 30만원 한도\n공제: 의원 1만 / 병원 1.5만 /\n상급·종합 2만 / 약국 8천\n표준형·선택형Ⅱ 동일',
+      '회당 20만원 한도\n공제 MAX(의원·병원 1만 /\n상급·종합 2만, 20%)',
+      '회당 20만원 한도\n공제 MAX(의원·병원 1만 /\n상급·종합 2만, 보장대상의료비의 20%,\n보장대상의료비×건보 본인부담률)'] },
+    { item: '급여 입원 자기부담\n연 200만원 초과 보상', v: [
+      '해당 없음', '적용(급여+비급여 합산)', '적용(급여+비급여 합산)',
+      '적용(급여 입원 자기부담 한정)', '적용(급여 입원 자기부담 한정)'] },
+    { item: '비급여 입원 보상', v: [
+      '구분 없이 급여와 합산 보상\n(급여와 동일 자기부담률)',
+      '급여와 합산 보상\n(표준형 80% / 선택형Ⅱ 80%)',
+      '표준형 80%(급여 합산) /\n선택형Ⅱ 80%',
+      '70%\n(연 5천만원 한도)',
+      '중증 70% / 비중증 50%\n비중증은 종합병원 외 의료기관\n1회 300만원 한도'] },
+    { item: '비급여 통원 보상·공제', v: [
+      '급여와 합산(회당 10만원 한도)',
+      '공제: 의원 1만 / 병원 1.5만 /\n상급·종합 2만 / 약국 8천',
+      '공제: 의원 1만 / 병원 1.5만 /\n상급·종합 2만 / 약국 8천',
+      '회당 20만원, 연 100회\n공제 MAX(3만원, 30%)',
+      '중증: 회당 20만원·연 100회\n공제 MAX(3만원, 30%)\n비중증: 일당 20만원·연 100일\n공제 MAX(5만원, 50%)'] },
+    { item: '3대 비급여\n(도수·체외충격파·증식 /\n비급여 주사 / MRI·MRA)', v: [
+      '별도 구분 없음\n일반 비급여와 합산 보상',
+      '별도 구분 없음\n일반 비급여와 합산 보상',
+      '특약 분리(선택)\n·도수·체외충격파·증식: 연 350만/50회\n·비급여 주사료: 연 250만/50회\n·MRI·MRA: 연 300만원\n공제 MAX(2만원, 30%)',
+      '특약(필수 구조)\n·연 350만/50회(최초 10회 후 10회 단위)\n·주사료 연 250만/50회\n·MRI·MRA 연 300만원\n공제 MAX(3만원, 30%)',
+      '중증 특약에서만 보상(산정특례 대상 질환)\n·연 350만/50회 ·250만/50회 ·300만원\n공제 MAX(3만원, 30%)\n비중증: 도수·체외충격파·주사 전면 면책,\nMRI만 연 200만원(공제 MAX(5만원,50%))'] },
+    { item: '연간 보장한도', v: [
+      '입원 3천만원(질병·상해 합산)\n통원 회당 10만/처방 5만원\n보장기간 365일·통원 30회',
+      '입원 5천만원\n통원 회당 30만원\n통원 연 180회',
+      '입원 5천만원\n통원 회당 30만원\n통원 연 180회',
+      '급여 5천만원 + 비급여 5천만원\n(각각 별도)',
+      '급여 5천만원 / 중증 5천만원 /\n비중증 1천만원 (각각 별도)'] },
+    { item: '상급병실료 차액', v: [
+      '2인실 이상 상급병실 50% 보상\n(상품별 상이)',
+      '차액의 50%\n1일 평균 10만원 한도',
+      '차액의 50%\n1일 평균 10만원 한도',
+      '차액의 50%\n1일 평균 10만원 한도',
+      '차액의 50%\n1일 평균 10만원 한도\n(중증·비중증 특약 각각 적용)'] },
+    { item: '항암제·항생제·\n희귀의약품 주사', v: [
+      '구분 없음(비급여 합산 보상)',
+      '구분 없음(비급여 합산 보상)',
+      '3대 주사료 한도(250만/50회) 적용 제외\n→ 기본계약(급여+비급여)에서 보상',
+      '3대 주사료 한도 적용 제외\n→ 상해·질병 비급여(70%)에서 보상',
+      '3대 주사료 한도 적용 제외\n→ 상해·질병 비급여(비중증 50%)에서 보상\n※ 비중증 주사 면책의 예외'] },
+    { item: '할인·할증', v: [
+      '없음',
+      '무사고 할인(2013.04 도입,\n직전 2년 무사고 10%)',
+      '무사고 할인\n(직전 2년 무사고 10%)',
+      '무사고 할인 10% +\n비급여 보험금 지급실적 5단계\n할인·할증(1~5단계, 2024.07 적용)',
+      '무사고 할인 10% +\n비급여 5단계 할인·할증\n(1단계 할인 ~ 5단계 400%)\n※ 산정특례·장기요양 1~2등급 제외'] },
+    { item: '재가입·전환 시 보장', v: [
+      '재가입 없음\n(계약 유지 시 가입 당시 약관)',
+      '재가입 시점 판매 상품으로 전환\n(1303 이전 계약은 재가입 조건 없음)',
+      '15년 주기 재가입\n재가입 시점 상품으로 변경',
+      '5년 주기 재가입\n재가입 시 보장 축소 가능',
+      '5년 주기 재가입\n2026.11.23부터 1·2세대(2013.03 이전)\n계약전환 할인(3년 50%)·선택형 할인특약 시행'] },
+    { item: '주요 면책·특이사항', v: [
+      '정신·행동장애, 임신·출산,\n선천성 뇌질환, 요실금 등 면책\n상해 365일·질병 180일 면책기간',
+      '정신·행동장애(F04~F99) 중 일부 급여만 보상\n임신·출산·불임(2년 내) 면책\n비응급 응급실 면책(1601~)',
+      '급여 확대(선천성 뇌질환·비만·불임 2년 후)\n비급여 미용·예방·불임 면책\n도수치료 질병 치료목적 50회',
+      '급여: 정신·행동장애 일부 보상,\n임신·출산(가입 280일 전) 보상\n비급여: 도수 10회 단위 심사,\n영양제는 허가사항 충족 시만',
+      '비중증: 근골격계 이학요법·체외충격파\n수반 일체 의료비, 일반 비급여 주사,\n신의료기술·첨단재생의료 면책\n중증: 산정특례 질환 외 치료는 비중증 적용'] },
+    { item: '심사 확인 포인트', v: [
+      '① 증권상 약관 판·보상률·갱신주기 확인\n② 비표준화이므로 통합보험 특약 여부 확인\n③ 2009.08~09 경과계약은 개별 약관',
+      '① 가입 연월로 판(0910/1304/1509/1601) 특정\n② 표준형·선택형Ⅰ·Ⅱ 구분\n③ 통원 공제 ‘정액 vs 20% 중 큰 금액’',
+      '① 3대 비급여 특약 가입 여부(미가입 시 면책)\n② 표준형·선택형Ⅱ 구분\n③ 도수치료 50회 한도',
+      '① 급여/비급여 각 5천만원 별도 계산\n② 도수 10회 단위 지급 요건\n③ 비급여 할인·할증 등급 확인',
+      '① 산정특례(중증) 해당 여부 = 특약1/2 적용 갈림\n② 비중증 1천만/입원 50%/통원 일당 20만\n③ 항암·항생·희귀 주사는 비중증 기본계약\n④ 중증 입원 자기부담 연 500만원 상한'] }
+  ];
+
+  const SOURCES = [
+    ['5세대 약관', '삼성 인터넷 급여 실손의료비보장보험(2605)[계약전환용](갱신형,무배당) 통합약관 2026.09.23 개정 (LY0849001(260504)) — direct.samsunglife.com 상품공시 PDF'],
+    ['5세대 특약', '비중증비급여실손의료비보장특약D[계약전환용] / 중증비급여실손의료비보장특약D[계약전환용] (같은 통합약관 수록)'],
+    ['5세대 상품', '생명보험협회 공시실(pub.insure.or.kr) 실손의료보험 상품목록 — 삼성 급여 실손의료비보장보험(2605)(갱신형,무배당)'],
+    ['세대 기준', '금융위원회 4세대 실손의료보험 출시 보도자료(2021.06.29), 5세대 실손 및 계약전환·선택형 할인 제도 발표(2026.05.06 / 2026.11.19, 시행 2026.11.23)'],
+    ['1세대 기준', '생명보험협회 공시실 ‘1세대 실손의료보험(~’09.9월)’ 대표상품 기준 — 입원 연 3천만, 통원 회당 10만/처방 5만, 자기부담 입원 20%·통원 5천원+20%, 갱신 3년'],
+    ['2~3세대 기준', '표준화 실손 표준약관(2009.10 시행)·착한실손(2017.04 시행) 구조 및 공시·약관 해설 자료'],
+    ['주의', '1세대는 비표준화 세대이므로 회사·상품·가입시기별 보장이 다릅니다. 표의 1세대 값은 생보협회 공시 대표상품 기준이며, 실제 심사는 증권·가입 당시 약관 원문으로 확인해야 합니다.']
+  ];
+
+  /* ── 3대 비급여: 기본계약 전환 ── */
+  const FLOW = [
+    {
+      title: '항암제 주사 (비급여)', code: '420 · 430', tag: '기본계약 전환',
+      tags: ['항암', '주사', '전환', '420', '421', '429', '431', '439'],
+      desc: '종양용약(420)·조직세포 치료 및 진단목적 제제(430) 주사는 3대 비급여 주사료 특약의 한도(연 250만/50회)에서 제외되고 기본계약(3세대) 또는 상해·질병 비급여(4·5세대)에서 보상됩니다.',
+      rows: [
+        ['3세대(1704)', '기본계약 비급여(표준형 80% / 선택형Ⅱ 80%)'],
+        ['4세대(2107)', '상해·질병 비급여 70%'],
+        ['5세대 중증(특약1)', '상해·질병 비급여 70% (통원 MAX(3만, 30%))'],
+        ['5세대 비중증(특약2)', '면책 예외 → 상해·질병 비급여 50% (통원 MAX(5만, 50%))']
+      ],
+      codes: ['421', '429', '431', '439']
+    },
+    {
+      title: '항생제 주사 (항진균제 포함)', code: '610 · 620 · 641', tag: '기본계약 전환',
+      tags: ['항생', '항진균', '주사', '전환', '610', '611', '612', '613', '614', '615', '616', '617', '618', '619', '621', '629', '641'],
+      desc: '항생물질제제(610)·화학요법제(620)·기생동물의약품(640, 항원충제 641) 주사는 주사료 특약 한도에서 제외되고 기본계약 비급여에서 보상됩니다.',
+      rows: [
+        ['3세대(1704)', '기본계약 비급여(표준형 80% / 선택형Ⅱ 80%)'],
+        ['4세대(2107)', '상해·질병 비급여 70%'],
+        ['5세대 중증(특약1)', '상해·질병 비급여 70%'],
+        ['5세대 비중증(특약2)', '면책 예외 → 상해·질병 비급여 50%']
+      ],
+      codes: ['611', '612', '613', '614', '615', '616', '617', '618', '619', '621', '622', '623', '624', '625', '629', '641']
+    },
+    {
+      title: '희귀의약품 주사', code: '식약처 지정', tag: '기본계약 전환',
+      tags: ['희귀', '희귀의약품', 'kodc', '주사', '전환'],
+      desc: '식약처 「희귀의약품 지정에 관한 규정」에 정한 의약품과 한국희귀의약품센터(www.kodc.co.kr) 약제목록의 약제는 주사료 특약 한도에서 제외되어 기본계약 비급여에서 보상됩니다.',
+      rows: [
+        ['3세대(1704)', '기본계약 비급여에서 보상'],
+        ['4세대(2107)', '상해·질병 비급여 70%'],
+        ['5세대 중증(특약1)', '상해·질병 비급여 70%'],
+        ['5세대 비중증(특약2)', '면책 예외 → 상해·질병 비급여 50%']
+      ],
+      codes: []
+    },
+    {
+      title: '한도에 영향 없음', code: '심사 포인트', tag: '한도 계산',
+      tags: ['한도', '250만', '50회', '주사', '계산'],
+      desc: '위 3종 주사는 3대 비급여 주사료 한도(연 250만원/50회)를 소진하지 않습니다. 한도 소진 계산에서 제외하고, 같은 주사행위에 수반된 처치·재료비까지 함께 판단합니다.',
+      rows: [], codes: []
+    }
+  ];
+
+  /* ── 3대 비급여: 면책 ── */
+  const EXEMPT = [
+    {
+      title: '호르몬 투여·보신용 투약·의약외품', tag: '전 세대', tags: ['호르몬', '보신', '의약외품', '주사', '면책', '외모'],
+      body: '호르몬 투여, 보신용 투약, 의약외품, 외모개선 목적의 주사는 모든 세대에서 면책입니다. 진단명·처방 목적을 진료기록으로 확인합니다.',
+      src: '3·4·5세대 공통 면책 조항'
+    },
+    {
+      title: '영양제·비타민 주사', tag: '세대별', tags: ['영양', '비타민', '주사', '면책', '허가사항'],
+      body: '3세대: 질병·상해 치료목적 투여 시 보상. 4세대·5세대 중증: 약사법령상 허가·신고사항(효능·효과·용법·용량) 또는 고시·비급여 사용승인 기준을 충족할 때만 보상. 5세대 비중증: 일반 영양·비타민 주사는 면책(항암·항생·희귀만 예외).',
+      src: '2605 통합약관 비중증특약 주사료 면책 조항'
+    },
+    {
+      title: '일반 비급여 주사 일체', tag: '5세대 비중증', tags: ['주사', '신경차단', '면책', '비중증', '행위료', '치료재료'],
+      body: '허가사항대로 투여한 영양·비타민 주사와 신경차단 등 일반 비급여 주사는 행위료·약제·치료재료 전부 면책입니다. 항암제·항생제(항진균 포함)·희귀의약품 주사만 예외로 보상합니다.',
+      src: '비중증비급여실손의료비보장특약D'
+    },
+    {
+      title: '도수치료·체외충격파·증식치료 — 목적 외', tag: '전 세대', tags: ['도수', '체외충격파', '증식', '피로회복', '체형교정', '면책'],
+      body: '피로회복·체형교정 등 치료 목적이 아닌 경우, 자동차보험·산재보험에서 보상받은 경우는 면책입니다. 질병 치료목적 여부와 사고 경위를 확인합니다.',
+      src: '3·4·5세대 공통 면책 조항'
+    },
+    {
+      title: '10회 이후 증상 개선 미확인', tag: '4세대·5세대 중증', tags: ['도수', '10회', '호전', '증상개선', '면책', '이학요법'],
+      body: '최초 10회 치료 후 객관적 검사결과상 증상 개선·병변 호전이 확인되지 않으면 추가 10회 단위는 지급하지 않습니다. 5세대 중증은 산정특례 질환 및 의학적 인과관계가 분명한 합병증만 해당하며, 치료 완료 후 기능회복 목적은 제외합니다.',
+      src: '4세대 3대비급여 / 2605 중증특약'
+    },
+    {
+      title: '근골격계 이학요법 수반 일체 의료비', tag: '5세대 비중증', tags: ['도수', '이학요법', '신장분사', 'fims', '무통증', '체외충격파', '면책', '약제', '주사비'],
+      body: '근골격계 이학요법(도수·증식·신장분사·FIMS·무통증신호요법 등)과 체외충격파 치료행위에 수반된 행위료·치료재료·약제·주사비는 전면 면책입니다. 같은 날 시행된 관련 처치비도 함께 부지급합니다.',
+      src: '비중증비급여실손의료비보장특약D'
+    },
+    {
+      title: 'MRI·MRA — 검사 목적·치과·한방', tag: '전 세대', tags: ['mri', 'mra', '건강검진', '치과', 'k00', 'k08', '한방', '면책'],
+      body: '의사 임상적 소견과 무관한 검사·건강검진 목적, 치과(K00~K08, 안면부 골절 제외)·한방(한의사 행위) 비급여, 자보·산재 중복은 면책입니다. 한도는 3·4세대·5세대 중증 연 300만원, 5세대 비중증 연 200만원입니다.',
+      src: '3대 비급여 MRI·MRA 조항'
+    },
+    {
+      title: '신의료기술 — 급여·비급여 결정 전', tag: '5세대 비중증', tags: ['신의료기술', '제한적', '혁신', '평가유예', '즉시진입', '면책'],
+      body: '급여·비급여 결정 고시 전 신의료기술, 제한적·혁신·평가유예·즉시진입 의료기술은 보상하지 않습니다. 3·4세대도 약관상 비급여 보상 제외 항목으로 처리합니다.',
+      src: '2605 비중증특약 면책 조항'
+    },
+    {
+      title: '첨단재생의료', tag: '5세대 비중증', tags: ['첨단재생', '줄기세포', '면책'],
+      body: '첨단재생의료 일체는 면책입니다. 치료재료·시술비 모두 해당됩니다.',
+      src: '2605 비중증특약 면책 조항'
+    },
+    {
+      title: 'NECA 재평가 D등급 (권고하지 않음)', tag: '5세대 비중증', tags: ['neca', 'd등급', '재평가', '권고하지않음', '면책', '2개월'],
+      body: '한국보건의료연구원(NECA) 의료기술 재평가 결과 ‘권고하지 않음(D등급)’으로 공개된 후 2개월이 지난 시술은 면책입니다. 공개 시점을 확인해 적용합니다.',
+      src: '2605 비중증특약 면책 조항'
+    },
+    {
+      title: '미용·예방 목적', tag: '전 세대', tags: ['미용', '쌍꺼풀', '지방흡입', '시력교정', '예방', '건강검진', '면책'],
+      body: '미용 목적 치료, 본인이 희망한 예방진료·건강검진은 비급여 면책입니다. 다만 검진에서 이상소견이 확인된 후의 추가검사는 보상될 수 있습니다.',
+      src: '전 세대 공통'
+    },
+    {
+      title: '관리급여로 산정된 도수치료 (2026.07~)', tag: '전 세대', tags: ['관리급여', '도수', '95%', '급여', '2026'],
+      body: '치료목적 도수치료가 관리급여(건강보험 본인부담 95%)로 산정되면 비급여가 아니므로 급여 통원 산식으로 계산합니다. 5세대 급여 통원은 건보 본인부담률(95%)이 공제에 연동됩니다.',
+      src: '2026.07 관리급여 시행 / 2605 약관'
+    }
+  ];
+
+  /* ── 약제 분류번호 (1704 비급여 주사료 특약 → 기본계약 보상) ── */
+  const DRUGS = [
+    ['항암제', '종양용약(420)', '항악성종양제', '421', ''],
+    ['항암제', '종양용약(420)', '기타종양치료제', '429', ''],
+    ['항암제', '조직세포 치료 및 진단목적 제제(430)', '방사성 의약품', '431', ''],
+    ['항암제', '조직세포 치료 및 진단목적 제제(430)', '기타 조직세포 치료 및 진단', '439', ''],
+    ['항생제', '항생물질 제제(610)', '주로 그람양성균 작용', '611', ''],
+    ['항생제', '항생물질 제제(610)', '주로 그람음성균 작용', '612', ''],
+    ['항생제', '항생물질 제제(610)', '주로 항산성균 작용', '613', ''],
+    ['항생제', '항생물질 제제(610)', '주로 그람양성균·리케치아·비루스에 작용', '614', ''],
+    ['항생제', '항생물질 제제(610)', '주로 그람음성균·리케치아·비루스에 작용', '615', ''],
+    ['항생제', '항생물질 제제(610)', '주로 곰팡이 원중에 작용', '616', '항진균제 포함'],
+    ['항생제', '항생물질 제제(610)', '주로 악성종양에 작용', '617', ''],
+    ['항생제', '항생물질 제제(610)', '주로 그람양성·음성균에 작용', '618', ''],
+    ['항생제', '항생물질 제제(610)', '기타 항생물질제제', '619', ''],
+    ['항생제', '화학요법제(620)', '설파제', '621', ''],
+    ['항생제', '화학요법제(620)', '항결핵제', '622', ''],
+    ['항생제', '화학요법제(620)', '치나제', '623', ''],
+    ['항생제', '화학요법제(620)', '구충제', '624', ''],
+    ['항생제', '화학요법제(620)', '후란계 제제', '625', ''],
+    ['항생제', '화학요법제(620)', '기타 화학요법제', '629', ''],
+    ['항생제', '기생동물의약품(640)', '항원충제', '641', '']
+  ];
+
+  /* ── 담보별 보상방식 ── */
+  const COVERS = [
+    ['개인 실손', '1세대 실손(표준화 이전, ~2009.09)', '실손형', '적용', '불가(실제 손해 한도)', '비표준화: 증권·가입 당시 약관의 보상률·공제·갱신주기 확인. 2009.08~09 경과계약 주의', '생보협회 1세대 대표상품'],
+    ['개인 실손', '2세대 실손(2009.10~2017.03)', '실손형', '적용', '불가', '표준형/선택형Ⅰ·Ⅱ 구분, 판(0910/1304/1509/1601)별 통원 공제 방식 확인', '표준화 약관'],
+    ['개인 실손', '3세대 실손(2017.04~2021.06)', '실손형', '적용', '불가', '3대 비급여 특약 가입 여부, 표준형/선택형Ⅱ 구분, 도수 50회 한도', '착한실손 표준약관'],
+    ['개인 실손', '4세대 실손(2021.07~2026.05.05)', '실손형', '적용', '불가', '급여/비급여 각 5천만원 별도, 도수 10회 단위 심사, 비급여 할인·할증 등급', '4세대 표준약관'],
+    ['개인 실손', '5세대 실손(2026.05.06~)', '실손형', '적용', '불가', '산정특례(중증) 해당 여부가 특약1/2를 가름. 비중증 도수·주사 면책, MRI 200만', '삼성 2605 약관'],
+    ['구 통합보험', '통합보험(종합보장) 내 질병·상해의료비 특약', '실손형', '적용(특약 한정)', '주계약과 별개', '주계약의 정액형 담보와 분리. 특약 가입금액·공제 확인. 주계약 해지 시 특약 효력 확인', '1·2세대 통합형'],
+    ['단체', '단체실손(회사 단체보험)', '실손형', '적용', '불가', '개인실손 중지·재개 특약 적용 여부, 단체계약 보상 우선 여부, 퇴사 후 승계', '단체실손 표준약관'],
+    ['노후·간편', '노후실손(유병력자·고연령 전용)', '실손형', '적용', '불가', '3대 비급여 자기부담 50%, 급여 20%·비급여 30%, 재가입 주기 확인', '노후실손 표준약관'],
+    ['노후·간편', '간편실손(간편고지)', '실손형', '적용', '불가', '고지 위반 시 해지·부지급 여부, 보장 개시 후 90일/1년 제한 확인', '간편실손 약관'],
+    ['정액', '입원일당(질병·상해)', '정액형', '미적용', '가능', '입원일수 산정(퇴원일 제외), 1회 입원 180일 한도, 감액기간', '별도 지급'],
+    ['정액', '수술비 특약(질병·상해·N종)', '정액형', '미적용', '가능', '수술 1회당 1건 원칙, 동시 2개 수술 처리, 수술분류표(1~5종) 확인', '별도 지급'],
+    ['정액', '질병·상해 입원일당(단체·정액형)', '정액형', '미적용', '가능', '실손 입원비와 무관하게 지급. 중복 가입 시 모두 지급', '별도 지급'],
+    ['정액', '암·뇌·심장 진단비', '정액형', '미적용', '가능', '최초 1회 진단 확정 기준, 경계성·제자리암 지급률, 타사 진단비와 중복 지급', '별도 지급'],
+    ['정액', '골절·화상 진단비', '정액형', '미적용', '가능', '부위별·등급별 지급액, 진단 시점, 깁스·수술 여부', '별도 지급'],
+    ['정액', '후유장해(상해·질병)', '정액형', '미적용', '가능', '장해율 3% 이상, 장해진단서(6개월 후), 지급률 적용', '별도 지급'],
+    ['정액', '사망보험금', '정액형', '미적용', '가능', '재해/질병 구분, 면책기간, 수익자 지정', '별도 지급'],
+    ['정액', '치아보험(보철·충전·크라운)', '정액형', '미적용', '가능', '치료별 정액, 연간 횟수 제한, 면책기간(보철 90일 등)', '별도 지급'],
+    ['운전자', '운전자보험(교통사고처리지원금·변호사선임비·벌금)', '정액형', '미적용', '가능', '자동차보험 대인·대물과 별개, 이륜차 운전 제외 특약 여부, 음주·무면허 면책', '운전자보험 약관'],
+    ['배상', '일상생활배상책임(일배책)', '배상형', '미적용', '가능', '자기부담금, 대인/대물 한도, 급발진·동물·시설물 특약', '배상책임 약관'],
+    ['자동차', '자동차보험 자기신체사고·자동차상해', '실손형(자보)', '별도 조정', '제한', '자보 우선 보상, 실손은 자보 보상 후 본인부담분만. 부상급수·과실상계 확인', '자보 vs 실손'],
+    ['공적', '산재보험', '실손형(공적)', '별도 조정', '제한', '산재 승인 시 요양급여는 실손 면책, 산재 미적용 본인부담만 실손 보상', '산재보험법'],
+    ['공적', '건강보험 본인부담상한제', '공적 환급', '해당 없음', '제한', '연말 환급금은 실손 청구 대상 아님(이미 부담한 금액 환급). 청구 시점 확인', '본인부담상한제'],
+    ['확인', '어린이보험(질병·상해의료비 특약)', '실손형/정액형 혼재', '특약별 확인', '특약별', '같은 증권에서 실손형 특약은 비례, 정액형은 별도. 부모 계약자 여부 확인', '상품별 약관']
+  ];
+
+  const PRINCIPLES = [
+    '실손형(실제 발생한 의료비를 보상) = 비례보상 대상. 여러 계약이 있어도 지급 총액은 실제 손해액을 넘지 않습니다.',
+    '정액형(입원일당·수술비·진단비·후유장해·사망 등) = 손해액과 무관하게 약관 정액 지급. 실손 지급액과 별도로, 중복 가입 시 모두 지급됩니다.',
+    '배상형(일배책)·운전자보험 = 제3자에 대한 배상·형사비용 보상. 실손 비례보상과 무관합니다.',
+    '자동차보험·산재보험 = 공적·특별계정 보상이 우선. 실손은 자보/산재에서 보상되지 않은 본인부담분만 보상합니다.',
+    '건보 본인부담상한제 환급금 = 이미 환급된 금액은 실제 손해가 아니므로 실손 청구 대상에서 제외합니다.'
+  ];
+
+  /* ── KCD 빈출 코드 ── */
+  const KCD = [
+    ['K00', '치아의 발육 및 맹출 장애', '치과', '급여 치료는 보상, 비급여(보철·교정) 면책'],
+    ['K00.0', '무치증', '치과', ''], ['K00.1', '과잉치', '치과', ''],
+    ['K00.2', '치아의 크기 및 형태의 이상', '치과', ''], ['K00.3', '반점치', '치과', '미용 목적 치료는 면책'],
+    ['K00.4', '치아의 형성장애', '치과', ''], ['K00.5', '유전성 치아구조 이상', '치과', ''],
+    ['K00.6', '치아의 맹출장애', '치과', ''], ['K00.7', '치아맹출증후군', '치과', ''],
+    ['K00.8', '기타 치아의 발육장애', '치과', ''], ['K00.9', '상세불명의 치아의 발육장애', '치과', ''],
+    ['K01', '매몰치 및 함몰치', '치과', ''], ['K01.0', '매몰치', '치과', ''], ['K01.1', '함몰치', '치과', ''],
+    ['K02', '치아우식', '치과', '충전·근관치료는 급여 보상, 크라운·인레이는 비급여 여부 확인'],
+    ['K02.0', '법랑질의 우식', '치과', ''], ['K02.1', '상아질의 우식', '치과', ''],
+    ['K02.2', '시멘트질의 우식', '치과', ''], ['K02.3', '정지성 치아우식', '치과', ''],
+    ['K02.4', '치아파괴증', '치과', ''], ['K02.5', '치수노출을 동반한 치아우식', '치과', ''],
+    ['K02.8', '기타 치아우식', '치과', ''], ['K02.9', '상세불명의 치아우식', '치과', ''],
+    ['K03', '치아경조직의 기타 질환', '치과', ''],
+    ['K03.0', '치아의 마모', '치과', '교모·마모는 치료목적 확인'], ['K03.1', '치아의 마멸', '치과', ''],
+    ['K03.2', '치아의 미란', '치과', ''], ['K03.3', '병적 치아흡수', '치과', ''],
+    ['K03.4', '치근경화증', '치과', ''], ['K03.5', '치아고정증', '치과', ''],
+    ['K03.6', '치아의 침착물', '치과', '스케일링 등 예방·미용 목적은 면책'],
+    ['K03.7', '치아경조직의 교합성 변화', '치과', ''],
+    ['K03.8', '기타 명시된 치아경조직의 질환', '치과', ''], ['K03.9', '상세불명의 치아경조직의 질환', '치과', ''],
+    ['K04', '치수 및 근첨주위 조직의 질환', '치과', '근관치료(신경치료) 급여 보상 빈출'],
+    ['K04.0', '치수염', '치과', ''], ['K04.1', '치수괴사', '치과', ''], ['K04.2', '치수변성', '치과', ''],
+    ['K04.3', '치수의 이상형성', '치과', ''], ['K04.4', '급성 치수기원의 근첨주위 치주염', '치과', ''],
+    ['K04.5', '만성 근첨주위 치주염', '치과', ''], ['K04.6', '치수기원의 근첨주위 농양', '치과', ''],
+    ['K04.7', '치수기원이 아닌 근첨주위 농양', '치과', ''], ['K04.8', '치근낭', '치과', ''],
+    ['K04.9', '치수 및 근첨주위 조직의 기타 및 상세불명의 질환', '치과', ''],
+    ['K05', '치은염 및 치주질환', '치과', '스케일링·잇몸치료 급여/비급여 구분'],
+    ['K05.0', '급성 치은염', '치과', ''], ['K05.1', '만성 치은염', '치과', ''],
+    ['K05.2', '급성 치주염', '치과', ''], ['K05.3', '만성 치주염', '치과', ''],
+    ['K05.4', '치주증', '치과', ''], ['K05.5', '기타 치주질환', '치과', ''], ['K05.6', '상세불명의 치주질환', '치과', ''],
+    ['K06', '치은 및 무치악 치조융선의 기타 장애', '치과', ''],
+    ['K06.0', '치은퇴축', '치과', ''], ['K06.1', '치은비대', '치과', ''],
+    ['K06.2', '외상에 의한 치은 및 무치악 치조융선의 병변', '치과', ''],
+    ['K06.8', '기타 명시된 치은 및 무치악 치조융선의 장애', '치과', ''],
+    ['K06.9', '상세불명의 치은 및 무치악 치조융선의 장애', '치과', ''],
+    ['K07', '치아얼굴 이상(부정교합 포함)', '치과', '교정치료는 비급여 면책 원칙'],
+    ['K07.0', '턱크기의 이상', '치과', ''], ['K07.1', '턱-머리뼈바닥의 관계 이상', '치과', ''],
+    ['K07.2', '치아활의 관계 이상', '치과', ''], ['K07.3', '치아위치의 이상', '치과', ''],
+    ['K07.4', '상세불명의 부정교합', '치과', ''], ['K07.5', '치아얼굴의 기능이상', '치과', ''],
+    ['K07.6', '턱관절장애', '치과', '급여 치료(물리치료·약물)와 비급여(교합안정장치) 구분'],
+    ['K07.8', '기타 치아얼굴 이상', '치과', ''], ['K07.9', '상세불명의 치아얼굴 이상', '치과', ''],
+    ['K08', '치아 및 지지구조의 기타 장애', '치과', '발치·임플란트 관련. 임플란트는 비급여 면책(예외 확인)'],
+    ['K08.0', '치아의 탈락', '치과', ''], ['K08.1', '치아의 상실', '치과', ''],
+    ['K08.2', '무치악 치조융선의 위축', '치과', ''], ['K08.3', '잔존 유치', '치과', ''],
+    ['K08.8', '기타 명시된 치아 및 지지구조의 장애', '치과', '치통 NOS, 치조융선 비대'],
+    ['K08.9', '상세불명의 치아 및 지지구조의 장애', '치과', ''],
+
+    ['K60', '항문 및 직장의 열창 및 누공', '직장·항문', '입원·수술 빈출. 3대 비급여 아님(일반 비급여)'],
+    ['K60.0', '급성 항문열창', '직장·항문', ''], ['K60.1', '만성 항문열창', '직장·항문', ''],
+    ['K60.2', '상세불명의 항문열창', '직장·항문', ''], ['K60.3', '항문누공', '직장·항문', ''],
+    ['K60.4', '직장누공', '직장·항문', ''], ['K60.5', '항문직장누공', '직장·항문', ''],
+    ['K61', '항문 및 직장의 농양', '직장·항문', '절개·배농은 급여/비급여 구분'],
+    ['K61.0', '항문농양', '직장·항문', ''], ['K61.1', '직장농양', '직장·항문', ''],
+    ['K61.2', '항문직장농양', '직장·항문', ''], ['K61.3', '궁둥항문와의 농양', '직장·항문', ''],
+    ['K61.4', '항문직장중격의 농양', '직장·항문', ''],
+    ['K62', '항문 및 직장의 기타 질환', '직장·항문', '출혈·폴립은 내시경·수술 여부 확인'],
+    ['K62.0', '항문폴립', '직장·항문', ''], ['K62.1', '직장폴립', '직장·항문', ''],
+    ['K62.2', '항문탈출', '직장·항문', ''], ['K62.3', '직장탈출', '직장·항문', ''],
+    ['K62.4', '항문 및 직장의 협착', '직장·항문', ''], ['K62.5', '항문 및 직장의 출혈', '직장·항문', ''],
+    ['K62.6', '항문 및 직장의 궤양', '직장·항문', ''], ['K62.7', '방사선에 의한 직장염', '직장·항문', ''],
+    ['K62.8', '기타 명시된 항문 및 직장의 질환', '직장·항문', ''], ['K62.9', '상세불명의 항문 및 직장의 질환', '직장·항문', ''],
+    ['K63', '창자의 기타 질환', '직장·항문', ''],
+    ['K63.0', '창자의 농양', '직장·항문', ''], ['K63.1', '창자의 천공(비외상성)', '직장·항문', ''],
+    ['K63.2', '창자의 누공', '직장·항문', ''], ['K63.3', '창자의 궤양', '직장·항문', ''],
+    ['K63.4', '장하수', '직장·항문', ''], ['K63.5', '결장의 폴립', '직장·항문', '용종절제술 급여/비급여 구분'],
+    ['K63.8', '기타 명시된 창자의 질환', '직장·항문', ''], ['K63.9', '상세불명의 창자의 질환', '직장·항문', ''],
+    ['K64', '치질 및 항문주위의 정맥혈전증', '직장·항문', '수술(치핵절제) 입원 빈출. 3대 비급여 아님'],
+    ['K64.0', '첫째도 치질', '직장·항문', ''], ['K64.1', '둘째도 치질', '직장·항문', ''],
+    ['K64.2', '셋째도 치질', '직장·항문', ''], ['K64.3', '넷째도 치질', '직장·항문', ''],
+    ['K64.4', '항문주위의 정맥혈전증', '직장·항문', ''], ['K64.5', '항문주위의 정맥류', '직장·항문', ''],
+    ['K64.8', '기타 명시된 치질 및 항문주위의 정맥혈전증', '직장·항문', ''],
+    ['K64.9', '상세불명의 치질 및 항문주위의 정맥혈전증', '직장·항문', ''],
+
+    ['F04', '기질성 기억상실증후군', '정신', '보상(급여)'],
+    ['F05', '섬망', '정신', '면책 — 3세대 보상목록(F04~F09) 외'],
+    ['F06', '뇌손상·뇌기능장애·신체질병으로 인한 기타 정신장애', '정신', '보상(급여)'],
+    ['F07', '뇌질환·뇌손상 및 뇌기능장애로 인한 성격 및 행동장애', '정신', '보상(급여)'],
+    ['F09', '상세불명의 기질성 또는 증상성 정신장애', '정신', '보상(급여)'],
+    ['F20', '조현병', '정신', '보상(급여)'], ['F22', '망상장애', '정신', '보상(급여)'],
+    ['F23', '급성 및 일과성 정신병적 장애', '정신', '면책 — 3세대 보상목록(F20~F29) 외'],
+    ['F25', '조현정동장애', '정신', '보상(급여)'], ['F29', '상세불명의 비기질성 정신병', '정신', '보상(급여)'],
+    ['F30', '조증삽화', '정신', '보상(급여)'], ['F31', '양극성 정동장애', '정신', '보상(급여)'],
+    ['F32', '우울삽화', '정신', '보상(급여)'], ['F33', '재발성 우울장애', '정신', '보상(급여)'],
+    ['F34', '지속성 기분장애', '정신', '보상(급여)'], ['F39', '상세불명의 기분장애', '정신', '보상(급여)'],
+    ['F40', '공포성 불안장애', '정신', '보상(급여)'], ['F41', '기타 불안장애', '정신', '보상(급여)'],
+    ['F42', '강박장애', '정신', '보상(급여)'], ['F43', '심한 스트레스에 대한 반응 및 적응장애', '정신', '보상(급여)'],
+    ['F44', '해리성 장애', '정신', '보상(급여)'], ['F45', '신체형 장애', '정신', '보상(급여)'],
+    ['F48', '기타 신경성 장애', '정신', '보상(급여)'],
+    ['F50', '섭식장애', '정신', '면책 — 3세대 보상목록 외'],
+    ['F51', '비기질성 수면장애', '정신', '보상(급여)'],
+    ['F60', '특정 인격장애', '정신', '면책 — 3세대 보상목록 외'],
+    ['F90', '과다운동성 장애(ADHD)', '정신', '보상(급여)'],
+    ['F98', '기타 행동 및 정서장애(소아·청소년기 발병)', '정신', '보상(급여)']
+  ];
+
+  const KCD_NOTE = '1세대는 정신·행동장애 전면 면책, 2세대는 1601판부터 일부 급여 보상, 3~5세대는 F04~F09·F20~F29·F30~F39·F40~F48·F51·F90~F98의 급여 부분만 보상합니다. 목록 밖 F코드(예: F05·F23·F50·F60)는 면책입니다. 5세대는 태아 가입 시 F80~F89(정신발달장애)을 18세까지 보상합니다.';
+
+  /* ── 제도·심사 카드 ── */
+  const NOTES4 = [
+    {
+      title: '건강보험 본인부담상한제', tag: '제도', tags: ['본인부담상한제', '환급', '상한', '건보', '공제'],
+      body: '연간 본인부담 총액이 소득분위별 상한액을 넘으면 초과분을 환급합니다. 환급금은 ‘이미 부담한 금액의 반환’이므로 실제 손해가 아니어서 실손 청구 대상이 아닙니다.\n· 청구 시점: 환급 결정 전에 실손 청구가 들어오면 환급 예정액을 빼고 지급하거나, 지급 후 환급 확인 시 정산합니다.\n· 의료급여 수급자의 본인부담 보상제·상한제 환급 가능 금액도 보장대상에서 제외합니다.'
+    },
+    {
+      title: '자동차보험·산재보험 공제', tag: '제도', tags: ['자보', '산재', '공제', '중복', '자동차'],
+      body: '자보·산재에서 보상받은 금액(요양급여)은 실손 보장대상에서 제외합니다.\n· 자보: 대인배상 우선 보상, 실손은 자보 보상 후 본인부담분만. 부상급수·과실상계·향후치료비 포함 여부 확인.\n· 산재: 승인된 요양급여는 면책, 산재 미적용(불승인) 본인부담은 실손 보상.\n· 자보·산재 청구와 실손 청구가 겹치면 보상 순서와 정산 내역을 확인합니다.'
+    },
+    {
+      title: '상급병실료 차액', tag: '기준', tags: ['상급병실', '병실료', '차액', '1인실', '10만원'],
+      body: '요양급여 입원료 외에 상급병상 이용으로 추가 부담한 입원실 이용비용의 50%, 1일 평균 10만원 한도입니다.\n· 1일 평균 = 입원기간 비급여 병실료 총액 ÷ 총 입원일수 (건별 10만원 한도가 아님).\n· 1인실·특실이 상급병상 기준에 해당하는지, 병실료 외 식대·간병비가 섞이지 않았는지 확인.\n· 5세대는 중증·비중증 특약에 각각 조항이 있으므로 어느 특약으로 청구됐는지 확인합니다.'
+    },
+    {
+      title: '1·2세대 계약전환 할인 (2026.11.23 시행)', tag: '2026.11', tags: ['계약전환', '할인', '1세대', '2세대', '2026', '5세대'],
+      body: '2013.03 이전 가입·재가입 조건이 없는 1·2세대 계약이 5세대로 전환할 수 있습니다.\n· 전환 후 5세대 보장보험료의 50%를 3년간 할인 (신청 2026.11.23~2027.05.22).\n· 무심사 원칙(보장종목 확대·철회 후 재전환은 심사).\n· 전환일 전후 6개월 내 기존 계약(실손 외 담보 포함)을 해지·감액하면 할인이 종료됩니다.'
+    },
+    {
+      title: '선택형 할인특약 (옵션1·2·3)', tag: '2026.11', tags: ['선택형', '할인특약', '옵션', '면책', '자기부담'],
+      body: '기존 1·2세대 계약을 유지하면서 일부 보장을 포기하고 보험료를 할인받는 제도입니다.\n· 옵션1: 근골격계 물리치료·체외충격파·비급여 주사제 면책 — 약 15~20% 할인(전체 옵션 선택 시 1세대 37%·2세대 27% 수준).\n· 옵션2: 비급여 MRI/MRA 면책 — 약 2~4% 할인.\n· 옵션3: 급여·비급여 자기부담률 20%로 상향 — 약 9~17% 할인(90% 보장 계약이 80%로 변경).\n· 가입 1회 한정, 해지 후 재가입 불가. 면책 선택 시 해당 치료비는 전액 부지급이므로 청구 이력·치료계획을 확인합니다.'
+    },
+    {
+      title: '공통 심사 체크리스트', tag: '체크', tags: ['체크리스트', '심사', '순서', '서류', '한도'],
+      body: '① 세대 확정: 최초 가입일(2009.10 / 2017.04 / 2021.07 / 2026.05.06) 기준. 재가입·전환 이력이 있으면 적용 약관 확인.\n② 특약 가입 확인: 3대 비급여(3세대)·비급여(4세대)·중증/비중증(5세대). 미가입이면 해당 항목 전액 부지급.\n③ 5세대는 산정특례 대상 질환 여부를 먼저 판정 — 산정특례 질환 외 치료는 중증 특약에서 보상되지 않음.\n④ 면책 확인: 미용·예방·불임·비응급 응급실·자보/산재 중복·신의료기술 등. KCD와 치료 목적을 진료기록으로 확인.\n⑤ 공제·한도 순서: ① 보장대상 확정(감면·환급 제외) → ② 공제금액 차감 → ③ 연간 한도 → ④ 회당/일당 한도.\n⑥ 다수계약: 실손형 독립책임액 합계가 손해액을 넘으면 비례배분. 정액형은 별도 지급.\n⑦ 서류: 진료비 계산서·영수증(통원 일자별), 진료비 세부산정내역, 약제비 계산서, 입·퇴원확인서, 수술확인서, 진단서. 비급여 주사는 약제 분류번호 확인.'
+    }
+  ];
+
+  /* ── 대법원 판례 ── */
+  const LAWS = [
+    { no: '2023다283913', date: '2024.1.25', title: '본인부담상한제 환급금 공제', tag: '공제',
+      point: '면책 문구가 없는 1세대(2008년) 약관에서도 공단이 환급하는 상한액 초과금은 피보험자의 최종 부담액이 아니므로 실손 보상 대상에서 제외됩니다.',
+      apply: '상한제 환급액·환급 예정액을 보장대상에서 제외. 약관에 면책 문구가 없더라도 동일하게 처리합니다.',
+      tags: ['상한제', '환급', '1세대', '공제', '2008', '본인부담상한제'] },
+    { no: '2025다305643', date: '2025.1.23', title: '백내장 — 입원·통원 구분', tag: '입원',
+      point: '백내장 수술 시 실질적 입원치료 필요성이 인정되지 않으면 입원의료비가 아니라 통원의료비로만 보상됩니다.',
+      apply: '입원 필요성(실질적 입원치료·관찰)을 먼저 판단하고, 통원이면 회당 한도·공제를 적용합니다.',
+      tags: ['백내장', '입원', '통원', '실질', '안과'] },
+    { no: '2023다205487 / 2022다216688', date: '2024.12.24', title: '백내장 렌즈 가격조정·채권자대위', tag: '대위',
+      point: '다초점렌즈 가격을 낮추고 검사비를 올린 행위는 공동불법행위(기망)로 보기 어렵고, 피보험자가 자력이 있으면 보험사의 병원 상대 채권자대위는 각하됩니다.',
+      apply: '비급여 항목 간 가격 조정만으로 부지급하거나 대위 청구하지 않습니다. 피보험자 자력 유무를 확인합니다.',
+      tags: ['백내장', '채권자대위', '가격조정', '불법행위', '다초점', '자력'] },
+    { no: '2024다223949', date: '2024.7.11', title: '위험분담제 환급금', tag: '공제',
+      point: '제약사로부터 환급받는 면역항암제 약값은 피보험자가 실제 부담한 금액이 아니므로 실손 보상에서 제외됩니다(설명의무 대상도 아님).',
+      apply: '위험분담제(RSA) 환급분을 차감. 약제비 계산서와 환급 내역을 확인합니다.',
+      tags: ['위험분담제', 'RSA', '항암제', '환급', '약값', '면역항암제'] },
+    { no: '2023다240916', date: '2024.10.31', title: '지인할인 등 감면액', tag: '공제',
+      point: '병원이 지인할인 등으로 깎아준 금액은 실제로 부담하지 않은 금액이므로 실손 보상에서 제외됩니다.',
+      apply: '진료비 계산서의 감면·할인 금액을 확인해 보장대상에서 제외합니다.',
+      tags: ['지인할인', '감면', '할인', '보장대상', '병원'] },
+    { no: '2019다229202(전합) / 2021다304045', date: '2022.8.25 / 2023.2.23', title: '임의비급여·맘모톰 채권자대위', tag: '대위',
+      point: '피보험자가 자력이 있으면 보험사의 병원 상대 채권자대위는 각하되고, 소송을 목적으로 한 채권양도는 소송신탁으로 무효입니다.',
+      apply: '임의비급여라도 자력 있는 피보험자 건은 대위 청구하지 않고 약관대로 지급 여부를 판단합니다.',
+      tags: ['임의비급여', '맘모톰', '채권자대위', '소송신탁', '자력', '전합'] },
+    { no: '2023다241421', date: '2023.9.14', title: '정액담보 — 티눈절제술', tag: '정액',
+      point: '피부질환 면책 규정이 있는 질병수술비 특약에서는 티눈제거술이 보상 대상에서 제외됩니다.',
+      apply: '정액형 수술비도 특약의 면책 조항을 먼저 확인합니다.',
+      tags: ['티눈', '수술비', '정액형', '면책', '피부', '질병수술비'] },
+    { no: '2011다70794', date: '2013.7.26', title: '가입 전 발병 질병', tag: '보상',
+      point: '실손 약관이 ‘보험기간 중 발병’을 요구하지 않으면 책임개시 전에 발병한 질병이라도 보험기간 중 입·통원은 보상됩니다(고지의무 위반은 별론).',
+      apply: '약관 문언을 확인하고, 가입 전 발병이라는 이유만으로 일률 부지급하지 않습니다.',
+      tags: ['가입 전', '발병', '고지의무', '책임개시', '보험기간'] },
+    { no: '2004도6557', date: '2006.1.12', title: '입원의 실질 판단', tag: '입원',
+      point: '단순 체류시간(6시간)이 아니라 실질적 입원치료의 필요성과 관찰 필요성을 기준으로 입원 여부를 판단합니다.',
+      apply: '입원 판단은 체류시간이 아니라 치료·관찰·간호의 필요성으로 합니다.',
+      tags: ['입원', '체류시간', '6시간', '실질', '판례'] },
+    { no: '2023다282927', date: '2026.8.12', title: '향후치료비 합의 후 공무상요양비 반납', tag: '공제',
+      point: '향후치료비를 합의로 받은 뒤 공무상요양비로 반납한 금액은 실손이 보상하는 ‘실제 부담 의료비’가 아닙니다.',
+      apply: '반납액은 보장대상에서 제외합니다.',
+      tags: ['향후치료비', '공무상요양', '반납', '실제부담', '합의'] }
+  ];
+
+  /* ── 금감원 분쟁조정·소비자경보 ── */
+  const FCASES = [
+    { id: '비밸브 재건술·고주파치료', date: '2026.1. / 2024.1.5.', type: '분조위',
+      point: '3D-CT 등 협착 소견과 치료목적을 뒷받침하는 객관적 의무기록이 없으면 부지급.',
+      tags: ['비밸브', '코', '고주파', '3D-CT', '미용', '이비인후'] },
+    { id: '하지정맥류 치료', date: '2024.1.5.', type: '분조위',
+      point: '초음파에서 0.5초 이상 역류가 확인되지 않으면 외모개선 목적으로 보아 부지급.',
+      tags: ['하지정맥류', '초음파', '역류', '0.5초', '외모', '혈관'] },
+    { id: '무릎 골수흡인물 주사·전립선결찰술', date: '소비자경보 2024-13호 / 2026.1.', type: '소비자경보',
+      point: '복지부 고시 치료대상(KL 2~3등급·ICRS 3~4등급 등)을 충족하지 못하면 부지급. 3세대는 주사료 특약 미가입 시 기본형에서도 부지급.',
+      tags: ['골수흡인', '무릎', '전립선', '결찰술', '고시', '주사', 'KL', 'ICRS', '3세대'] },
+    { id: '특발성 저신장 성장호르몬제', date: '2026.1.', type: '분조위',
+      point: '2021.7 이후 약관에 면책이 명시되어 부지급.',
+      tags: ['성장호르몬', '저신장', '면책', '2021', '소아'] },
+    { id: '여성형 유방증 (N62)', date: '제2016-14호', type: '분조위',
+      point: '비급여라도 치료 목적이 입증되면 보상 인용.',
+      tags: ['N62', '여성형유방', '비급여', '치료목적', '인용'] },
+    { id: '유방암 절제 후 재건술', date: '제2012-21호', type: '분조위',
+      point: '비급여여도 치료 목적과 연속성이 입증되면 보상 인용.',
+      tags: ['유방암', '재건', '비급여', '치료목적', '인용'] },
+    { id: '도수치료·FIMS 입원', date: '제2016-12호 / 2025.3.', type: '분조위',
+      point: '증상 개선이 없는 반복 도수치료, 경과관찰이 필요 없는 FIMS 입원은 통원 한도 적용 또는 부지급.',
+      tags: ['도수', 'FIMS', '입원', '통원', '이학요법'] }
+  ];
+
+  /* ── 2026년 건강보험 본인부담상한액 ── */
+  const CAP2026 = {
+    title: '2026년 건강보험 본인부담상한액',
+    head: ['소득분위', '일반 입원·외래', '요양병원 120일 초과 입원'],
+    rows: [
+      ['1분위', '90만원', '143만원'],
+      ['2~3분위', '112만원', '181만원'],
+      ['4~5분위', '173만원', '245만원'],
+      ['6~7분위', '326만원', '404만원'],
+      ['8분위', '446만원', '580만원'],
+      ['9분위', '536만원', '698만원'],
+      ['10분위', '843만원', '1,096만원']
+    ],
+    excluded: '비급여·선별급여·전액본인부담·2~3인실 입원료는 상한제 합산에서 제외됩니다.',
+    apply: [
+      '연간 본인부담 총액이 소득분위별 상한액을 넘으면 초과분을 환급하며, 환급금은 실제 손해가 아니므로 실손 보장대상에서 제외합니다(대법원 2023다283913).',
+      '청구 시점에 환급이 확정되지 않았으면 환급 예정액을 빼고 지급하거나, 지급 후 환급이 확인되면 정산합니다.',
+      '의료급여 수급자의 본인부담 보상제·상한제 환급 가능 금액도 보장대상에서 제외합니다.'
+    ]
+  };
+
+  /* ── 참고 사이트 ── */
+  const REFS = [
+    ['대법원 종합법률정보', 'glaw.scourt.go.kr', '판례 원문·전문 검색 (사건번호로 조회)'],
+    ['국가법령정보센터', 'law.go.kr', '보험업법·자동차손해배상보장법·산재보험법 등 법령'],
+    ['생명보험협회 공시실', 'pub.insure.or.kr', '상품 공시·약관·실손 세대별 상품목록'],
+    ['금융감독원', 'fss.or.kr', '분쟁조정 신청·결정례, 소비자경보'],
+    ['한국보건의료연구원(NECA)', 'neca.re.kr', '의료기술 재평가 결과(권고 등급)'],
+    ['식약처 의약품안전나라', 'nedrug.mfds.go.kr', '약제명으로 의약품 분류번호 확인'],
+    ['한국희귀의약품센터', 'kodc.co.kr', '희귀의약품 지정·공급 약제목록']
+  ];
+
+  /* ══════════ 계산 엔진 ══════════ */
+
+  const DED_BASE = { '의원': 10000, '병원': 15000, '종합병원': 20000, '상급종합': 20000, '약국': 8000 };
+  const DED_MODERN = { '의원': 10000, '병원': 10000, '종합병원': 20000, '상급종합': 20000, '약국': 8000 };
+  const CAP_G3 = { physio: 3500000, inj: 2500000, mri: 3000000 };
+
+  function n(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : 0;
+    const x = Number(String(v == null ? '' : v).replace(/[^0-9.\-]/g, ''));
+    return isFinite(x) ? x : 0;
+  }
+  function r0(v) { return Math.round(n(v)); }
+
+  function emptyAmt() {
+    return { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0 };
+  }
+
+  const ROW_META = {
+    gi: { label: '급여 입원 본인부담금', kind: '급여', mode: 'in' },
+    bi: { label: '비급여 입원 의료비', kind: '비급여', mode: 'in' },
+    gt: { label: '급여 통원 1회 본인부담금', kind: '급여', mode: 'out' },
+    bt: { label: '비급여 통원 1회 의료비', kind: '비급여', mode: 'out' },
+    physio: { label: '3대 – 도수·체외충격파·증식(1회)', kind: '3대', mode: 'both' },
+    inj: { label: '3대 – 비급여 주사료(1회)', kind: '3대', mode: 'both' },
+    mri: { label: '3대 – MRI·MRA(1회)', kind: '3대', mode: 'both' },
+    onco: { label: '항암·항생·희귀의약품 주사', kind: '기본계약', mode: 'both' }
+  };
+
+  function calcGen(input) {
+    const gen = Number(input.gen) || 1;
+    const hosp = input.hosp || '종합병원';
+    const form = input.form === '선택형Ⅱ' ? '선택형Ⅱ' : '표준형';
+    const d2 = input.d2mode === 'max' ? 'max' : 'flat';
+    const severe = !!input.severe;
+    const nhirate = input.nhirate == null ? 0.2 : Math.max(0, Math.min(1, n(input.nhirate)));
+    const ytd = Math.max(0, n(input.ytd));
+    const a = Object.assign(emptyAmt(), input.amt || {});
+    Object.keys(a).forEach(function (k) { a[k] = Math.max(0, n(a[k])); });
+
+    const hBase = DED_BASE[hosp] != null ? DED_BASE[hosp] : 20000;
+    const hMod = DED_MODERN[hosp] != null ? DED_MODERN[hosp] : 20000;
+    const rateG = form === '선택형Ⅱ' ? 0.9 : 0.8;
+    const rows = [];
+    let giPay = 0, gtPay = 0;
+
+    function push(key, gross, deduct, cap, pay, notes, exempt) {
+      gross = r0(gross); deduct = r0(deduct); cap = r0(cap); pay = Math.max(0, r0(pay));
+      if (cap > 0 && gross - deduct > cap) pay = Math.min(pay, cap);
+      rows.push({
+        key: key, label: ROW_META[key].label, kind: ROW_META[key].kind, mode: ROW_META[key].mode,
+        gross: gross, deduct: Math.min(deduct, gross), cap: cap, pay: exempt ? 0 : pay,
+        exempt: !!exempt, notes: notes || []
+      });
+      return exempt ? 0 : pay;
+    }
+    function capped(key, gross, deduct, cap, notes) {
+      const base = Math.max(0, gross - deduct);
+      return push(key, gross, deduct, cap, Math.min(base, cap), notes);
+    }
+    function payRate(key, gross, deduct, rate, cap, notes) {
+      return push(key, gross, deduct, cap, Math.min(Math.max(0, gross - deduct) * rate, cap), notes);
+    }
+
+    if (gen === 1) {
+      giPay = push('gi', a.gi, a.gi * 0.2, 30000000, Math.min(a.gi * 0.8, 30000000),
+        ['자기부담 20%', '입원 연 3천만원 한도(질병·상해 합산)']);
+      gtPay = push('gt', a.gt, a.gt > 0 ? 5000 + Math.max(0, a.gt - 5000) * 0.2 : 0, 100000,
+        a.gt > 0 ? Math.min(Math.max(0, a.gt - 5000) * 0.8, 100000) : 0,
+        ['공제 5천원 + (공제 후) 20%', '회당 10만원 한도(처방 5만원)']);
+      push('bi', a.bi, a.bi * 0.2, Math.max(0, 30000000 - giPay), Math.min(a.bi * 0.8, Math.max(0, 30000000 - giPay)),
+        ['급여와 합산 보상(비급여 구분 없음)', '입원 한도 잔액 적용']);
+      const capOut = Math.max(0, 100000 - gtPay);
+      push('bt', a.bt, a.bt > 0 ? 5000 + Math.max(0, a.bt - 5000) * 0.2 : 0, capOut,
+        a.bt > 0 ? Math.min(Math.max(0, a.bt - 5000) * 0.8, capOut) : 0, ['통원 회당 한도 잔액 적용']);
+      ['physio', 'inj', 'mri', 'onco'].forEach(function (k) {
+        push(k, a[k], a[k] > 0 ? 5000 + Math.max(0, a[k] - 5000) * 0.2 : 0, capOut,
+          a[k] > 0 ? Math.min(Math.max(0, a[k] - 5000) * 0.8, capOut) : 0,
+          ['1세대는 3대 비급여 구분 없음 → 일반 비급여 통원으로 계산']);
+      });
+    } else if (gen === 2) {
+      const dOf = function (g) { return d2 === 'max' ? Math.max(hBase, g * 0.2) : Math.min(hBase, g); };
+      giPay = push('gi', a.gi, a.gi * (1 - rateG), 50000000, Math.min(a.gi * rateG, 50000000),
+        [form + ' · 급여 ' + Math.round(rateG * 100) + '%']);
+      gtPay = payRate('gt', a.gt, a.gt ? dOf(a.gt) : 0, rateG, 300000,
+        [d2 === 'max' ? '공제 MAX(정액, 20%)' : '공제 정액', '회당 30만원 한도']);
+      push('bi', a.bi, a.bi * 0.2, Math.max(0, 50000000 - giPay), Math.min(a.bi * 0.8, Math.max(0, 50000000 - giPay)),
+        ['비급여 80%(급여와 합산 한도)']);
+      const capOut = Math.max(0, 300000 - gtPay);
+      push('bt', a.bt, a.bt ? dOf(a.bt) : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? dOf(a.bt) : 0)) * 0.8, capOut),
+        ['비급여 통원 80%', '통원 한도 잔액 적용']);
+      ['physio', 'inj', 'mri', 'onco'].forEach(function (k) {
+        const dd = a[k] ? dOf(a[k]) : 0;
+        push(k, a[k], dd, capOut, Math.min(Math.max(0, a[k] - dd) * 0.8, capOut),
+          ['2세대는 3대 비급여 구분 없음 → 일반 비급여 통원(80%)으로 계산']);
+      });
+    } else if (gen === 3) {
+      giPay = push('gi', a.gi, a.gi * (1 - rateG), 50000000, Math.min(a.gi * rateG, 50000000),
+        [form + ' · 급여 ' + Math.round(rateG * 100) + '%']);
+      gtPay = payRate('gt', a.gt, a.gt ? hBase : 0, rateG, 300000,
+        ['공제 정액(의원 1만/병원 1.5만/상급·종합 2만)', '회당 30만원 한도']);
+      push('bi', a.bi, a.bi * 0.2, Math.max(0, 50000000 - giPay), Math.min(a.bi * 0.8, Math.max(0, 50000000 - giPay)),
+        ['비급여 80%(급여와 합산 한도)']);
+      const capOut = Math.max(0, 300000 - gtPay);
+      push('bt', a.bt, a.bt ? hBase : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? hBase : 0)) * 0.8, capOut),
+        ['비급여 통원 80%', '통원 한도 잔액 적용']);
+      ['physio', 'inj', 'mri'].forEach(function (k) {
+        const dd = a[k] ? Math.max(20000, a[k] * 0.3) : 0;
+        push(k, a[k], dd, CAP_G3[k], Math.min(Math.max(0, a[k] - dd), CAP_G3[k]),
+          ['3대 비급여 특약', '공제 MAX(2만원, 30%)', '연 ' + (CAP_G3[k] / 10000) + '만원 한도']);
+      });
+      const ddO = a.onco ? hBase : 0;
+      push('onco', a.onco, ddO, capOut, Math.min(Math.max(0, a.onco - ddO) * 0.8, capOut),
+        ['3대 주사료 한도 제외 → 기본계약 비급여에서 보상']);
+    } else if (gen === 4) {
+      const excess = Math.max(0, Math.max(0, ytd - a.gi) * 0.2 + a.gi * 0.2 - 2000000)
+        - Math.max(0, Math.max(0, ytd - a.gi) * 0.2 - 2000000);
+      giPay = push('gi', a.gi, a.gi * 0.2, 50000000, Math.min(a.gi * 0.8 + excess, 50000000),
+        ['급여 80%', '입원 자기부담 연 200만원 초과분 추가 보상']);
+      gtPay = payRate('gt', a.gt, a.gt ? Math.max(hMod, a.gt * 0.2) : 0, 1, 200000,
+        ['공제 MAX(1만/2만, 20%)', '회당 20만원 한도']);
+      push('bi', a.bi, a.bi * 0.3, 50000000, Math.min(a.bi * 0.7, 50000000), ['비급여 70%', '비급여 연 5천만원 한도']);
+      push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
+        ['공제 MAX(3만원, 30%)', '회당 20만원·연 100회']);
+      ['physio', 'inj', 'mri'].forEach(function (k) {
+        const dd = a[k] ? Math.max(30000, a[k] * 0.3) : 0;
+        push(k, a[k], dd, CAP_G3[k], Math.min(Math.max(0, a[k] - dd), CAP_G3[k]),
+          ['3대 비급여 특약', '공제 MAX(3만원, 30%)', '연 ' + (CAP_G3[k] / 10000) + '만원 한도', '도수는 최초 10회 후 10회 단위 심사']);
+      });
+      push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, 50000000,
+        Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), 50000000),
+        ['3대 주사료 한도 제외 → 상해·질병 비급여(70%)']);
+    } else {
+      const excess = Math.max(0, Math.max(0, ytd - a.gi) * 0.2 + a.gi * 0.2 - 2000000)
+        - Math.max(0, Math.max(0, ytd - a.gi) * 0.2 - 2000000);
+      giPay = push('gi', a.gi, a.gi * 0.2, 50000000, Math.min(a.gi * 0.8 + excess, 50000000),
+        ['급여 80%', '입·통원 합산 연 5천만원', '입원 자기부담 연 200만원 초과분 추가 보상']);
+      gtPay = payRate('gt', a.gt, a.gt ? Math.max(hMod, a.gt * 0.2, a.gt * nhirate) : 0, 1, 200000,
+        ['공제 MAX(1만/2만, 20%, 건보 본인부담률)', '회당 20만원 한도']);
+      if (severe) {
+        push('bi', a.bi, a.bi * 0.3, 50000000, Math.min(a.bi * 0.7, 50000000),
+          ['중증(특약1) 비급여 입원 70%', '입·통원 합산 연 5천만원', '상급종합·종합병원 입원 자기부담 연 500만원 상한']);
+        push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
+          ['중증 통원 공제 MAX(3만원, 30%)', '회당 20만원·연 100회']);
+        ['physio', 'inj', 'mri'].forEach(function (k) {
+          const dd = a[k] ? Math.max(30000, a[k] * 0.3) : 0;
+          push(k, a[k], dd, CAP_G3[k], Math.min(Math.max(0, a[k] - dd), CAP_G3[k]),
+            ['중증 3대 비급여(산정특례 질환)', '공제 MAX(3만원, 30%)', '연 ' + (CAP_G3[k] / 10000) + '만원 한도']);
+        });
+        push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, 50000000,
+          Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), 50000000),
+          ['3대 주사료 한도 제외 → 상해·질병 비급여(70%)']);
+      } else {
+        const biCap = (hosp === '의원' || hosp === '병원') ? Math.min(a.bi * 0.5, 3000000) : a.bi * 0.5;
+        push('bi', a.bi, a.bi * 0.5, 10000000, Math.min(biCap, 10000000),
+          ['비중증(특약2) 비급여 입원 50%', '입·통원 합산 연 1천만원', '종합병원 외 1회 300만원 한도']);
+        push('bt', a.bt, a.bt ? Math.max(50000, a.bt * 0.5) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(50000, a.bt * 0.5) : 0)), 200000),
+          ['비중증 통원 공제 MAX(5만원, 50%)', '일당 20만원·연 100일']);
+        push('physio', a.physio, 0, 0, 0, ['5세대 비중증: 근골격계 이학요법·체외충격파 수반 일체 의료비 면책'], true);
+        push('inj', a.inj, 0, 0, 0, ['5세대 비중증: 일반 비급여 주사 면책(항암·항생·희귀 제외)'], true);
+        const ddM = a.mri ? Math.max(50000, a.mri * 0.5) : 0;
+        push('mri', a.mri, ddM, 2000000, Math.min(Math.max(0, a.mri - ddM), 2000000),
+          ['비중증 비급여 MRI 연 200만원', '공제 MAX(5만원, 50%)']);
+        const ddO = a.onco ? Math.max(50000, a.onco * 0.5) : 0;
+        push('onco', a.onco, ddO, 10000000, Math.min(Math.max(0, a.onco - ddO), 10000000),
+          ['면책 예외 → 상해·질병 비급여 50%', '입·통원 합산 연 1천만원']);
+      }
+    }
+
+    const summary = (function () {
+      if (gen === 1) return '1세대(비표준화 대표상품) · 급여/비급여 통합, 입원 80%·통원 5천원+20%, 입원 연 3천만';
+      if (gen === 2) return '2세대 ' + form + ' · 급여 ' + Math.round(rateG * 100) + '% · 비급여 80% · 통원 30만원 한도';
+      if (gen === 3) return '3세대 ' + form + ' · 급여 ' + Math.round(rateG * 100) + '% · 비급여 80% · 3대 특약 공제 MAX(2만, 30%)';
+      if (gen === 4) return '4세대 · 급여 80%(자기부담 연 200만 초과 보상) · 비급여 70% · 통원 20만원';
+      return severe
+        ? '5세대 중증(특약1) · 급여 80% · 비급여 70% · 3대 공제 MAX(3만, 30%)'
+        : '5세대 비중증(특약2) · 급여 80% · 비급여 50% · 통원 일당 20만원 · 3대 중 MRI만';
+    })();
+
+    const warnings = [];
+    // 항암·항생·희귀 주사는 3대 한도에서 빠지는 ‘기본계약’ 항목 — 산식 기준을 명시
+    rows.forEach(function (r) {
+      if (r.key === 'onco' && r.gross > 0) {
+        r.notes = r.notes.concat(['통원 기준 산식으로 계산 — 입원 건은 비급여 입원 보상률(70% / 비중증 50%)로 계산']);
+      }
+    });
+    if (gen === 1) warnings.push('1세대는 비표준화 세대입니다. 표시된 값은 생보협회 공시 대표상품(입원 20%·통원 5천원+20%) 기준이므로 증권·가입 당시 약관의 보상률을 확인하세요.');
+    if (gen === 5 && severe) warnings.push('중증 특약의 상급종합·종합병원 입원 자기부담 연 500만원 상한은 이 계산기에 반영되지 않았습니다. 고액 입원 건은 별도 확인하세요.');
+    if (gen === 5 && !severe) warnings.push('산정특례 질환과 무관한 치료는 중증 특약에서 보상되지 않고 비중증 기준이 적용됩니다. 먼저 산정특례 해당 여부를 확인하세요.');
+    if (gen >= 3) warnings.push('3대 비급여는 특약 가입을 전제로 계산했습니다. 특약 미가입 계약은 해당 항목 전부 부지급입니다.');
+    if (gen >= 4) warnings.push('통원은 회차별로 계산해야 합니다. 여러 회 청구는 회차별 한도가 각각 적용됩니다.');
+
+    return { gen: gen, hosp: hosp, form: form, severe: severe, nhirate: nhirate, ytd: ytd, amt: a, rows: rows, summary: summary, warnings: warnings };
+  }
+
+  function sumRows(rows, mode) {
+    const out = { gross: 0, deduct: 0, pay: 0 };
+    rows.forEach(function (r) {
+      if (mode && mode !== 'all' && r.mode !== 'both' && r.mode !== mode) return;
+      if (r.gross <= 0) return;
+      out.gross += r.gross; out.deduct += r.deduct; out.pay += r.pay;
+    });
+    return out;
+  }
+
+  /* 다수계약 비례분담 */
+  function distribute(damage, contracts) {
+    const list = (contracts || []).filter(function (c) { return n(c.indep) > 0; });
+    const sum = list.reduce(function (s, c) { return s + n(c.indep); }, 0);
+    const dmg = Math.max(0, n(damage));
+    const rows = list.map(function (c) {
+      const indep = Math.max(0, n(c.indep));
+      const share = sum > 0 ? indep / sum : 0;
+      const raw = dmg * share;
+      return { name: c.name || '', gen: c.gen, coverage: c.coverage || '', cost: Math.max(0, n(c.cost)), indep: indep, share: share, pay: Math.min(raw, indep) };
+    });
+    const totalPay = rows.reduce(function (s, x) { return s + x.pay; }, 0);
+    return {
+      damage: dmg, sumIndep: sum, rows: rows, totalPay: totalPay,
+      rate: dmg > 0 ? totalPay / dmg : 0,
+      uncovered: Math.max(0, dmg - totalPay),
+      needProportion: sum > dmg
+    };
+  }
+
+  /* 독립책임액 자동산출: 단일계산 입력값을 세대·보장구분별로 재계산 */
+  function indepFor(calcInput, gen, coverage) {
+    const res = calcGen(Object.assign({}, calcInput, { gen: gen }));
+    const KEYS = {
+      '급여': ['gi', 'gt'],
+      '비급여': ['bi', 'bt', 'onco'],
+      '3대비급여': ['physio', 'inj', 'mri'],
+      '급여+비급여': ['gi', 'gt', 'bi', 'bt', 'onco'],
+      '전체': null
+    };
+    const keys = KEYS[coverage] || null;
+    let pay = 0;
+    res.rows.forEach(function (row) {
+      if (keys && keys.indexOf(row.key) < 0) return;
+      pay += row.pay;
+    });
+    return r0(pay);
+  }
+
+  return {
+    UPDATED: UPDATED, GENS: GENS, COMPARE: COMPARE, SOURCES: SOURCES,
+    FLOW: FLOW, EXEMPT: EXEMPT, DRUGS: DRUGS, COVERS: COVERS, PRINCIPLES: PRINCIPLES,
+    KCD: KCD, KCD_NOTE: KCD_NOTE, NOTES4: NOTES4,
+    LAWS: LAWS, FCASES: FCASES, CAP2026: CAP2026, REFS: REFS,
+    calcGen: calcGen, sumRows: sumRows, distribute: distribute, indepFor: indepFor,
+    emptyAmt: emptyAmt, n: n, r0: r0, DED: { base: DED_BASE, modern: DED_MODERN }
+  };
+})();
+</script>
+<script>
+/* 실손 심사 도우미 — UI · 상호작용 */
+(function () {
+  'use strict';
+  var S = window.SILSON;
+  function $(s, r) { return (r || document).querySelector(s); }
+  function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+  function esc(v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function fmt(v) {
+    var n = Math.round(Number(v) || 0);
+    var s = String(Math.abs(n));
+    s = s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return (n < 0 ? '-' : '') + s;
+  }
+  function won(v) { return fmt(v) + '원'; }
+  function nowISO() { return new Date().toISOString(); }
+  function stamp(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.getFullYear() + '.' + (d.getMonth() + 1) + '.' + d.getDate();
+  }
+  var toastTimer;
+  function toast(msg) {
+    var t = $('#toast'); t.textContent = msg; t.classList.add('on');
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove('on'); }, 1900);
+  }
+  function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { } }
+  function load(k, d) {
+    try { var v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; }
+  }
+  function rxEscape(s) { return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+  function hl(text, q) {
+    var words = String(q || '').trim().split(/\s+/).filter(Boolean);
+    if (!words.length) return esc(text);
+    var rx = new RegExp('(' + words.map(rxEscape).join('|') + ')', 'gi');
+    return esc(text).replace(rx, function (m) { return '<mark>' + m + '</mark>'; });
+  }
+  function copyText(t) {
+    if (!t) return;
+    var fallback = function () {
+      var ta = document.createElement('textarea');
+      ta.value = t; ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed'; ta.style.top = '-1000px'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); toast('복사했습니다'); }
+      catch (err) { toast('복사할 수 없습니다'); }
+      ta.remove();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(t).then(function () { toast('복사했습니다'); }, fallback);
+    } else fallback();
+  }
+  function matchAll(text, q) {
+    var t = String(text).toLowerCase();
+    return String(q || '').trim().toLowerCase().split(/\s+/).filter(Boolean).every(function (w) { return t.indexOf(w) >= 0; });
+  }
+
+  /* ───── 탭 ───── */
+  var TABS = ['compare', 'calc', 'benefit', 'check', 'law', 'memo'];
+  var curTab = 'compare';
+  function go(tab) {
+    if (TABS.indexOf(tab) < 0) return;
+    curTab = tab;
+    $$('.view').forEach(function (v) { v.classList.toggle('active', v.id === 'view-' + tab); });
+    $$('#tabbar button').forEach(function (b) { b.classList.toggle('on', b.getAttribute('data-tab') === tab); });
+    $('#main').scrollTop = 0;
+    store('silson.tab', tab);
+    if (tab === 'memo') renderMemo();
+  }
+
+  /* ───── ① 세대비교 ───── */
+  var cmpGen = 0, cmpQ = '';
+  function renderCompare() {
+    var q = cmpQ.trim();
+    var hits = S.COMPARE.filter(function (it) { return matchAll(it.item + ' ' + it.v.join(' '), q); });
+    $('#cmpCount').textContent = (q ? '검색 ' + hits.length + '건 / ' : '') + '전체 ' + S.COMPARE.length + '개 항목' +
+      (cmpGen ? ' · ' + cmpGen + '세대만 표시' : '');
+    if (!hits.length) {
+      $('#cmpList').innerHTML = '<div class="card"><div class="empty">검색 결과가 없습니다.<br>‘도수’, ‘재가입’, ‘MRI’, ‘상급병실’처럼 짧은 단어로 검색해 보세요.</div></div>';
+      return;
+    }
+    var html = hits.map(function (it) {
+      var cells = it.v.map(function (t, i) { return { i: i, t: t }; });
+      if (cmpGen) cells = cells.filter(function (c) { return c.i === cmpGen - 1; });
+      return '<div class="card cmp-card">' +
+        '<div class="cmp-head"><h3>' + esc(it.item.replace(/\n/g, ' ')) + '</h3><span class="go">' + cells.length + '개 세대</span></div>' +
+        '<div class="cmp-body">' + cells.map(function (c) {
+          return '<div class="grow"><div class="gtag g' + (c.i + 1) + '">' + (c.i + 1) + '세대</div>' +
+            '<div class="gtext">' + hl(c.t, q) + '</div></div>';
+        }).join('') + '</div></div>';
+    }).join('');
+    html += '<div class="card"><div class="card-h"><span class="n">i</span>근거·출처</div>' +
+      S.SOURCES.map(function (s) {
+        return '<div style="padding:7px 0;border-bottom:1px solid #f1f4fa"><b style="font-size:11.5px;color:#1b4a94">' + esc(s[0]) + '</b>' +
+          '<div class="hint" style="margin-top:2px">' + esc(s[1]) + '</div></div>';
+      }).join('') + '</div>';
+    $('#cmpList').innerHTML = html;
+  }
+  function renderGenChips() {
+    var html = '<button class="chip ' + (cmpGen === 0 ? 'on' : '') + '" data-g="0">전체</button>';
+    S.GENS.forEach(function (g) {
+      html += '<button class="chip ' + (cmpGen === g.id ? 'on' : '') + '" data-g="' + g.id + '">' + g.label + '</button>';
+    });
+    $('#cmpGen').innerHTML = html;
+  }
+  function initCompare() {
+    $('#genLegend').innerHTML = S.GENS.map(function (g) {
+      return '<div class="gchip" data-g="' + g.id + '"><b>' + g.label + '</b><span>' + g.period + '</span>' +
+        '<span style="display:block;color:#8a97ad">' + g.note + '</span></div>';
+    }).join('');
+    $('#genLegend').addEventListener('click', function (e) {
+      var c = e.target.closest('[data-g]'); if (!c) return;
+      cmpGen = Number(c.getAttribute('data-g')); renderGenChips(); renderCompare();
+    });
+    $('#cmpGen').addEventListener('click', function (e) {
+      var c = e.target.closest('[data-g]'); if (!c) return;
+      cmpGen = Number(c.getAttribute('data-g')); renderGenChips(); renderCompare();
+    });
+    $('#cmpQ').addEventListener('input', function (e) { cmpQ = e.target.value; renderCompare(); });
+    renderGenChips(); renderCompare();
+  }
+
+  /* ───── ② 계산기 ───── */
+  var C = load('silson.calc', null) || {
+    gen: 1, mode: 'in', hosp: '종합병원', form: '표준형', d2mode: 'flat', severe: false, nhirate: 0.2, ytd: 0,
+    amt: { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0 }
+  };
+  if (!C.amt) C.amt = S.emptyAmt();
+  var M = load('silson.multi', null) || {
+    damage: 3000000,
+    contracts: [
+      { name: '', gen: 2, coverage: '급여+비급여', indep: 0 },
+      { name: '', gen: 4, coverage: '급여+비급여', indep: 0 },
+      { name: '', gen: 5, coverage: '급여+비급여', indep: 0 }
+    ]
+  };
+  var multiMode = false;
+  var lastCalcText = '';
+
+  function calcInput() {
+    return { gen: C.gen, hosp: C.hosp, form: C.form, d2mode: C.d2mode, severe: C.severe, nhirate: C.nhirate, ytd: C.ytd, amt: C.amt };
+  }
+  function saveCalc() { store('silson.calc', C); }
+
+  function renderCalcGen() {
+    $('#calcGenChips').innerHTML = S.GENS.map(function (g) {
+      return '<button class="chip ' + (C.gen === g.id ? 'on' : '') + '" data-cgen="' + g.id + '">' + g.label +
+        ' <span class="cnt">' + g.short + '</span></button>';
+    }).join('');
+  }
+  function renderHospChips() {
+    ['의원', '병원', '종합병원', '상급종합'].forEach(function () { });
+    $('#calcHospChips').innerHTML = ['의원', '병원', '종합병원', '상급종합'].map(function (h) {
+      return '<button class="chip ' + (C.hosp === h ? 'on' : '') + '" data-hosp="' + h + '">' + h + '</button>';
+    }).join('');
+  }
+  function renderCond() {
+    var h = '';
+    if (C.gen === 2 || C.gen === 3) {
+      h += '<div class="field"><label>계약 형태</label><div class="chips" style="margin-bottom:0">' +
+        ['표준형', '선택형Ⅱ'].map(function (f) {
+          return '<button class="chip ' + (C.form === f ? 'on' : '') + '" data-form="' + f + '">' + f +
+            (f === '표준형' ? ' (80%)' : ' (90%)') + '</button>';
+        }).join('') + '</div></div>';
+    }
+    if (C.gen === 2) {
+      h += '<div class="field"><label>통원 공제 방식</label><div class="chips" style="margin-bottom:0">' +
+        [['flat', '정액'], ['max', '정액·20% 중 큰 금액']].map(function (o) {
+          return '<button class="chip ' + (C.d2mode === o[0] ? 'on' : '') + '" data-d2="' + o[0] + '">' + o[1] + '</button>';
+        }).join('') + '</div><div class="note">2009.10~2013.03 판은 정액, 1304 판 이후는 ‘정액과 20% 중 큰 금액’입니다.</div></div>';
+    }
+    if (C.gen === 5) {
+      h += '<div class="field"><label>산정특례(중증) 해당 여부</label><div class="chips" style="margin-bottom:0">' +
+        [[false, '미해당 → 특약2 비중증'], [true, '해당 → 특약1 중증']].map(function (o) {
+          return '<button class="chip ' + (C.severe === o[0] ? 'on' : '') + '" data-sev="' + (o[0] ? '1' : '0') + '">' + o[1] + '</button>';
+        }).join('') + '</div><div class="note">암·뇌·심·희귀난치 등 산정특례 대상 질환인지가 특약1/2를 가릅니다.</div></div>';
+      h += '<div class="field"><label>건강보험 본인부담률</label><div class="amt">' +
+        '<input type="number" id="nhirate" inputmode="numeric" min="0" max="100" step="5" value="' + Math.round(C.nhirate * 100) + '">' +
+        '<span class="unit">%</span></div>' +
+        '<div class="note">5세대 급여 통원 공제 = MAX(의원·병원 1만/상급·종합 2만, 20%, 보장대상×본인부담률). 관리급여 도수치료는 95%.</div></div>';
+    }
+    if (C.gen >= 4) {
+      h += '<div class="field"><label>연간 급여 입원 본인부담 누계</label><div class="amt">' +
+        '<input type="number" id="ytd" inputmode="numeric" step="10000" value="' + Math.round(C.ytd) + '">' +
+        '<span class="unit">원</span></div>' +
+        '<div class="note">이번 청구를 포함한 누계. 자기부담 20%가 연 200만원을 넘는 부분만 추가 보상합니다.</div></div>';
+    }
+    if (C.gen === 1) {
+      h += '<div class="notice warn">1세대는 비표준화 세대입니다. 계산은 생보협회 공시 대표상품(입원 자기부담 20%·통원 5천원+20%) 기준이므로 증권·가입 당시 약관의 보상률을 확인하세요.</div>';
+    }
+    $('#calcCond').innerHTML = h;
+  }
+
+  var INPUTS = {
+    in: [
+      ['gi', '급여 입원 본인부담금', '건강보험 급여 본인부담(일부+전액)'],
+      ['bi', '비급여 입원 의료비', '비급여 병실료 제외 · 상급병실료 차액은 별도'],
+      ['physio', '3대 – 도수·체외충격파(입원 중)', '특약 가입 전제'],
+      ['inj', '3대 – 비급여 주사료(입원 중)', '항암·항생·희귀 제외'],
+      ['mri', '3대 – MRI·MRA(입원 중)', '조영제·판독료 포함'],
+      ['onco', '항암·항생·희귀의약품 주사', '3대 한도 제외 → 기본계약에서 보상']
+    ],
+    out: [
+      ['gt', '급여 통원 1회 본인부담금', '외래+처방조제 합산 1회'],
+      ['bt', '비급여 통원 1회 의료비', '3대 비급여 제외'],
+      ['physio', '3대 – 도수·체외충격파(1회)', '도수·증식·체외충격파'],
+      ['inj', '3대 – 비급여 주사료(1회)', '항암·항생·희귀 제외'],
+      ['mri', '3대 – MRI·MRA(1회)', '조영제·판독료 포함'],
+      ['onco', '항암·항생·희귀의약품 주사', '3대 한도 제외 → 기본계약에서 보상']
+    ]
+  };
+  function renderInputs() {
+    $('#calcInputs').innerHTML = INPUTS[C.mode].map(function (r) {
+      return '<div class="field" style="margin-bottom:12px"><label>' + r[1] + '</label>' +
+        '<div class="amt"><input type="number" inputmode="numeric" step="1000" min="0" data-amt="' + r[0] + '" value="' + Math.round(C.amt[r[0]] || 0) + '">' +
+        '<span class="unit">원</span></div>' +
+        (r[2] ? '<div class="note">' + r[2] + '</div>' : '') + '</div>';
+    }).join('');
+    $('#calcInputHint').textContent = C.mode === 'in'
+      ? '입원 건은 퇴원 후 1건으로 계산합니다. 3대 비급여는 입원 중 시행분만 입력하세요.'
+      : '통원은 1회(1일) 기준입니다. 여러 회 청구는 회차별로 계산해 합산하세요(회차별 한도 각각 적용).';
+  }
+
+  function resultText(res, sums) {
+    var lines = [];
+    lines.push('[실손 지급 계산] ' + res.gen + '세대 · ' + res.hosp + ' · ' + (C.mode === 'in' ? '입원' : '통원 1회'));
+    lines.push(res.summary);
+    lines.push('보장대상 ' + fmt(sums.gross) + '원 / 공제 ' + fmt(sums.deduct) + '원 / 예상지급 ' + fmt(sums.pay) + '원');
+    res.rows.forEach(function (r) {
+      if (r.mode !== C.mode && r.mode !== 'both') return;
+      if (r.gross <= 0) return;
+      lines.push('- ' + r.label + ': ' + fmt(r.gross) + ' → 공제 ' + fmt(r.deduct) +
+        ' → ' + (r.exempt ? '면책' : fmt(r.pay) + '원'));
+    });
+    if (res.warnings.length) {
+      res.warnings.forEach(function (w) { lines.push('※ ' + w); });
+    }
+    return lines.join('\n');
+  }
+
+  function renderResult() {
+    var res = S.calcGen(calcInput());
+    var sums = S.sumRows(res.rows, C.mode);
+    var rows = res.rows.filter(function (r) { return r.mode === C.mode || r.mode === 'both'; });
+    var active = rows.filter(function (r) { return r.gross > 0; });
+    var rate = sums.gross > 0 ? sums.pay / sums.gross : 0;
+    lastCalcText = resultText(res, sums);
+    var html = '<div class="card">' +
+      '<div class="card-h"><span class="n">3</span>예상 지급보험금 <span class="sp">' + (C.mode === 'in' ? '입원 기준' : '통원 1회 기준') + '</span></div>' +
+      '<div class="res-hero"><div class="lab">예상 지급액</div>' +
+      '<div class="big">' + fmt(sums.pay) + '<span style="font-size:15px;font-weight:600">원</span></div>' +
+      '<div class="sub2">' + esc(res.summary) + '</div>' +
+      '<div class="split"><div><div class="l">보장대상</div><div class="v">' + fmt(sums.gross) + '원</div></div>' +
+      '<div><div class="l">공제 합계</div><div class="v">' + fmt(sums.deduct) + '원</div></div>' +
+      '<div><div class="l">지급률</div><div class="v">' + (rate * 100).toFixed(1) + '%</div></div></div></div>';
+    if (!active.length) {
+      html += '<div class="empty">위에 금액을 입력하면 항목별 공제금액과 예상 지급액이 바로 계산됩니다.</div>';
+    } else {
+      html += active.map(function (r) {
+        var notes = r.notes.slice();
+        if (r.cap > 0 && r.gross - r.deduct > r.cap) notes.push('한도 ' + fmt(r.cap) + '원 적용');
+        if (r.exempt) notes = r.notes;
+        return '<div class="line' + (r.exempt ? ' exempt' : '') + '">' +
+          '<div class="nm"><b>' + esc(r.label) + '</b>' +
+          '<span>' + esc(notes.join(' · ')) + '</span></div>' +
+          '<div class="amt2"><b>' + (r.exempt ? '면책' : fmt(r.pay) + '원') + '</b>' +
+          '<span>' + (r.exempt ? '지급 0원' : '공제 ' + fmt(r.deduct) + '원') + '</span></div></div>';
+      }).join('');
+    }
+    if (res.warnings.length) {
+      html += '<div class="notice warn" style="margin-top:12px"><b>확인 필요</b><br>' + res.warnings.map(esc).join('<br>') + '</div>';
+    }
+    html += '<div class="btn-row"><button class="btn sm" id="calcCopy">결과 복사</button>' +
+      '<button class="btn sec sm" id="calcSample">예시값</button>' +
+      '<button class="btn sec sm" id="calcReset">초기화</button></div>';
+    html += '</div>';
+    $('#calcResult').innerHTML = html;
+  }
+
+  function renderCalcAll() {
+    renderCalcGen(); renderHospChips(); renderCond(); renderInputs(); renderResult();
+  }
+
+  function initCalc() {
+    $('#calcGenChips').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cgen]'); if (!b) return;
+      C.gen = Number(b.getAttribute('data-cgen')); saveCalc(); renderCalcAll();
+    });
+    $('#calcHospChips').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-hosp]'); if (!b) return;
+      C.hosp = b.getAttribute('data-hosp'); saveCalc(); renderHospChips(); renderResult();
+    });
+    $('#calcModeSeg').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cmode]'); if (!b) return;
+      C.mode = b.getAttribute('data-cmode');
+      $$('#calcModeSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      renderInputs(); renderResult();
+    });
+    $('#calcCond').addEventListener('click', function (e) {
+      var f = e.target.closest('[data-form]'), d = e.target.closest('[data-d2]'), s = e.target.closest('[data-sev]');
+      if (f) C.form = f.getAttribute('data-form');
+      if (d) C.d2mode = d.getAttribute('data-d2');
+      if (s) C.severe = s.getAttribute('data-sev') === '1';
+      if (f || d || s) { saveCalc(); renderCond(); renderResult(); }
+    });
+    $('#calcCond').addEventListener('input', function (e) {
+      if (e.target.id === 'nhirate') C.nhirate = Math.max(0, Math.min(100, Number(e.target.value) || 0)) / 100;
+      if (e.target.id === 'ytd') C.ytd = Math.max(0, Number(e.target.value) || 0);
+      saveCalc(); renderResult();
+    });
+    $('#calcInputs').addEventListener('input', function (e) {
+      var k = e.target.getAttribute('data-amt'); if (!k) return;
+      C.amt[k] = Math.max(0, Math.round(Number(e.target.value) || 0));
+      saveCalc(); renderResult();
+    });
+    $('#calcResult').addEventListener('click', function (e) {
+      if (e.target.id === 'calcSample') {
+        C.amt = { gi: 1000000, gt: 50000, bi: 2000000, bt: 300000, physio: 150000, inj: 100000, mri: 700000, onco: 500000 };
+        C.ytd = 1000000; saveCalc(); renderInputs(); renderResult();
+        toast('예시값을 채웠습니다');
+      }
+      if (e.target.id === 'calcReset') {
+        C.amt = S.emptyAmt(); C.ytd = 0; saveCalc(); renderInputs(); renderResult();
+      }
+      if (e.target.id === 'calcCopy') copyText(lastCalcText);
+    });
+
+    /* 다수계약 */
+    $('#calcSeg').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cseg]'); if (!b) return;
+      multiMode = b.getAttribute('data-cseg') === 'multi';
+      $$('#calcSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      $('#panel-single').hidden = multiMode;
+      $('#panel-multi').hidden = !multiMode;
+      if (multiMode) renderMulti(); else renderResult();
+    });
+    $('#mDamage').addEventListener('input', function (e) {
+      M.damage = Math.max(0, Math.round(Number(e.target.value) || 0)); store('silson.multi', M); renderMultiResult();
+    });
+    $('#mAdd').addEventListener('click', function () {
+      if (M.contracts.length >= 5) { toast('계약은 최대 5건입니다'); return; }
+      M.contracts.push({ name: '', gen: 4, coverage: '급여+비급여', indep: 0 });
+      store('silson.multi', M); renderMulti();
+    });
+    $('#mAutoAll').addEventListener('click', function () {
+      M.contracts.forEach(function (c) { c.indep = S.indepFor(calcInput(), c.gen, c.coverage); });
+      store('silson.multi', M); renderMulti(); toast('단일계산 금액으로 독립책임액을 채웠습니다');
+    });
+    $('#mList').addEventListener('input', function (e) {
+      var i = Number(e.target.getAttribute('data-mi')); if (isNaN(i)) return;
+      var f = e.target.getAttribute('data-mf');
+      if (f === 'name') M.contracts[i].name = e.target.value;
+      if (f === 'indep') M.contracts[i].indep = Math.max(0, Math.round(Number(e.target.value) || 0));
+      store('silson.multi', M); renderMultiResult();
+    });
+    $('#mList').addEventListener('change', function (e) {
+      var i = Number(e.target.getAttribute('data-mi')); if (isNaN(i)) return;
+      var f = e.target.getAttribute('data-mf');
+      if (f === 'gen') M.contracts[i].gen = Number(e.target.value);
+      if (f === 'coverage') M.contracts[i].coverage = e.target.value;
+      store('silson.multi', M);
+    });
+    $('#mList').addEventListener('click', function (e) {
+      var del = e.target.closest('[data-del]'), auto = e.target.closest('[data-auto]');
+      if (del) {
+        if (M.contracts.length <= 2) { toast('계약은 최소 2건입니다'); return; }
+        M.contracts.splice(Number(del.getAttribute('data-del')), 1); store('silson.multi', M); renderMulti();
+      }
+      if (auto) {
+        var i = Number(auto.getAttribute('data-auto'));
+        M.contracts[i].indep = S.indepFor(calcInput(), M.contracts[i].gen, M.contracts[i].coverage);
+        store('silson.multi', M); renderMulti(); toast('독립책임액을 산출했습니다');
+      }
+    });
+
+    renderCalcAll();
+    renderMulti();
+  }
+
+  function renderMulti() {
+    $('#mDamage').value = Math.round(M.damage || 0);
+    $('#mCount').textContent = M.contracts.length + '건';
+    $('#mList').innerHTML = M.contracts.map(function (c, i) {
+      return '<div class="card tight" style="margin-bottom:10px;background:#fbfcff;box-shadow:none;border:1px solid var(--line)">' +
+        '<div class="row" style="margin-bottom:8px"><b style="font-size:12.5px">계약 ' + (i + 1) + '</b>' +
+        '<button class="btn sm danger" style="margin-left:auto" data-del="' + i + '">삭제</button></div>' +
+        '<input type="text" data-mi="' + i + '" data-mf="name" placeholder="보험사·상품명 (선택)" value="' + esc(c.name) + '" style="margin-bottom:8px">' +
+        '<div class="row" style="gap:8px;margin-bottom:8px">' +
+        '<select data-mi="' + i + '" data-mf="gen" style="flex:1">' + S.GENS.map(function (g) {
+          return '<option value="' + g.id + '"' + (Number(c.gen) === g.id ? ' selected' : '') + '>' + g.label + '</option>';
+        }).join('') + '</select>' +
+        '<select data-mi="' + i + '" data-mf="coverage" style="flex:1.4">' + ['급여+비급여', '급여', '비급여', '3대비급여', '전체'].map(function (k) {
+          return '<option value="' + k + '"' + (c.coverage === k ? ' selected' : '') + '>' + k + '</option>';
+        }).join('') + '</select></div>' +
+        '<div class="amt"><input type="number" inputmode="numeric" step="1000" min="0" data-mi="' + i + '" data-mf="indep" value="' + Math.round(c.indep || 0) + '"><span class="unit">원</span></div>' +
+        '<button class="btn soft sm block" style="margin-top:8px" data-auto="' + i + '">이 세대로 자동 산출</button>' +
+        '</div>';
+    }).join('');
+    renderMultiResult();
+  }
+
+  function renderMultiResult() {
+    var res = S.distribute(M.damage, M.contracts);
+    var html = '<div class="card"><div class="card-h"><span class="n">3</span>비례배분 결과</div>' +
+      '<div class="res-hero"><div class="lab">계약 합계 지급액</div>' +
+      '<div class="big">' + fmt(res.totalPay) + '<span style="font-size:15px;font-weight:600">원</span></div>' +
+      '<div class="sub2">' + (res.needProportion ? '독립책임액 합계가 손해액을 넘어 비례배분을 적용합니다.' : '독립책임액 합계가 손해액 이하입니다(각 계약 독립책임액 한도 내 지급).') + '</div>' +
+      '<div class="split"><div><div class="l">실제 손해액</div><div class="v">' + fmt(res.damage) + '원</div></div>' +
+      '<div><div class="l">Σ독립책임액</div><div class="v">' + fmt(res.sumIndep) + '원</div></div>' +
+      '<div><div class="l">미보상</div><div class="v">' + fmt(res.uncovered) + '원</div></div></div></div>';
+    if (!res.rows.length) {
+      html += '<div class="empty">계약별 독립책임액을 입력하거나 <b>자동 산출</b>을 눌러 주세요.</div>';
+    } else {
+      html += '<table class="tbl"><thead><tr><th>계약</th><th>세대</th><th class="r">비중</th><th class="r">지급액</th></tr></thead><tbody>' +
+        res.rows.map(function (x) {
+          return '<tr><td>' + esc(x.name || '계약') + '<br><span class="hint">' + esc(x.coverage) + '</span></td>' +
+            '<td>' + x.gen + '세대</td><td class="r">' + (x.share * 100).toFixed(1) + '%</td>' +
+            '<td class="r"><b>' + fmt(x.pay) + '</b></td></tr>';
+        }).join('') + '</tbody></table>';
+      html += '<div class="hint" style="margin-top:8px">· 비중 = 독립책임액 ÷ Σ독립책임액<br>· 지급액 = MIN(손해액 × 비중, 독립책임액)<br>· 계약별 보장구분이 다르면 보장대상 의료비도 다릅니다. 단일계산에서 계약별로 산출한 금액을 넣는 방식이 정확합니다.</div>';
+    }
+    html += '<div class="notice">정액형 담보(입원일당·수술비·진단비·후유장해 등)는 비례보상 대상이 아니므로 실손 지급액과 별도로 지급됩니다.</div>';
+    html += '</div>';
+    $('#mResult').innerHTML = html;
+  }
+
+  /* ───── ③ 3대비급여·약제 ───── */
+  var bSeg = 'flow', bQ = '', bCat = '전체';
+  var BCATS = {
+    flow: [['전체', ''], ['항암', '항암'], ['항생', '항생'], ['희귀', '희귀'], ['한도', '한도']],
+    exempt: [['전체', ''], ['주사', '주사'], ['도수', '도수'], ['MRI', 'mri'], ['신의료', '신의료'], ['기타', '기타']],
+    drug: [['전체', ''], ['항암제', '항암제'], ['항생제', '항생제'], ['희귀', '희귀']]
+  };
+  function initBenefit() {
+    $('#bSeg').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-bseg]'); if (!b) return;
+      bSeg = b.getAttribute('data-bseg'); bCat = '전체';
+      $$('#bSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      renderBenefit();
+    });
+    $('#bQ').addEventListener('input', function (e) { bQ = e.target.value; renderBenefit(); });
+    $('#bChips').addEventListener('click', function (e) {
+      var c = e.target.closest('[data-bcat]'); if (!c) return;
+      bCat = c.getAttribute('data-bcat'); renderBenefit();
+    });
+    renderBenefit();
+  }
+  function renderBenefit() {
+    $('#bChips').innerHTML = (BCATS[bSeg] || []).map(function (c) {
+      return '<button class="chip ' + (bCat === c[0] ? 'on' : '') + '" data-bcat="' + c[0] + '">' + c[0] + '</button>';
+    }).join('');
+    var q = bQ.trim();
+    var html = '';
+    if (bSeg === 'flow') {
+      var items = S.FLOW.filter(function (f) {
+        var okCat = bCat === '전체' || f.tags.indexOf(bCat) >= 0;
+        return okCat && matchAll(f.title + ' ' + f.desc + ' ' + f.code + ' ' + f.tags.join(' '), q);
+      });
+      html = items.map(function (f) {
+        return '<div class="card"><div class="card-h">' + esc(f.title) + '<span class="sp">' + esc(f.code) + '</span></div>' +
+          '<div class="hint" style="color:#2f4463;font-size:12.5px">' + esc(f.desc) + '</div>' +
+          (f.rows.length ? '<div style="margin-top:10px">' + f.rows.map(function (r) {
+            return '<div class="line" style="padding:7px 0"><div class="nm"><b>' + esc(r[0]) + '</b>' +
+              '<span>' + esc(r[1]) + '</span></div></div>';
+          }).join('') + '</div>' : '') +
+          '</div>';
+      }).join('') || '<div class="card"><div class="empty">검색 결과가 없습니다.</div></div>';
+      html += '<div class="notice">3대 비급여 특약(도수·체외충격파·증식 / 비급여 주사료 / MRI·MRA)의 한도는 각 연 350만·250만·300만원(5세대 비중증 MRI 200만원)입니다. 위 3종 주사는 이 한도를 소진하지 않습니다.</div>';
+    } else if (bSeg === 'exempt') {
+      var ex = S.EXEMPT.filter(function (x) {
+        var okCat = bCat === '전체' || x.tags.indexOf(bCat) >= 0 || (bCat === '기타' && ['주사', '도수', 'mri', '신의료'].indexOf(x.tags[0]) < 0);
+        return okCat && matchAll(x.title + ' ' + x.body + ' ' + x.tag + ' ' + x.tags.join(' '), q);
+      });
+      html = ex.map(function (x) {
+        return '<div class="card"><div class="card-h">' + esc(x.title) + '<span class="sp">' + esc(x.tag) + '</span></div>' +
+          '<div class="hint" style="color:#2f4463;font-size:12.5px;white-space:pre-line">' + esc(x.body) + '</div>' +
+          '<div class="hint" style="margin-top:8px;color:#8a97ad">' + esc(x.src) + '</div></div>';
+      }).join('') || '<div class="card"><div class="empty">검색 결과가 없습니다.</div></div>';
+    } else {
+      if (bCat === '희귀') {
+        html = '<div class="card"><div class="card-h">희귀의약품<span class="sp">식약처 지정</span></div>' +
+          '<div class="hint" style="color:#2f4463;font-size:12.5px">식약처 「희귀의약품 지정에 관한 규정」에 정한 의약품과 한국희귀의약품센터(www.kodc.co.kr) 약제목록의 약제입니다. 분류번호가 따로 없으므로 고시·센터 목록과 공급내역으로 대조합니다.</div></div>';
+      } else {
+        var rows = S.DRUGS.filter(function (d) {
+          var okCat = bCat === '전체' || d[0] === bCat;
+          return okCat && matchAll(d.join(' '), q);
+        });
+        html = '<div class="card"><div class="card-h">약제 분류번호 <span class="sp">' + rows.length + '건</span></div>' +
+          '<div class="hint" style="margin-bottom:8px">1704 비급여 주사료 특약이 아닌 <b>기본계약</b>에서 보상되는 항암제·항생제 분류번호입니다.</div>' +
+          (rows.length ? '<table class="tbl"><thead><tr><th>구분</th><th>중분류</th><th>소분류</th><th class="r">번호</th></tr></thead><tbody>' +
+            rows.map(function (d) {
+              return '<tr><td><span class="tag ' + (d[0] === '항암제' ? 'red' : 'blue') + '">' + esc(d[0]) + '</span></td>' +
+                '<td>' + esc(d[1]) + '</td><td>' + hl(d[2], q) + (d[4] ? '<br><span class="hint">' + esc(d[4]) + '</span>' : '') + '</td>' +
+                '<td class="r"><b>' + esc(d[3]) + '</b></td></tr>';
+            }).join('') + '</tbody></table>' : '<div class="empty">검색 결과가 없습니다.<br>분류번호(예: 612)나 약제 분류명으로 검색하세요.</div>') +
+          '</div>' +
+          '<div class="card"><div class="card-h">확인 절차</div>' +
+          ['진료비 세부산정내역에서 약제명·규격·분류번호를 확인하고 420·430·610·620·640 해당 여부를 판정합니다.',
+            '분류번호가 불명확하면 식약처 의약품안전나라에서 약제명으로 중·소분류를 확인합니다.',
+            '희귀의약품은 식약처 고시와 한국희귀의약품센터 약제목록으로 대조합니다.',
+            '주사행위에 수반된 처치·재료비까지 포함해 판단합니다(3대 비급여형 주사료 정의).',
+            '5세대 비중증에서 주사가 면책되면 그 주사 관련 처치료·재료대도 함께 부지급합니다.'].map(function (t) {
+            return '<div class="hint" style="padding:5px 0;border-bottom:1px solid #f1f4fa">' + esc(t) + '</div>';
+          }).join('') + '</div>';
+      }
+    }
+    $('#bList').innerHTML = html;
+  }
+
+  /* ───── ④ 담보·체크 ───── */
+  var cCat = '전체', cQ = '';
+  var CCATS = ['전체', '실손형', '정액형', '배상·공적', '제도', 'KCD'];
+  function initCheck() {
+    $('#cChips').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-ccat]'); if (!b) return;
+      cCat = b.getAttribute('data-ccat'); renderCheck();
+    });
+    $('#cQ').addEventListener('input', function (e) { cQ = e.target.value; renderCheck(); });
+    renderCheck();
+  }
+  function renderCheck() {
+    $('#cChips').innerHTML = CCATS.map(function (c) {
+      return '<button class="chip ' + (cCat === c ? 'on' : '') + '" data-ccat="' + c + '">' + c + '</button>';
+    }).join('');
+    var q = cQ.trim();
+    var html = '';
+    var wantCover = cCat === '전체' || cCat === '실손형' || cCat === '정액형' || cCat === '배상·공적';
+    if (q) wantCover = true;
+    if (wantCover && cCat !== '제도' && cCat !== 'KCD') {
+      var covers = S.COVERS.filter(function (r) {
+        var ok = true;
+        if (cCat === '실손형') ok = r[2].indexOf('실손') === 0;
+        if (cCat === '정액형') ok = r[2] === '정액형';
+        if (cCat === '배상·공적') ok = ['배상형', '실손형(자보)', '실손형(공적)', '공적 환급', '정액형'].indexOf(r[2]) >= 0 && ['자동차', '공적', '배상', '운전자'].indexOf(r[0]) >= 0;
+        return ok && matchAll(r.join(' '), q);
+      });
+      html += '<div class="card"><div class="card-h">담보별 보상방식 <span class="sp">' + covers.length + '건</span></div>' +
+        (covers.length ? covers.map(function (r) {
+          var cls = r[2].indexOf('실손') >= 0 ? 'green' : (r[2] === '정액형' ? 'orange' : (r[2] === '배상형' ? 'blue' : 'gray'));
+          return '<div class="line"><div class="nm"><b>' + hl(r[1], q) + '</b>' +
+            '<span>' + hl(r[5], q) + '</span>' +
+            '<span style="margin-top:4px"><span class="tag ' + cls + '">' + esc(r[2]) + '</span> ' +
+            '<span class="tag ' + (r[3].indexOf('적용') === 0 ? 'red' : 'gray') + '">비례 ' + esc(r[3]) + '</span> ' +
+            '<span class="tag gray">중복 ' + esc(r[4]) + '</span></span></div></div>';
+        }).join('') : '<div class="empty">검색 결과가 없습니다.</div>') + '</div>';
+      if (cCat === '전체' && !q) {
+        html += '<div class="card"><div class="card-h">판단 원칙</div>' + S.PRINCIPLES.map(function (p, i) {
+          return '<div class="hint" style="padding:6px 0;border-bottom:1px solid #f1f4fa">' + (i + 1) + ') ' + esc(p) + '</div>';
+        }).join('') + '</div>';
+      }
+    }
+    if (cCat === '제도' || (q && !html)) {
+      var notes = S.NOTES4.filter(function (n) { return matchAll(n.title + ' ' + n.body + ' ' + n.tags.join(' '), q); });
+      html += notes.map(function (n) {
+        return '<div class="card"><div class="card-h">' + hl(n.title, q) + '<span class="sp">' + esc(n.tag) + '</span></div>' +
+          '<div class="hint" style="color:#2f4463;font-size:12.5px;white-space:pre-line">' + hl(n.body, q) + '</div></div>';
+      }).join('');
+    }
+    if (cCat === 'KCD' || q) {
+      var rows = S.KCD.filter(function (k) { return matchAll(k.join(' '), q); });
+      if (cCat === 'KCD' || rows.length) {
+        html += '<div class="card"><div class="card-h">빈출 KCD 코드 <span class="sp">' + rows.length + '건</span></div>' +
+          (rows.length ? '<table class="tbl"><thead><tr><th>코드</th><th>진단명</th><th>심사 메모</th></tr></thead><tbody>' +
+            rows.map(function (k) {
+              return '<tr><td><b>' + esc(k[0]) + '</b><br><span class="hint">' + esc(k[2]) + '</span></td>' +
+                '<td>' + hl(k[1], q) + '</td><td class="hint">' + hl(k[3] || '', q) + '</td></tr>';
+            }).join('') + '</tbody></table>' : '<div class="empty">해당 코드가 없습니다.</div>') +
+          '<div class="notice" style="margin-top:10px">' + esc(S.KCD_NOTE) + '</div></div>';
+      }
+    }
+    $('#cList').innerHTML = html || '<div class="card"><div class="empty">검색 결과가 없습니다.</div></div>';
+  }
+
+  /* ───── ⑤ 판례·심결 ───── */
+  var lSeg = 'laws', lQ = '';
+  function initLaw() {
+    $('#lawSeg').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-lseg]'); if (!b) return;
+      lSeg = b.getAttribute('data-lseg');
+      $$('#lawSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      renderLaw();
+    });
+    $('#lawQ').addEventListener('input', function (e) { lQ = e.target.value; renderLaw(); });
+    renderLaw();
+  }
+  function renderLaw() {
+    var q = lQ.trim();
+    var html = '';
+    if (q) {
+      var laws = S.LAWS.filter(function (x) { return matchAll(x.no + ' ' + x.title + ' ' + x.point + ' ' + x.apply + ' ' + x.tags.join(' '), q); });
+      var fss = S.FCASES.filter(function (x) { return matchAll(x.id + ' ' + x.point + ' ' + x.type + ' ' + x.tags.join(' '), q); });
+      if (laws.length) html += '<div class="section-title">대법원 판례 ' + laws.length + '건</div>' + laws.map(lawCard).join('');
+      if (fss.length) html += '<div class="section-title">분조위·소비자경보 ' + fss.length + '건</div>' + fss.map(fssCard).join('');
+      if (!laws.length && !fss.length) html = '<div class="card"><div class="empty">검색 결과가 없습니다.</div></div>';
+      $('#lawChips').innerHTML = '';
+    } else if (lSeg === 'laws') {
+      $('#lawChips').innerHTML = '<span class="tag gray">사건번호·선고일·요지</span>';
+      html = '<div class="notice">실손 심사에서 판단이 갈리는 지점의 대법원 판단입니다. 사건번호로 원문을 확인하세요.</div>' + S.LAWS.map(lawCard).join('');
+    } else if (lSeg === 'fss') {
+      $('#lawChips').innerHTML = '<span class="tag gray">금융감독원 분쟁조정·소비자경보</span>';
+      html = '<div class="notice">치료 목적·객관적 의무기록이 핵심입니다. 고시 기준 미충족·미용 목적이면 부지급된 사례입니다.</div>' + S.FCASES.map(fssCard).join('');
+    } else {
+      var cap = S.CAP2026;
+      $('#lawChips').innerHTML = '<span class="tag gray">2026년 기준</span>';
+      html = '<div class="card"><div class="card-h">' + esc(cap.title) + '</div>' +
+        '<table class="tbl"><thead><tr><th>' + esc(cap.head[0]) + '</th><th class="r">' + esc(cap.head[1]) + '</th><th class="r">' + esc(cap.head[2]) + '</th></tr></thead><tbody>' +
+        cap.rows.map(function (r) {
+          return '<tr><td><b>' + esc(r[0]) + '</b></td><td class="r">' + esc(r[1]) + '</td><td class="r">' + esc(r[2]) + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<div class="notice warn" style="margin-top:10px">' + esc(cap.excluded) + '</div></div>' +
+        '<div class="card"><div class="card-h">심사 적용</div>' + cap.apply.map(function (t, i) {
+          return '<div class="hint" style="padding:6px 0;border-bottom:1px solid #f1f4fa">' + (i + 1) + ') ' + esc(t) + '</div>';
+        }).join('') + '</div>';
+    }
+    if (!q) {
+      html += '<div class="card"><div class="card-h">참고 사이트</div>' + S.REFS.map(function (r) {
+        return '<a class="line" style="padding:8px 0;text-decoration:none;color:inherit" href="https://' + esc(r[1]) + '" target="_blank" rel="noopener noreferrer">' +
+          '<div class="nm"><b>' + esc(r[0]) + '</b><span>' + esc(r[2]) + '</span></div>' +
+          '<div class="amt2"><span style="font-size:11px;color:#1b4a94">' + esc(r[1]) + '</span></div></a>';
+      }).join('') + '</div>';
+    }
+    $('#lawList').innerHTML = html;
+  }
+  function lawCard(x) {
+    return '<div class="card"><div class="card-h" style="align-items:flex-start">' +
+      '<span class="tag red">' + esc(x.tag) + '</span><span style="font-size:13px">' + esc(x.title) + '</span></div>' +
+      '<div class="hint" style="margin:-4px 0 8px"><b>대법원 ' + esc(x.date) + ' 선고 ' + esc(x.no) + '</b></div>' +
+      '<div style="font-size:12.5px;color:#2f4463">' + esc(x.point) + '</div>' +
+      '<div class="notice" style="margin-top:8px"><b>심사 적용</b> ' + esc(x.apply) + '</div></div>';
+  }
+  function fssCard(x) {
+    return '<div class="card"><div class="card-h" style="align-items:flex-start">' +
+      '<span class="tag ' + (x.type === '소비자경보' ? 'orange' : 'blue') + '">' + esc(x.type) + '</span>' +
+      '<span style="font-size:13px">' + esc(x.id) + '</span><span class="sp">' + esc(x.date) + '</span></div>' +
+      '<div style="font-size:12.5px;color:#2f4463">' + esc(x.point) + '</div></div>';
+  }
+
+  /* ───── ⑥ 심사메모 ───── */
+  var MEMO_KEY = 'silson.memo.v1';
+  var memos = load(MEMO_KEY, []);
+  if (!Array.isArray(memos)) memos = [];
+  var memoQ = '', memoTag = '전체';
+  function saveMemos() {
+    try { localStorage.setItem(MEMO_KEY, JSON.stringify(memos)); }
+    catch (e) { toast('저장 공간이 부족합니다. 백업 후 오래된 메모를 정리하세요.'); }
+  }
+  function initMemo() {
+    $('#memoQ').addEventListener('input', function (e) { memoQ = e.target.value; renderMemo(); });
+    $('#memoTags').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-mtag]'); if (!b) return;
+      memoTag = b.getAttribute('data-mtag'); renderMemo();
+    });
+    $('#memoNew').addEventListener('click', function () { openEditor(null); });
+    $('#memoExport').addEventListener('click', exportMemos);
+    $('#memoImport').addEventListener('click', function () { $('#memoFile').click(); });
+    $('#memoFile').addEventListener('change', importMemos);
+    $('#memoList').addEventListener('click', function (e) {
+      var ed = e.target.closest('[data-med]'), dl = e.target.closest('[data-mdel]');
+      if (ed) openEditor(ed.getAttribute('data-med'));
+      if (dl) {
+        var id = dl.getAttribute('data-mdel');
+        var m = memos.filter(function (x) { return x.id === id; })[0];
+        if (!m) return;
+        if (!confirm('메모「' + (m.title || '제목 없음') + '」을 삭제할까요?\n삭제하면 되돌릴 수 없습니다.')) return;
+        memos = memos.filter(function (x) { return x.id !== id; }); saveMemos(); renderMemo(); toast('삭제했습니다');
+      }
+    });
+    renderMemo();
+  }
+  function renderMemo() {
+    var tags = ['전체'];
+    memos.forEach(function (m) { if (m.tag && tags.indexOf(m.tag) < 0) tags.push(m.tag); });
+    if (memoTag !== '전체' && tags.indexOf(memoTag) < 0) memoTag = '전체';
+    $('#memoTags').innerHTML = tags.length > 1 ? tags.map(function (t) {
+      return '<button class="chip ' + (memoTag === t ? 'on' : '') + '" data-mtag="' + esc(t) + '">' + esc(t) + '</button>';
+    }).join('') : '';
+    $('#memoStat').textContent = memos.length + '건 · ' + (JSON.stringify(memos).length / 1024).toFixed(1) + 'KB';
+    var list = memos.slice().sort(function (a, b) { return (b.updated || '').localeCompare(a.updated || ''); })
+      .filter(function (m) {
+        var okTag = memoTag === '전체' || m.tag === memoTag;
+        return okTag && matchAll((m.title || '') + ' ' + (m.body || '') + ' ' + (m.tag || ''), memoQ);
+      });
+    if (!list.length) {
+      $('#memoList').innerHTML = '<div class="empty">' + (memos.length ? '검색 결과가 없습니다.' : '아직 메모가 없습니다.<br>사내 심사 기준·판례 메모·체크 포인트를 적어 두세요.<br>기기에만 저장됩니다.') + '</div>';
+      return;
+    }
+    $('#memoList').innerHTML = list.map(function (m) {
+      return '<div class="memo-item"><h4>' + hl(m.title || '제목 없음', memoQ) + '</h4>' +
+        '<p>' + hl(m.body || '', memoQ) + '</p>' +
+        '<div class="meta">' + (m.tag ? '<span class="tag blue">' + esc(m.tag) + '</span>' : '') +
+        '<span>' + stamp(m.updated) + '</span>' +
+        '<span class="acts"><button class="btn sm sec" data-med="' + esc(m.id) + '">편집</button>' +
+        '<button class="btn sm danger" data-mdel="' + esc(m.id) + '">삭제</button></span></div></div>';
+    }).join('');
+  }
+  function openEditor(id) {
+    var m = id ? memos.filter(function (x) { return x.id === id; })[0] : null;
+    var sheet = $('#sheet');
+    sheet.innerHTML = '<div class="grab"></div><h3>' + (m ? '메모 편집' : '새 심사메모') + '</h3>' +
+      '<div class="field"><label>제목</label><input type="text" id="eTitle" placeholder="예: 5세대 비중증 주사 면책 예외" value="' + esc(m ? m.title : '') + '"></div>' +
+      '<div class="field"><label>태그 (선택)</label><input type="text" id="eTag" placeholder="예: 5세대, 주사료, 판례" value="' + esc(m ? m.tag : '') + '"></div>' +
+      '<div class="field"><label>내용</label><textarea id="eBody" placeholder="사내 기준, 심사 포인트, 판례 요지 등">' + esc(m ? m.body : '') + '</textarea></div>' +
+      '<div class="hint" style="margin-bottom:12px">이 기기 브라우저에만 저장되며 외부로 전송되지 않습니다.</div>' +
+      '<div class="btn-row"><button class="btn sec" data-x="close">취소</button><button class="btn" id="eSave">저장</button></div>';
+    $('#modal').classList.add('on');
+    setTimeout(function () { var t = $('#eTitle'); if (t) t.focus(); }, 120);
+    $('#eSave').addEventListener('click', function () {
+      var title = $('#eTitle').value.trim(), tag = $('#eTag').value.trim(), body = $('#eBody').value;
+      if (!title && !body.trim()) { toast('제목이나 내용을 입력하세요'); return; }
+      if (m) {
+        m.title = title; m.tag = tag; m.body = body; m.updated = nowISO();
+      } else {
+        memos.push({ id: 'm' + Date.now() + Math.random().toString(36).slice(2, 7), title: title, tag: tag, body: body, created: nowISO(), updated: nowISO() });
+      }
+      saveMemos(); closeModal(); renderMemo(); toast('저장했습니다');
+    });
+  }
+  function exportMemos() {
+    if (!memos.length) { toast('내보낼 메모가 없습니다'); return; }
+    var data = { app: 'silson-helper', version: 1, exportedAt: nowISO(), memos: memos };
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    var d = new Date();
+    var name = '심사메모_' + d.getFullYear() + ('0' + (d.getMonth() + 1)).slice(-2) + ('0' + d.getDate()).slice(-2) + '.json';
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    toast('JSON 파일로 내보냈습니다');
+  }
+  function importMemos(e) {
+    var f = e.target.files && e.target.files[0]; if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try {
+        var d = JSON.parse(String(rd.result));
+        var arr = Array.isArray(d) ? d : (d && Array.isArray(d.memos) ? d.memos : null);
+        if (!arr) throw new Error('format');
+        var valid = arr.filter(function (m) { return m && (m.title || m.body); }).map(function (m) {
+          return {
+            id: m.id || ('m' + Date.now() + Math.random().toString(36).slice(2, 7)),
+            title: String(m.title || ''), tag: String(m.tag || ''), body: String(m.body || ''),
+            created: m.created || nowISO(), updated: m.updated || nowISO()
+          };
+        });
+        if (!valid.length) throw new Error('empty');
+        if (!confirm(valid.length + '건을 불러옵니다. 같은 id의 메모는 덮어씁니다.')) return;
+        var map = {};
+        memos.concat(valid).forEach(function (m) { map[m.id] = m; });
+        memos = Object.keys(map).map(function (k) { return map[k]; });
+        saveMemos(); renderMemo(); toast(valid.length + '건을 불러왔습니다');
+      } catch (err) {
+        toast('이 앱에서 내보낸 JSON 파일이 아닙니다');
+      }
+    };
+    rd.readAsText(f);
+    e.target.value = '';
+  }
+
+  /* ───── 공통 UI ───── */
+  function closeModal() { $('#modal').classList.remove('on'); }
+  function showInfo() {
+    $('#sheet').innerHTML = '<div class="grab"></div><h3>앱 정보</h3>' +
+      '<div class="hint" style="color:#2f4463;font-size:12.5px;line-height:1.7">' +
+      '삼성생명 인보험 심사 실무용 <b>실손 심사 도우미</b>입니다. 기준일 ' + S.UPDATED + '.<br><br>' +
+      '· 서버·DB 없이 동작하는 정적 웹앱입니다. 인터넷이 없어도 홈 화면에서 열립니다(첫 실행 후 캐시).<br>' +
+      '· 심사메모는 이 기기 브라우저(localStorage)에만 저장되고 외부로 전송되지 않습니다.<br>' +
+      '· 계산 결과는 약관 기준을 옮긴 참고값입니다. 실제 지급 결정은 증권·약관 원문과 진료기록으로 확인하세요.<br><br>' +
+      '<b>홈 화면에 추가</b><br>Safari에서 이 페이지를 연 뒤 공유 → ‘홈 화면에 추가’를 누르면 앱처럼 전체 화면으로 열립니다.</div>' +
+      '<div class="btn-row" style="margin-top:14px"><button class="btn" data-x="close">닫기</button></div>';
+    $('#modal').classList.add('on');
+  }
+  function initCommon() {
+    $('#tabbar').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-tab]'); if (b) go(b.getAttribute('data-tab'));
+    });
+    $('#btnInfo').addEventListener('click', showInfo);
+    document.addEventListener('click', function (e) {
+      if (e.target.closest('[data-close]')) closeModal();
+      if (e.target.closest('[data-x="close"]')) closeModal();
+      var clr = e.target.closest('[data-clear]');
+      if (clr) {
+        var id = clr.getAttribute('data-clear');
+        var inp = document.getElementById(id);
+        if (inp) { inp.value = ''; inp.dispatchEvent(new Event('input', { bubbles: true })); }
+      }
+    });
+    $$('.searchbar input').forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        var btn = inp.parentNode.querySelector('.clr');
+        if (btn) btn.classList.toggle('on', inp.value.length > 0);
+      });
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+  }
+
+  /* ───── 시작 ───── */
+  initCommon();
+  initCompare();
+  initCalc();
+  initBenefit();
+  initCheck();
+  initLaw();
+  initMemo();
+  var savedTab = load('silson.tab', 'compare');
+  go(TABS.indexOf(savedTab) >= 0 ? savedTab : 'compare');
+
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () { });
+    });
+  }
+})();
+</script>
+</body>
+</html>
