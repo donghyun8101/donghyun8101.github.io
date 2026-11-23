@@ -116,6 +116,7 @@ main{flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; scroll-be
 .chip.ghost{background:transparent;}
 
 .seg{display:flex; background:#e6ebf4; border-radius:12px; padding:3px; margin-bottom:12px;}
+.seg.four button{font-size:11.5px; padding:0 2px; letter-spacing:-.2px;}
 .seg button{
   flex:1; min-height:42px; border-radius:9px; font-size:13px; font-weight:700; color:#4a5a75;
   transition:.16s; padding:0 4px; line-height:1.2;
@@ -125,8 +126,8 @@ main{flex:1 1 auto; overflow-y:auto; -webkit-overflow-scrolling:touch; scroll-be
 .field{margin-bottom:10px;}
 .field > label{display:block; font-size:12px; font-weight:700; color:#3b4a63; margin-bottom:5px;}
 .field .note{font-size:11px; color:var(--muted); margin-top:4px; line-height:1.45;}
-input[type=number],input[type=text],textarea,select{
-  width:100%; border:1px solid var(--line); border-radius:11px; background:#fff; padding:11px 12px;
+input[type=number],input[type=text],input[type=date],textarea,select{
+  width:100%; min-width:0; border:1px solid var(--line); border-radius:11px; background:#fff; padding:11px 12px;
   font-size:16px; outline:none; min-height:46px;
 }
 input:focus,textarea:focus,select:focus{border-color:#9dbcff; box-shadow:0 0 0 3px rgba(31,111,235,.12);}
@@ -431,9 +432,15 @@ textarea{resize:vertical; min-height:140px; line-height:1.55;}
 
   <!-- ④ 담보·체크 -->
   <section class="view" id="view-check">
+    <div class="seg four" id="cSeg">
+      <button class="on" data-cseg2="cover">담보·체크</button>
+      <button data-cseg2="static">정액담보</button>
+      <button data-cseg2="date">기간계산</button>
+      <button data-cseg2="discount">할인·할증</button>
+    </div>
     <div class="searchbar">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-      <input type="search" id="cQ" placeholder="담보·KCD·제도 검색 (K64, 수술비, 상한제…)" autocomplete="off">
+      <input type="search" id="cQ" placeholder="담보·KCD·수술·기간 검색 (K64, 백내장, 5종, 180일…)" autocomplete="off">
       <button class="clr" data-clear="cQ" aria-label="지우기">✕</button>
     </div>
     <div class="chips" id="cChips"></div>
@@ -1061,7 +1068,7 @@ window.SILSON = (function () {
   function comma(v) { return String(r0(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
   function emptyAmt() {
-    return { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0, room: 0 };
+    return { gi: 0, gt: 0, bi: 0, bt: 0, phg: 0, phb: 0, physio: 0, inj: 0, mri: 0, onco: 0, room: 0 };
   }
 
   const ROW_META = {
@@ -1069,6 +1076,7 @@ window.SILSON = (function () {
     bi: { label: '비급여 입원 의료비', kind: '비급여', mode: 'in' },
     gt: { label: '급여 통원 1회 본인부담금', kind: '급여', mode: 'out' },
     bt: { label: '비급여 통원 1회 의료비', kind: '비급여', mode: 'out' },
+    ph: { label: '처방조제비(약국)', kind: '약국', mode: 'out' },
     physio: { label: '3대 – 도수·체외충격파·증식', kind: '3대', mode: 'both' },
     inj: { label: '3대 – 비급여 주사료', kind: '3대', mode: 'both' },
     mri: { label: '3대 – MRI·MRA', kind: '3대', mode: 'both' },
@@ -1081,13 +1089,13 @@ window.SILSON = (function () {
     if (gen === 1) return [
       { id: 'g1in', label: '입원 보장한도(질병·상해 합산)', unit: '원', def: 30000000, presets: [10000000, 30000000, 50000000, 100000000], scope: ['gi', 'bi'], mode: 'in',
         src: '1세대 비표준화 · 증권별 한도 수정' },
-      { id: 'g1out', label: '통원 연 보장횟수', unit: '회', def: 30, scope: ['gt', 'bt'], mode: 'out', count: true,
+      { id: 'g1out', label: '통원 연 보장횟수', unit: '회', def: 30, scope: ['gt', 'bt', 'ph'], mode: 'out', count: true,
         src: '보장기간 365일 · 처방조제 별도' }
     ];
     if (gen === 2 || gen === 3) return [
       { id: 'g' + gen + 'in', label: '입원 보장한도(급여+비급여 합산)', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['gi', 'bi'], mode: 'in',
         src: (gen === 2 ? '표준화 약관' : '착한실손 1704') + ' · 3대 특약은 별도' },
-      { id: 'g' + gen + 'out', label: '통원 연 보장횟수', unit: '회', def: 180, scope: ['gt', 'bt'], mode: 'out', count: true,
+      { id: 'g' + gen + 'out', label: '통원 연 보장횟수', unit: '회', def: 180, scope: ['gt', 'bt', 'ph'], mode: 'out', count: true,
         src: '회당 한도(30만원) 별도' }
     ];
     if (gen === 4) return [
@@ -1166,6 +1174,8 @@ window.SILSON = (function () {
       '급여입원': 'gi', '입원급여': 'gi', '급여통원': 'gt', '통원급여': 'gt',
       '비급여': inMode === 'in' ? 'bi' : 'bt',
       '비급여입원': 'bi', '입원비급여': 'bi', '비급여통원': 'bt', '통원비급여': 'bt',
+      '약국': 'phg', '처방': 'phg', '조제': 'phg', '처방조제': 'phg', '약값': 'phg', '약제비': 'phg', '약국급여': 'phg',
+      '약국비급여': 'phb', '처방비급여': 'phb', '조제비급여': 'phb', '비급여약국': 'phb',
       '도수': 'physio', '도수치료': 'physio', '체외': 'physio', '체외충격파': 'physio',
       '증식': 'physio', '증식치료': 'physio', '이학요법': 'physio', '근골격': 'physio',
       '주사': 'inj', '주사료': 'inj', '비급여주사': 'inj',
@@ -1203,6 +1213,7 @@ window.SILSON = (function () {
     const usedCfg = input.used || {};
     const a = Object.assign(emptyAmt(), input.amt || {});
     Object.keys(a).forEach(function (k) { a[k] = Math.max(0, n(a[k])); });
+    const phg = a.phg, phb = a.phb, phAll = phg + phb;
 
     const hBase = DED_BASE[hosp] != null ? DED_BASE[hosp] : 20000;
     const hMod = DED_MODERN[hosp] != null ? DED_MODERN[hosp] : 20000;
@@ -1298,7 +1309,13 @@ window.SILSON = (function () {
         ['자기부담 20%', '입원 연 ' + comma(cap) + '원 한도(질병·상해 합산)']);
       gtPay = push('gt', a.gt, a.gt > 0 ? 5000 + Math.max(0, a.gt - 5000) * 0.2 : 0, 100000,
         a.gt > 0 ? Math.min(Math.max(0, a.gt - 5000) * 0.8, 100000) : 0,
-        ['공제 5천원 + (공제 후) 20%', '회당 10만원 한도(처방 5만원)']);
+        ['공제 5천원 + (5천원 공제 후) 20%', '외래 회당 10만원 한도']);
+      if (mode === 'out') {
+        push('ph', phAll, phAll > 0 ? 3000 + Math.max(0, phAll - 3000) * 0.2 : 0, 50000,
+          phAll > 0 ? Math.min(Math.max(0, phAll - 3000) * 0.8, 50000) : 0,
+          ['공제 3천원 + (3천원 공제 후) 20%', '처방조제 회당 5만원 한도(외래와 별도)',
+           '생보협회 1세대 대표상품(09.1.1 가입) 기준 — 증권 약관 확인']);
+      }
       push('bi', a.bi, a.bi * 0.2, Math.max(0, cap - giPay), Math.min(a.bi * 0.8, Math.max(0, cap - giPay)),
         ['급여와 합산 보상(비급여 구분 없음)', '입원 한도 잔액 적용']);
       const capOut = Math.max(0, 100000 - gtPay);
@@ -1314,31 +1331,44 @@ window.SILSON = (function () {
       const dOf = function (g) { return d2 === 'max' ? Math.max(hBase, g * 0.2) : Math.min(hBase, g); };
       giPay = push('gi', a.gi, a.gi * (1 - rateG), cap, Math.min(a.gi * rateG, cap),
         [form + ' · 급여 ' + Math.round(rateG * 100) + '%', '입원 연 ' + comma(cap) + '원 한도']);
-      gtPay = payRate('gt', a.gt, a.gt ? dOf(a.gt) : 0, rateG, 300000,
-        [d2 === 'max' ? '공제 MAX(정액, 20%)' : '공제 정액', '회당 30만원 한도']);
+      gtPay = payRate('gt', a.gt, a.gt ? dOf(a.gt) : 0, 1, 250000,
+        [d2 === 'max' ? '공제 MAX(정액, 20%)' : '공제 정액', '외래 회당 25만원 한도',
+         '지급 = 보상대상의료비 − 공제금액(공제가 곧 자기부담)']);
+      if (mode === 'out') {
+        const phDed = phAll > 0 ? (d2 === 'max' ? Math.max(8000, phAll * 0.2) : 8000) : 0;
+        push('ph', phAll, phDed, 50000, phAll > 0 ? Math.min(Math.max(0, phAll - phDed), 50000) : 0,
+          [d2 === 'max' ? '공제 MAX(8천원, 20%)' : '공제 8천원(정액)', '처방조제 회당 5만원 한도',
+           '외래+처방조제 회(건)당 합산 30만원 이내 · 선택형Ⅱ는 급여 90%·비급여 80% 구분']);
+      }
       push('bi', a.bi, a.bi * 0.2, Math.max(0, cap - giPay), Math.min(a.bi * 0.8, Math.max(0, cap - giPay)),
         ['비급여 80%(급여와 합산 한도)']);
-      const capOut = Math.max(0, 300000 - gtPay);
-      push('bt', a.bt, a.bt ? dOf(a.bt) : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? dOf(a.bt) : 0)) * 0.8, capOut),
-        ['비급여 통원 80%', '통원 한도 잔액 적용']);
+      const capOut = Math.max(0, 250000 - gtPay);
+      push('bt', a.bt, a.bt ? dOf(a.bt) : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? dOf(a.bt) : 0)), capOut),
+        ['비급여 통원 — 공제금액만 차감(추가 80% 없음)', '통원 한도 잔액 적용']);
       ['physio', 'inj', 'mri', 'onco'].forEach(function (k) {
         const dd = a[k] ? dOf(a[k]) : 0;
-        push(k, a[k], dd, capOut, Math.min(Math.max(0, a[k] - dd) * 0.8, capOut),
-          ['2세대는 3대 비급여 구분 없음 → 일반 비급여 통원(80%)으로 계산']);
+        push(k, a[k], dd, capOut, Math.min(Math.max(0, a[k] - dd), capOut),
+          ['2세대는 3대 비급여 구분 없음 → 일반 비급여 통원(공제금액 차감)으로 계산']);
       });
     } else if (gen === 3) {
       const cap = limCap('g3in', 50000000);
       giPay = push('gi', a.gi, a.gi * (1 - rateG), cap, Math.min(a.gi * rateG, cap),
         [form + ' · 급여 ' + Math.round(rateG * 100) + '%', '입원 연 ' + comma(cap) + '원 한도']);
-      gtPay = payRate('gt', a.gt, a.gt ? hBase : 0, rateG, 300000,
-        ['공제 정액(의원 1만/병원 1.5만/상급·종합 2만)', '회당 30만원 한도']);
+      gtPay = payRate('gt', a.gt, a.gt ? hBase : 0, 1, 250000,
+        ['공제 정액(의원 1만/병원 1.5만/상급·종합 2만)', '외래 회당 25만원 한도',
+         '지급 = 보상대상의료비 − 공제금액(공제가 곧 자기부담)',
+         '1704 판 일부 상품은 정액과 20% 중 큰 금액 적용 — 약관 확인']);
+      if (mode === 'out') {
+        push('ph', phAll, phAll > 0 ? 8000 : 0, 50000, phAll > 0 ? Math.min(Math.max(0, phAll - 8000), 50000) : 0,
+          ['공제 8천원(정액)', '처방조제 회당 5만원 한도', '외래+처방조제 회(건)당 합산 30만원 이내']);
+      }
       push('bi', a.bi, a.bi * 0.2, Math.max(0, cap - giPay), Math.min(a.bi * 0.8, Math.max(0, cap - giPay)),
         ['비급여 80%(급여와 합산 한도)']);
-      const capOut = Math.max(0, 300000 - gtPay);
-      push('bt', a.bt, a.bt ? hBase : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? hBase : 0)) * 0.8, capOut),
-        ['비급여 통원 80%', '통원 한도 잔액 적용']);
+      const capOut = Math.max(0, 250000 - gtPay);
+      push('bt', a.bt, a.bt ? hBase : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? hBase : 0)), capOut),
+        ['비급여 통원 — 공제금액만 차감(추가 80% 없음)', '통원 한도 잔액 적용']);
       const ddO = a.onco ? hBase : 0;
-      push('onco', a.onco, ddO, capOut, Math.min(Math.max(0, a.onco - ddO) * 0.8, capOut),
+      push('onco', a.onco, ddO, capOut, Math.min(Math.max(0, a.onco - ddO), capOut),
         ['3대 주사료 한도 제외 → 기본계약 비급여에서 보상']);
     } else if (gen === 4) {
       const gcap = limCap('g4g', 50000000);
@@ -1347,12 +1377,16 @@ window.SILSON = (function () {
         - Math.max(0, Math.max(0, ytd - a.gi) * 0.2 - 2000000);
       giPay = push('gi', a.gi, a.gi * 0.2, gcap, Math.min(a.gi * 0.8 + excess, gcap),
         ['급여 80%', '입원 자기부담 연 200만원 초과분 추가 보상', '급여 연 ' + comma(gcap) + '원 한도']);
-      gtPay = payRate('gt', a.gt, a.gt ? Math.max(hMod, a.gt * 0.2) : 0, 1, 200000,
-        ['공제 MAX(1만/2만, 20%)', '회당 20만원 한도']);
+      const gtIn4 = a.gt + (mode === 'out' ? phg : 0), btIn4 = a.bt + (mode === 'out' ? phb : 0);
+      gtPay = payRate('gt', gtIn4, gtIn4 ? Math.max(hMod, gtIn4 * 0.2) : 0, 1, 200000,
+        ['외래+처방조제 합산 후 공제 1회 — MAX(1만/2만, 20%)', '회당 20만원 한도',
+         (mode === 'out' && phg > 0) ? '약국 급여 ' + comma(phg) + '원 합산(공제 1회)' : '']);
+      if (mode === 'out' && phAll > 0) warnings.push('4세대는 같은 날 외래와 처방조제를 합산해 통원 1회로 보고 공제를 1회만 적용합니다(약국 별도 8천원 공제 없음).');
       push('bi', a.bi, a.bi * 0.3, bcap, Math.min(a.bi * 0.7, bcap),
         ['비급여 70%', '비급여 연 ' + comma(bcap) + '원 한도']);
-      push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
-        ['공제 MAX(3만원, 30%)', '회당 20만원·연 100회']);
+      push('bt', btIn4, btIn4 ? Math.max(30000, btIn4 * 0.3) : 0, 200000, Math.min(Math.max(0, btIn4 - (btIn4 ? Math.max(30000, btIn4 * 0.3) : 0)), 200000),
+        ['외래+처방조제 합산 후 공제 1회 — MAX(3만원, 30%)', '회당 20만원·연 100회',
+         (mode === 'out' && phb > 0) ? '약국 비급여 ' + comma(phb) + '원 합산(공제 1회)' : '']);
       push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, bcap,
         Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), bcap),
         ['3대 주사료 한도 제외 → 상해·질병 비급여(70%)']);
@@ -1362,15 +1396,19 @@ window.SILSON = (function () {
         - Math.max(0, Math.max(0, ytd - a.gi) * 0.2 - 2000000);
       giPay = push('gi', a.gi, a.gi * 0.2, gcap, Math.min(a.gi * 0.8 + excess, gcap),
         ['급여 80%', '입·통원 합산 연 ' + comma(gcap) + '원', '입원 자기부담 연 200만원 초과분 추가 보상']);
-      gtPay = payRate('gt', a.gt, a.gt ? Math.max(hMod, a.gt * 0.2, a.gt * nhirate) : 0, 1, 200000,
-        ['공제 MAX(1만/2만, 20%, 건보 본인부담률)', '회당 20만원 한도']);
+      const gtIn5 = a.gt + (mode === 'out' ? phg : 0), btIn5 = a.bt + (mode === 'out' ? phb : 0);
+      gtPay = payRate('gt', gtIn5, gtIn5 ? Math.max(hMod, gtIn5 * 0.2, gtIn5 * nhirate) : 0, 1, 200000,
+        ['외래+처방조제 합산 후 공제 1회 — MAX(1만/2만, 20%, 건보 본인부담률)', '회당 20만원 한도',
+         (mode === 'out' && phg > 0) ? '약국 급여 ' + comma(phg) + '원 합산(공제 1회)' : '']);
+      if (mode === 'out' && phAll > 0) warnings.push('5세대는 같은 날 외래와 처방조제를 합산해 통원 1회로 보고 공제를 1회만 적용합니다(약국 별도 공제 없음).');
       if (severe) {
         const scan = limCap('g5s', 50000000);
         push('bi', a.bi, a.bi * 0.3, scan, Math.min(a.bi * 0.7, scan),
           ['중증(특약1) 비급여 입원 70%', '입·통원 합산 연 ' + comma(scan) + '원 한도']);
-        push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000,
-          Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
-          ['중증 통원 공제 MAX(3만원, 30%)', '회당 20만원·연 100회']);
+        push('bt', btIn5, btIn5 ? Math.max(30000, btIn5 * 0.3) : 0, 200000,
+          Math.min(Math.max(0, btIn5 - (btIn5 ? Math.max(30000, btIn5 * 0.3) : 0)), 200000),
+          ['외래+처방조제 합산 후 공제 1회 — 중증 MAX(3만원, 30%)', '회당 20만원·연 100회',
+           (mode === 'out' && phb > 0) ? '약국 비급여 ' + comma(phb) + '원 합산(공제 1회)' : '']);
         push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, scan,
           Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), scan),
           ['3대 주사료 한도 제외 → 상해·질병 비급여(70%)']);
@@ -1379,9 +1417,10 @@ window.SILSON = (function () {
         const biCap = (hosp === '의원' || hosp === '병원') ? Math.min(a.bi * 0.5, 3000000) : Math.min(a.bi * 0.5, ncap);
         push('bi', a.bi, a.bi * 0.5, ncap, Math.min(biCap, ncap),
           ['비중증(특약2) 비급여 입원 50%', '입·통원 합산 연 ' + comma(ncap) + '원', '병·의원 입원 1회 300만원 한도']);
-        push('bt', a.bt, a.bt ? Math.max(50000, a.bt * 0.5) : 0, 200000,
-          Math.min(Math.max(0, a.bt - (a.bt ? Math.max(50000, a.bt * 0.5) : 0)), 200000),
-          ['비중증 통원 공제 MAX(5만원, 50%)', '일당 20만원·연 100일']);
+        push('bt', btIn5, btIn5 ? Math.max(50000, btIn5 * 0.5) : 0, 200000,
+          Math.min(Math.max(0, btIn5 - (btIn5 ? Math.max(50000, btIn5 * 0.5) : 0)), 200000),
+          ['외래+처방조제 합산 후 공제 1회 — 비중증 MAX(5만원, 50%)', '일당 20만원·연 100일',
+           (mode === 'out' && phb > 0) ? '약국 비급여 ' + comma(phb) + '원 합산(공제 1회)' : '']);
         push('onco', a.onco, a.onco ? Math.max(50000, a.onco * 0.5) : 0, ncap,
           Math.min(Math.max(0, a.onco - (a.onco ? Math.max(50000, a.onco * 0.5) : 0)), ncap),
           ['면책 예외 → 상해·질병 비급여 50%', '입·통원 합산 연 ' + comma(ncap) + '원']);
@@ -1517,10 +1556,10 @@ window.SILSON = (function () {
   function indepFor(calcInput, gen, coverage) {
     const res = calcGen(Object.assign({}, calcInput, { gen: gen }));
     const KEYS = {
-      '급여': ['gi', 'gt'],
-      '비급여': ['bi', 'bt', 'onco', 'room'],
+      '급여': ['gi', 'gt', 'ph'],
+      '비급여': ['bi', 'bt', 'ph', 'onco', 'room'],
       '3대비급여': ['physio', 'inj', 'mri'],
-      '급여+비급여': ['gi', 'gt', 'bi', 'bt', 'onco', 'room'],
+      '급여+비급여': ['gi', 'gt', 'bi', 'bt', 'ph', 'onco', 'room'],
       '전체': null
     };
     const keys = KEYS[coverage] || null;
@@ -1531,12 +1570,262 @@ window.SILSON = (function () {
     });
     return r0(pay);
   }
+  /* ══════════ 인보험 정액담보 심사 기준 ══════════
+     생보 표준 1~5종 수술분류표(생명보험협회 등록 생보사 기준) · 입원일당 · 진단비
+     ※ 종수는 표준 분류표 기준이며, 가입 특약이 구 1~3종 · 신 1~5종 · 1~7종(수술코드) 중
+       어느 표를 쓰는지에 따라 달라집니다. 실제 지급은 증권·약관 별표가 우선입니다. */
+  const SURGERY = [
+    { no: '44', n: '치루·탈항·치핵 근본수술', g: 1, t: '치질 치핵 치루 치탈 탈항 항문 항문수술', note: '근치를 목적으로 하지 않은 수술은 제외' },
+    { no: '23', n: '하지정맥류 근본수술 및 손·발가락 혈관관혈수술', g: 1, t: '하지정맥류 정맥류 다리혈관 레이저', note: '22항(혈관 관혈수술 3종)에서 제외되는 항목' },
+    { no: '71', n: '백내장·수정체 관혈수술', g: 1, t: '백내장 수정체 인공수정체 안과 눈', note: '구 1~3종 표에서는 2종' },
+    { no: '17', n: '편도·아데노이드 절제수술', g: 1, t: '편도 편도선 아데노이드 코골이', note: '' },
+    { no: '15', n: '만성부비강염 근본수술', g: 1, t: '축농증 부비동 부비강 비염', note: '' },
+    { no: '39', n: '탈장 근본수술', g: 1, t: '탈장 서혜부 헤르니아', note: '' },
+    { no: '42', n: '직장탈 근본수술', g: 1, t: '직장탈', note: '' },
+    { no: '47', n: '방광류·요실금 교정수술', g: 1, t: '요실금 방광류', note: '' },
+    { no: '51', n: '음낭 관혈수술', g: 1, t: '음낭', note: '' },
+    { no: '53', n: '경질적 자궁·난소·난관 수술', g: 1, t: '자궁 난소 난관 질', note: '60일 이내 2회 이상은 1회로 간주' },
+    { no: '54', n: '제왕절개만출술', g: 1, t: '제왕절개 제왕절개술 출산', note: '' },
+    { no: '55', n: '질탈 근본수술', g: 1, t: '질탈', note: '' },
+    { no: '63', n: '안검하수증 수술', g: 1, t: '안검하수 눈꺼풀', note: '안검내반증은 제외' },
+    { no: '67', n: '각막·결막·공막 봉합수술', g: 1, t: '각막 결막 공막 봉합', note: '' },
+    { no: '14', n: '근·건·인대·연골 관혈수술', g: 1, t: '근육 건 인대 연골 회전근개 봉합 아킬레스', note: '' },
+    { no: '13-1', n: '손가락·발가락의 골 및 관절 관혈수술', g: 1, t: '손가락 발가락 골절', note: '' },
+    { no: '11-1', n: '손가락·발가락 절단수술', g: 1, t: '손가락 발가락 절단', note: '다지증에 대한 절단수술은 제외' },
+    { no: '2', n: '피부 이식수술(25㎠ 미만)', g: 1, t: '피부이식 식피', note: '25㎠ 이상은 1항 3종' },
+    { no: '4', n: '기타 유방수술', g: 1, t: '유방 맘모톰', note: '치료목적 mammotomy는 60일 이내 2회 이상 1회로 간주' },
+    { no: '31-2', n: '기타 타액선 절제수술', g: 1, t: '타액선 침샘', note: '타석 제거는 제외' },
+    { no: '7', n: '비골(코뼈) 수술', g: 1, t: '코뼈 비골 비중격', note: '비중격 만곡증·수면무호흡 수술은 제외' },
+    { no: '88-3', n: '내시경·경피적 수술 — 비뇨·생식기 및 손가락·발가락', g: 1, t: '내시경 경피적 요관경 방광경 전립선 TURP', note: '88항(내시경·경피적) 적용' },
+
+    { no: '88-2', n: '내시경·경피적 수술 — 후두·흉부·복부장기·척추·사지관절', g: 2, t: '내시경 용종 폴립 EMR ESD 대장내시경 위내시경 점막절제 척추', note: '위·대장 내시경 용종절제(EMR·ESD) 포함. 구 1~3종 표에서는 1종' },
+    { no: '13-2', n: '기타 사지골·사지관절 관혈수술', g: 2, t: '인공관절 무릎 고관절 어깨 골절 ORIF 내고정 금속판', note: '인공관절 치환술은 1~5종 표 2종 · 1~7종 표는 3~4종' },
+    { no: '52', n: '자궁·난소·난관 관혈수술', g: 2, t: '자궁근종 자궁적출 난소낭종 복강경 자궁', note: '복강경은 해당 부위 항 적용(88항 아님). 제왕절개·경질적 조작 제외' },
+    { no: '41', n: '충수절제술·맹장봉축술', g: 2, t: '맹장 충수 맹장염', note: '' },
+    { no: '5', n: '골 이식수술', g: 2, t: '골이식 뼈이식', note: '' },
+    { no: '8', n: '상악골·하악골·악관절 관혈수술', g: 2, t: '악관절 턱관절 상악골 하악골', note: '' },
+    { no: '10', n: '쇄골·견갑골·늑골·흉골 관혈수술', g: 2, t: '쇄골 견갑골 늑골 흉골', note: '' },
+    { no: '46', n: '요도 관혈수술', g: 2, t: '요도', note: '경요도적 조작은 88-3(1종)' },
+    { no: '50', n: '고환·부고환·정관·정삭·정낭·전립선 관혈수술', g: 2, t: '전립선 고환 정관 정낭', note: '' },
+    { no: '31-1', n: '악하선·설하선 절제수술', g: 2, t: '악하선 설하선 침샘', note: '' },
+    { no: '40', n: '전신성 복막염 수술', g: 2, t: '복막염', note: '' },
+    { no: '60', n: '신경 관혈수술', g: 2, t: '신경', note: '' },
+    { no: '69', n: '전방·홍채·유리체 관혈수술', g: 2, t: '유리체 홍채 전방', note: '' },
+    { no: '68', n: '각막·공막 이식수술', g: 2, t: '각막이식 공막이식', note: '' },
+    { no: '72', n: '망막박리 수술', g: 2, t: '망막박리 망막', note: '60일 이내 2회 이상은 1회로 간주' },
+    { no: '66', n: '결막낭 형성수술', g: 2, t: '결막낭', note: '' },
+    { no: '86', n: '상기 이외의 개복술', g: 2, t: '개복 개복술', note: '' },
+    { no: '87', n: '체외충격파 쇄석술', g: 2, t: '쇄석 결석 신장결석 요로결석 체외충격파', note: '체외충격파치료(ESWT·도수)는 수술 아님' },
+
+    { no: '9', n: '척추골·골반골·추간판 관혈수술', g: 3, t: '디스크 추간판제거 추간판 척추유합 척추골반', note: '내시경·경피적 척추수술은 88-2(2종)' },
+    { no: '36', n: '담낭·담도 관혈수술', g: 3, t: '담낭 담석 담낭염 담낭절제 복강경', note: '개복술을 수반하는 것(복강경 담낭절제 포함)' },
+    { no: '57', n: '갑상선·부갑상선 관혈수술', g: 3, t: '갑상선 부갑상선 갑상선암 갑상선절제', note: '전절제·부분절제 모두 이 항목' },
+    { no: '22', n: '혈관 관혈수술', g: 3, t: '혈관 동맥류 우회술 동정맥루 경동맥', note: '하지정맥류·손발가락은 제외(23항 1종)' },
+    { no: '6', n: '두개골 관혈수술', g: 3, t: '두개골', note: '비골·비중격·상악골·하악골·악관절은 제외' },
+    { no: '3', n: '유방 절단수술', g: 3, t: '유방절단 맥시 유방암', note: '' },
+    { no: '1', n: '피부 이식수술(25㎠ 이상)', g: 3, t: '피부이식 피판', note: '피판수술 포함(Z·W flap 제외)' },
+    { no: '16', n: '후두 관혈적 절제수술', g: 3, t: '후두 절제 후두암', note: '' },
+    { no: '20', n: '흉곽 형성수술', g: 3, t: '흉곽', note: '' },
+    { no: '29', n: '비장 절제수술', g: 3, t: '비장', note: '' },
+    { no: '30', n: '이하선 절제수술', g: 3, t: '이하선', note: '' },
+    { no: '34', n: '기타의 위·식도 관혈수술', g: 3, t: '위 식도 관혈', note: '개흉·개복 수반' },
+    { no: '70', n: '녹내장 관혈수술', g: 3, t: '녹내장', note: '' },
+    { no: '28', n: '체내용 인공심박조율기 매입술', g: 3, t: '인공심박조율기 페이스메이커', note: '' },
+    { no: '62', n: '척수경막내외 관혈수술', g: 3, t: '척수 경막', note: '' },
+    { no: '49', n: '음경 절단수술', g: 3, t: '음경 절단', note: '' },
+    { no: '11-2', n: '기타 사지 절단수술', g: 3, t: '사지 절단', note: '손가락·발가락은 제외' },
+    { no: '12', n: '절단된 사지 재접합수술', g: 3, t: '재접합 절단', note: '골·관절의 이단에 수반하는 것' },
+    { no: '84', n: '상기 이외의 개두술', g: 3, t: '개두 개두술', note: '' },
+    { no: '85', n: '상기 이외의 개흉술', g: 3, t: '개흉 개흉술', note: '' },
+    { no: '88-1', n: '내시경·경피적 수술 — 뇌·심장', g: 3, t: '코일색전 뇌혈관 스텐트 관상동맥 혈전제거 심장시술', note: '카테터·고주파 전극 등 경피적 수술 포함' },
+    { no: 'II-2', n: '내시경·경피적 악성신생물 수술', g: 3, t: '암 내시경 수술 점막절제', note: '악성신생물 치료목적(II장)' },
+
+    { no: '18', n: '기관·기관지·폐·흉막 관혈수술', g: 4, t: '폐엽절제 폐 폐암 흉막 기관지', note: '개흉술을 수반하는 것' },
+    { no: '21', n: '종격종양·흉선 절제수술', g: 4, t: '종격 흉선', note: '' },
+    { no: '25', n: '심막 관혈수술', g: 4, t: '심막', note: '' },
+    { no: '32', n: '식도 이단술', g: 4, t: '식도', note: '개흉·개복 수반' },
+    { no: '33', n: '위 절제수술', g: 4, t: '위암 위절제 위', note: '개복·복강경 위절제' },
+    { no: '35', n: '간장·췌장 관혈수술', g: 4, t: '간 췌장 간암 췌장암', note: '개복술을 수반하는 것' },
+    { no: '43', n: '소장·결장·직장·장간막 관혈수술', g: 4, t: '대장암 결장 직장 장간막 대장', note: '개복술 수반. 직장탈 근본수술은 제외' },
+    { no: '45', n: '신장·방광·신우·요관 관혈수술', g: 4, t: '신장 방광 신우 요관 신장암', note: '개복술 수반. 경요도적 조작·요실금 교정 제외' },
+    { no: '58', n: '부신 절제수술', g: 4, t: '부신', note: '' },
+    { no: '61', n: '관혈적 척수종양 절제수술', g: 4, t: '척수종양', note: '' },
+
+    { no: '59', n: '두개내 관혈수술', g: 5, t: '개두 뇌동맥류 뇌종양 뇌출혈', note: '개두술을 수반하는 것' },
+    { no: '24', n: '대동맥·대정맥·폐동맥·관동맥 관혈수술', g: 5, t: '대동맥 관동맥 개심 대동맥류', note: '개흉·개복 수반' },
+    { no: '26', n: '심장내 관혈수술', g: 5, t: '심장 판막치환 중격결손 개심술', note: '개흉술을 수반하는 것' },
+    { no: '27', n: '심장 이식수술', g: 5, t: '심장이식', note: '' },
+    { no: '19', n: '폐장 이식수술', g: 5, t: '폐이식', note: '' },
+    { no: '37', n: '간장 이식수술', g: 5, t: '간이식', note: '수용자에 한함. 개복술 수반' },
+    { no: '38', n: '췌장 이식수술', g: 5, t: '췌장이식', note: '랑게르한스 소도세포 이식은 제외' },
+    { no: '48', n: '신장 이식수술', g: 5, t: '신장이식 콩팥이식', note: '' },
+    { no: '56', n: '뇌하수체종양 절제수술', g: 5, t: '뇌하수체', note: '' },
+    { no: 'II-1', n: '관혈적 악성신생물 근치수술', g: 5, t: '암 근치수술 암수술', note: '기타피부암(C44) 제외 · 내시경·경피적 제외. C44는 II-1-1(3종)' }
+  ];
+
+  const SURG_RULES = [
+    '종은 수술 이름이 아니라 분류표의 항목으로 정합니다. 표에 없는 행위는 수술비 지급 대상이 아닙니다(신의료기술로 안전성·치료효과를 인정받은 최신 기법은 같은 부위 수술로 봄).',
+    '동시에 2종 이상의 수술을 받은 경우 원칙적으로 1회의 수술로 보아 가장 높은 종 1개만 지급합니다. 약관이 ‘종별 각각 지급’을 정한 상품은 그 문구를 확인합니다.',
+    '내시경(Fiberscope)·카테터·고주파 전극 등 경피적 수술은 88항을 적용합니다(뇌·심장 3종 / 후두·흉부·복부장기·척추·사지관절 2종 / 비뇨·생식기·손발가락 1종). 복강경·흉강경은 해당 부위(1~87항) 수술로 봅니다.',
+    '60일 이내 2회 이상 수술 시 1회로 간주하는 항목이 있습니다(내시경 용종절제 88항, 망막박리 72항, 경질적 자궁·난소·난관 53항, 체외충격파쇄석 87항, 치료목적 mammotomy 등).',
+    '수술 정의: 의사·치과의사·한의사가 질병·재해의 직접 치료 목적으로 필요하다고 인정하고, 기구를 사용해 생체에 절단·절제 등 조작을 가하는 것.',
+    '특약 이름이 1~5종이 아니라 1~3종 또는 1~7종·1~8종이면 별표가 다릅니다. 1~7종·1~8종 표는 수술코드(ADRG)로 종을 정합니다.',
+    '수술비는 종별로 가입한 특약 금액을 1회 지급하는 구조입니다(1종·2종·3종… 별도 가입). 갱신형은 갱신 시점 약관·분류표를 확인합니다.',
+    '같은 수술이라도 보험사·상품·가입 시기별 분류표가 달라 종수가 바뀔 수 있습니다(예: 인공관절 1~5종 표 2종 / 1~7종 표 3~4종, 백내장 1~5종 표 1종 / 구 1~3종 표 2종).'
+  ];
+
+  const SURG_NOT = [
+    '흡인(주사기로 빨아들이는 것)', '천자(바늘·관을 꽂아 체액·조직을 뽑거나 약물 주입)',
+    '신경차단(BLOCK)', '미용 성형 목적 수술', '피임 목적 수술·불임술 후 가임 목적 수술',
+    '검사·진단 목적(생검, 복강경 검사 등)', '발정술 등 내고정물(핀·금속판) 제거술',
+    '도수치료·물리치료', '체외충격파치료(ESWT) — 쇄석술(ESWL)과 다름', '약물주입요법·주사'
+  ];
+
+  const DAILY = [
+    ['1회 입원 지급일수', '손보 기본형 1회 입원당 180일 / 생보(삼성생명 신입원특약T) 120일', '10·20·30일형, 181일 이상형(185일), KB 365일형 등 상품별로 다름'],
+    ['면책일수(지급 개시일)', '1일부터 지급 / 4일째부터 지급(3일 초과)', '“4일 이상 계속 입원” 조건이면 1~3일은 지급 없음. 가입 약관 확인'],
+    ['동일 질병·상해 재입원', '1회 입원으로 합산 → 1회 한도에 누적', '병원을 옮겨도 같은 치료 목적이면 계속 입원으로 봄'],
+    ['퇴원 후 재입원', '마지막 퇴원일부터 180일 경과 후 시작한 입원은 새 입원', '질병 입원일당은 확인한 6개 약관 공통. 상해 입원일당에 이 문구가 없는 약관(삼성화재·DB)도 있음'],
+    ['퇴원 없이 180일 초과', '지급된 최종 입원일의 다음 날을 퇴원일로 봄', '삼성화재·DB·현대·KB 약관 단서'],
+    ['입원일수 산정', '입원일부터 퇴원 전일까지(퇴원일 제외)', '외출·외박이 잦으면 입원의 실질이 문제됨(금감원 분쟁조정: 본인 의사에 따른 외출·외박은 입원 아님)'],
+    ['병실·중환자실 담보', '2·3인실·1인실 1회 30~60일 / 중환자실 60~180일', '“그 병원·그 병실에 입원한 날만” 계산하는 담보가 있음'],
+    ['요양병원', '기본 질병입원일당엔 제외 문구 없음 / 암 입원은 요양병원형 별도(1회 90일, 통상 40%)', '삼성생명·삼성화재·현대·메리츠 모두 요양병원형을 분리'],
+    ['동시 2개 질병 치료', '하나의 입원보험금만 지급', '삼성생명 신입원특약T: 2가지 이상 질병·재해를 함께 치료한 입원은 1회만'],
+    ['감액', '최초 가입 후 1년 미만 50% 감액하는 상품 있음', '질병입원일당이 감액 대상인지 상품요약서로 확인'],
+    ['보험기간 종료 후', '계속 중인 입원은 퇴원할 때까지 보장', '보험기간 종료일부터 180일까지 보장하는 약관도 있음']
+  ];
+
+  const DIAG = [
+    ['일반암 진단비', 'C00~C97 (기타피부암 C44 제외)', '가입금액 최초 1회한', '90일 면책 · 1년 미만 50% 감액(상품에 따라 2년)'],
+    ['유사암(소액암) 진단비', '갑상선암 C73 · 기타피부암 C44 · 제자리암 D00~D09 · 경계성종양 D37~D48', '통상 일반암의 10~20% 또는 별도 가입금액', '면책 없음(보장개시일=계약일). ‘유사암(90일면책)’ 특약은 90일'],
+    ['대장점막내암', '점막층에 국한된 악성신생물', '유사암으로 분류하는 상품이 많음', '점막하층 이상 침윤 시 일반암으로 판단'],
+    ['뇌출혈 진단비', 'I60~I62 (지주막하 I60 · 뇌내 I61 · 기타 비외상성 I62)', '가입금액 1회한', '90일 면책 · 1년 미만 50% 감액'],
+    ['뇌졸중 진단비', 'I60~I66 (뇌경색 I63·I64 포함)', '가입금액 1회한', '뇌출혈 진단비와 중복 지급 여부·한도는 담보 설계 확인'],
+    ['뇌혈관질환 진단비', 'I60~I69 (일과성 뇌허혈발작 G45 포함 여부 상품별)', '범위가 넓어 지급액을 낮게 설계', '뇌졸중·뇌출혈 진단비와 별도 담보'],
+    ['급성심근경색증 진단비', 'I21~I23 (I21 급성 · I22 재발성 · I23 합병증)', '가입금액 1회한', '90일 면책 · 1년 미만 50% 감액'],
+    ['허혈성심장질환 진단비', 'I20~I25 (협심증 I20·관동맥 스텐트 포함)', '범위가 넓어 지급액을 낮게 설계', '급성심근경색 진단비와 별도 담보'],
+    ['진단확정 방법', '병리·진단검사의학 전문의의 조직검사·미세바늘흡인·혈액검사 현미경 소견', '영상검사(CT·MRI)만으로는 원칙적으로 진단확정 불가', '조직검사가 불가능한 상태면 임상적 진단 예외'],
+    ['지급 원칙', '최초 1회한 — 같은 암의 재발·전이·재진단은 지급 없음', '정액형은 타사 진단비·실손과 중복 지급', '보장개시 전 진단 시 해당 특약 무효·납입보험료 환급'],
+    ['기타 진단비', '골절·화상·대상포진·통풍 등', '부위·등급별 정액', '10일 면책 등 짧은 면책기간을 두는 상품 있음']
+  ];
+
+  /* ── 4·5세대 비급여 보험료 할인·할증 5단계 ── */
+  const DISCOUNT = {
+    tiers: [
+      { step: 1, label: '1단계', range: '지급실적 0원', rel: '할인', delta: '할인 (α% · 예 −5%)', tone: 'ok' },
+      { step: 2, label: '2단계', range: '0원 초과 ~ 100만원 미만', rel: '100%', delta: '유지 (0%)', tone: 'gray' },
+      { step: 3, label: '3단계', range: '100만원 이상 ~ 150만원 미만', rel: '200%', delta: '+100% 할증', tone: 'warn' },
+      { step: 4, label: '4단계', range: '150만원 이상 ~ 300만원 미만', rel: '300%', delta: '+200% 할증', tone: 'warn' },
+      { step: 5, label: '5단계', range: '300만원 이상', rel: '400%', delta: '+300% 할증', tone: 'danger' }
+    ],
+    scope: [
+      '적용 대상은 4세대 비급여 특약 보험료, 5세대는 특약2(비중증 비급여) 보험료입니다. 급여 주계약(4·5세대)과 5세대 특약1(중증 비급여)에는 적용되지 않습니다(금감원 2026.05.06 비교표).',
+      '판단 기간은 보험료 갱신 시점 3개월 전 말일부터 직전 12개월의 지급실적입니다(5세대 약관). 4세대는 갱신 전 12개월 실적 기준(삼성화재 2407 이후).',
+      '적용 시점: 4세대는 2024.07 갱신분부터, 5세대 특약2는 2028.05.06 이후 갱신도래 계약부터 적용합니다(삼성화재 2607.1 상품요약서). 단체(취급)계약은 미적용.',
+      '1단계 할인율(α%)은 3~5단계 할증 재원을 나눠 정하므로 회사·연도별로 달라집니다. 약관 예시는 −5% 수준입니다.',
+      '무사고 할인은 별도입니다. 직전 2년간 특약2 보험금을 받지 않으면 다음 1년 실손 보험료(주계약+가입특약 전체)의 10%를 할인합니다.'
+    ],
+    exclude: [
+      '국민건강보험법상 산정특례 대상 질환(암·뇌혈관·심장·희귀난치성질환)의 비급여의료비는 지급실적에서 제외합니다.',
+      '노인장기요양보험법상 장기요양 1등급·2등급 판정자의 비급여의료비도 실적에서 제외합니다.',
+      '5세대 중증(특약1)에서 지급된 보험금은 특약2 실적이 아니므로 할증 판단에 들어가지 않습니다.',
+      '4세대 3대 비급여 특약(도수·체외충격파·증식 / 주사료 / MRI) 지급액은 특약별로 관리됩니다. 이 시뮬레이터는 일반 비급여(비급여 입원·통원·항암주사)만 합산합니다.'
+    ]
+  };
+
+  function discountStep(amount) {
+    const amt = Math.max(0, r0(amount));
+    let step = 1;
+    if (amt > 0) step = 2;
+    if (amt >= 1000000) step = 3;
+    if (amt >= 1500000) step = 4;
+    if (amt >= 3000000) step = 5;
+    const t = DISCOUNT.tiers[step - 1];
+    const nextAt = step === 1 ? 1 : step === 2 ? 1000000 : step === 3 ? 1500000 : step === 4 ? 3000000 : null;
+    return {
+      amount: amt, step: step, label: t.label, range: t.range, rel: t.rel, delta: t.delta, tone: t.tone,
+      nextAt: nextAt, remaining: nextAt == null ? 0 : Math.max(0, nextAt - amt)
+    };
+  }
+
+  /* ── 날짜 계산 (면책기간·보장일수) ── */
+  const WEEKDAY = ['일', '월', '화', '수', '목', '금', '토'];
+
+  function dateAdd(iso, days) {
+    const m = String(iso == null ? '' : iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '';
+    const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+    if (isNaN(d.getTime())) return '';
+    d.setUTCDate(d.getUTCDate() + Math.round(n(days)));
+    const p = function (x) { return (x < 10 ? '0' : '') + x; };
+    return d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate());
+  }
+  function dateWeek(iso) {
+    const m = String(iso == null ? '' : iso).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (!m) return '';
+    const d = new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3])));
+    return isNaN(d.getTime()) ? '' : WEEKDAY[d.getUTCDay()];
+  }
+
+  const DATE_PLAN = {
+    in: {
+      label: '최초 입원일', hint: '입원 건의 보장기간·면책기간·재개일',
+      rows: [
+        [364, '보장 365일 종료일', '입원 1일째를 포함한 365일 — 1세대·2세대(0910~1303 판) 입원 보장 종료일'],
+        [365, '365일 경과일', '이 날부터 90일 보상제외(2세대 0910~1303 판) · 1601 이후 판은 한도 소진 기준'],
+        [455, '365일 + 90일 재개일', '365일 보상 후 90일 보상제외가 끝나 다시 보상되는 날'],
+        [275, '275일 경과일', '보상한도 소진일이 이 날 이전이면 최초 입원일+365일, 이후면 소진일+90일에 복원(1601 이후·3세대)'],
+        [180, '180일 경과일', '입원일당 동일질병 재입원 합산·1세대 질병 180일 면책 판단'],
+        [90, '90일 경과일', '암·뇌·심 진단비 90일 면책(보장개시) 종료일']
+      ]
+    },
+    discharge: {
+      label: '퇴원일', hint: '재입원 합산·새 입원 판단',
+      rows: [
+        [179, '재입원 합산 마지막 날', '퇴원일부터 179일까지의 재입원은 1회 입원으로 합산'],
+        [180, '새 입원 인정일', '퇴원일부터 180일 경과 후 시작한 입원은 새 입원(질병 입원일당 6개 약관 공통)'],
+        [365, '1년(365일) 경과일', '보험기간·감액기간 기준'],
+        [90, '90일 경과일', '보상재개·면책 판단 보조']
+      ]
+    },
+    limit: {
+      label: '보상한도 소진일', hint: '한도 소진 후 90일 보상제외·복원',
+      rows: [
+        [90, '90일 보상제외 마지막 날', '보상한도 종료일부터 90일은 보상제외'],
+        [91, '보상 재개일', '90일이 지난 다음 날부터 다시 보상(약관 예시: 종료일 4.30 → 7.30 재개)'],
+        [365, '소진일 + 365일', '최초 입원일부터 275일 이내에 소진한 경우 최초 입원일+365일에 복원']
+      ]
+    },
+    dx: {
+      label: '진단일·계약일', hint: '진단비 면책·감액기간',
+      rows: [
+        [90, '90일 면책 종료일(보장개시일)', '계약일을 포함해 90일이 지난 날의 다음 날부터 보장'],
+        [365, '1년 감액 종료일', '1년 미만 진단은 50% 감액 → 이 날 이후 전액'],
+        [730, '2년 감액 종료일', '감액기간을 2년으로 정한 상품 기준']
+      ]
+    }
+  };
+
+  function datePlan(iso, mode) {
+    const base = String(iso == null ? '' : iso).slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(base)) return [];
+    const plan = DATE_PLAN[mode] || DATE_PLAN.in;
+    const out = plan.rows.map(function (r) {
+      const d = dateAdd(base, r[0]);
+      return { label: r[1], off: r[0], date: d, week: dateWeek(d), note: r[2] };
+    });
+    out.base = base; out.mode = DATE_PLAN[mode] ? mode : 'in'; out.label = plan.label; out.hint = plan.hint;
+    return out;
+  }
+
   return {
     UPDATED: UPDATED, GENS: GENS, COMPARE: COMPARE, SOURCES: SOURCES,
     FLOW: FLOW, EXEMPT: EXEMPT, DRUGS: DRUGS, COVERS: COVERS, PRINCIPLES: PRINCIPLES,
     KCD: KCD, KCD_NOTE: KCD_NOTE, NOTES4: NOTES4,
     LAWS: LAWS, FCASES: FCASES, CAP2026: CAP2026, REFS: REFS,
     calcGen: calcGen, sumRows: sumRows, distribute: distribute, indepFor: indepFor,
+    SURGERY: SURGERY, SURG_RULES: SURG_RULES, SURG_NOT: SURG_NOT, DAILY: DAILY, DIAG: DIAG,
+    DISCOUNT: DISCOUNT, discountStep: discountStep, dateAdd: dateAdd, dateWeek: dateWeek, datePlan: datePlan,
     limitDefs: limitDefs, applyLimits: applyLimits, parseQuick: parseQuick,
     emptyAmt: emptyAmt, n: n, r0: r0, comma: comma,
     CAP_G3: CAP_G3, CAP_G5N_MRI: CAP_G5N_MRI, CNT_3: CNT_3, CAP_SELF500: CAP_SELF500, DAY_ROOM: DAY_ROOM,
@@ -1675,7 +1964,7 @@ window.SILSON = (function () {
   var C_DEFAULT = {
     gen: 1, mode: 'in', hosp: '종합병원', form: '표준형', d2mode: 'flat', severe: false,
     nhirate: 0.2, ytd: 0, ytdS: 0, roomDays: 0, qTarget: '',
-    amt: { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0, room: 0 },
+    amt: { gi: 0, gt: 0, bi: 0, bt: 0, phg: 0, phb: 0, physio: 0, inj: 0, mri: 0, onco: 0, room: 0 },
     cnt: { physio: { used: 0, n: 1 }, inj: { used: 0, n: 1 } },
     used: { physio: 0, inj: 0, mri: 0 },
     lim: {}
@@ -1792,7 +2081,9 @@ window.SILSON = (function () {
       ['onco', '항암·항생·희귀의약품 주사', '3대 한도 제외 → 기본계약에서 보상']
     ],
     out: [
-      ['gt', '급여 통원 1회 본인부담금', '외래+처방조제 합산 1회'],
+      ['gt', '급여 통원 1회 본인부담금', '외래 1회 · 약국분은 아래 처방조제비 칸에'],
+      ['phg', '처방조제비(약국) 급여', '약국 영수증 급여 본인부담 · 1~3세대는 비급여와 합산해 처방전 1건당 공제'],
+      ['phb', '처방조제비(약국) 비급여', '약국 영수증 비급여(비급여 조제·일반의약품 등)'],
       ['bt', '비급여 통원 1회 의료비', '3대 비급여 제외'],
       ['physio', '3대 – 도수·체외충격파', '이번 청구 합계 · 도수·증식·체외충격파'],
       ['inj', '3대 – 비급여 주사료', '이번 청구 합계 · 항암·항생·희귀 제외'],
@@ -1810,7 +2101,7 @@ window.SILSON = (function () {
     }).join('');
     $('#calcInputHint').textContent = C.mode === 'in'
       ? '입원 건은 퇴원 후 1건으로 계산합니다. 3대 비급여는 입원 중 시행분 합계를 넣으세요.'
-      : '통원은 1회(1일) 기준입니다. 3대 비급여는 이번 청구에 포함된 회차 합계를 넣으세요.';
+      : '통원은 1회(1일) 기준입니다. 4·5세대는 약국 처방조제비를 외래와 합산해 공제를 1회만 적용하고, 1~3세대는 처방전 1건당 별도 공제합니다.';
   }
 
   function quickFields() {
@@ -1984,6 +2275,25 @@ window.SILSON = (function () {
         (res.cap500.saved > 0 ? ' (추가 보상 +' + fmt(res.cap500.saved) + '원, 연 누계 ' + fmt(res.cap500.ytd) + '원)' : '') + '</div>';
     }
 
+    var phg = Math.max(0, Math.round(Number(C.amt.phg) || 0)), phb = Math.max(0, Math.round(Number(C.amt.phb) || 0));
+    if (phg + phb > 0 && C.mode === 'out') {
+      html += '<div class="notice ok" style="margin-top:10px"><b>처방조제비(약국) 처리</b><br>급여 ' + fmt(phg) + '원 + 비급여 ' + fmt(phb) +
+        '원 = <b>' + fmt(phg + phb) + '원</b> · ' +
+        (C.gen >= 4
+          ? '외래 금액과 합산해 통원 1회로 보아 공제를 <b>1회만</b> 적용했습니다(약국 별도 8천원 공제 없음).'
+          : '외래와 별도로 처방전 1건당 한도(5만원)와 공제(' + (C.gen === 1 ? '3천원 + 3천원 공제 후 20%' : '8천원') + ')를 적용했습니다.') +
+        '</div>';
+    }
+    if (C.gen >= 4) {
+      var bPay = 0;
+      res.rows.forEach(function (r) { if (['bi', 'bt', 'onco'].indexOf(r.key) >= 0) bPay += r.pay; });
+      if (bPay > 0) {
+        var ds = S.discountStep(bPay);
+        html += '<div class="notice" style="margin-top:10px"><b>비급여 할인·할증 참고</b><br>이 건 비급여 예상 지급 ' + fmt(bPay) +
+          '원 → 이 건만 실적에 더하면 최소 ' + esc(ds.label) + '(' + esc(ds.delta) + ') 구간입니다. 실제 등급은 갱신 3개월 전 말일부터 직전 12개월 실적(산정특례·장기요양 제외)으로 정해집니다.</div>';
+      }
+    }
+
     var limRows = (res.limits || []).filter(function (L) { return L.applicable; });
     if (limRows.length) {
       html += '<div class="card-h" style="margin-top:14px">잔여 한도</div>';
@@ -2113,7 +2423,7 @@ window.SILSON = (function () {
 
     $('#calcResult').addEventListener('click', function (e) {
       if (e.target.id === 'calcSample') {
-        C.amt = { gi: 1000000, gt: 50000, bi: 2000000, bt: 300000, physio: 150000, inj: 100000, mri: 700000, onco: 500000, room: 600000 };
+        C.amt = { gi: 1000000, gt: 50000, bi: 2000000, bt: 300000, phg: 35000, phb: 0, physio: 150000, inj: 100000, mri: 700000, onco: 500000, room: 600000 };
         C.ytd = 1000000; C.ytdS = 4200000; C.roomDays = 4;
         C.cnt = { physio: { used: 9, n: 2 }, inj: { used: 4, n: 1 } };
         C.used = { physio: 1200000, inj: 500000, mri: 800000 };
@@ -2312,17 +2622,77 @@ window.SILSON = (function () {
   }
 
   /* ───── ④ 담보·체크 ───── */
-  var cCat = '전체', cQ = '';
+  var cCat = '전체', cQ = '', cSeg = 'cover', cGrade = '전체', cAll = false;
   var CCATS = ['전체', '실손형', '정액형', '배상·공적', '제도', 'KCD'];
+  function todayISO() {
+    var d = new Date(), p = function (x) { return (x < 10 ? '0' : '') + x; };
+    return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+  }
+  var DC = load('silson.date', null);
+  if (!DC || typeof DC !== 'object') DC = {};
+  if (!DC.base) DC.base = todayISO();
+  if (!DC.mode) DC.mode = 'in';
+  var DS = load('silson.disc', null);
+  if (!DS || typeof DS !== 'object') DS = {};
+  if (DS.amt == null) DS.amt = 0;
+  if (!DS.gen) DS.gen = 4;
+  DS.exSpecial = !!DS.exSpecial; DS.exLtc = !!DS.exLtc;
   function initCheck() {
+    $('#cSeg').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cseg2]'); if (!b) return;
+      cSeg = b.getAttribute('data-cseg2');
+      $$('#cSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
+      var qi = $('#cQ');
+      if (cSeg !== 'cover') { qi.value = ''; cQ = ''; }
+      renderCheck();
+    });
     $('#cChips').addEventListener('click', function (e) {
       var b = e.target.closest('[data-ccat]'); if (!b) return;
-      cCat = b.getAttribute('data-ccat'); renderCheck();
+      if (cSeg === 'static') { cGrade = b.getAttribute('data-ccat'); cAll = false; }
+      else cCat = b.getAttribute('data-ccat');
+      renderCheck();
     });
     $('#cQ').addEventListener('input', function (e) { cQ = e.target.value; renderCheck(); });
+    $('#cList').addEventListener('click', function (e) {
+      if (e.target.closest('[data-call]')) { cAll = true; renderStatic(); return; }
+      var m = e.target.closest('[data-dcmode]');
+      if (m) { DC.mode = m.getAttribute('data-dcmode'); store('silson.date', DC); renderDateTool(); return; }
+      var g = e.target.closest('[data-dsgen]');
+      if (g) { DS.gen = Number(g.getAttribute('data-dsgen')) || 4; store('silson.disc', DS); renderDiscount(); return; }
+      var x = e.target.closest('[data-dsex]');
+      if (x) {
+        if (x.getAttribute('data-dsex') === 'special') DS.exSpecial = !DS.exSpecial;
+        else DS.exLtc = !DS.exLtc;
+        store('silson.disc', DS); renderDiscount(); return;
+      }
+      if (e.target.closest('[data-dsfromcalc]')) {
+        DS.amt = calcNonSeverePay();
+        if (C.gen >= 5) DS.gen = 5; else if (C.gen === 4) DS.gen = 4;
+        store('silson.disc', DS); renderDiscount();
+        toast('계산기 비급여 예상액 ' + fmt(DS.amt) + '원을 넣었습니다');
+        return;
+      }
+      if (e.target.closest('[data-dsreset]')) {
+        DS.amt = 0; DS.exSpecial = false; DS.exLtc = false;
+        store('silson.disc', DS); renderDiscount(); return;
+      }
+    });
+    $('#cList').addEventListener('input', function (e) {
+      if (e.target.id === 'dcDate') {
+        DC.base = e.target.value; store('silson.date', DC);
+        var o = $('#dcOut'); if (o) o.innerHTML = dateOutHtml();
+      }
+      if (e.target.id === 'dsAmt') {
+        DS.amt = Math.max(0, Math.round(Number(e.target.value) || 0)); store('silson.disc', DS);
+        var o2 = $('#dsOut'); if (o2) o2.innerHTML = discOutHtml();
+      }
+    });
     renderCheck();
   }
   function renderCheck() {
+    if (cSeg === 'static') { renderStatic(); return; }
+    if (cSeg === 'date') { renderDateTool(); return; }
+    if (cSeg === 'discount') { renderDiscount(); return; }
     $('#cChips').innerHTML = CCATS.map(function (c) {
       return '<button class="chip ' + (cCat === c ? 'on' : '') + '" data-ccat="' + c + '">' + c + '</button>';
     }).join('');
@@ -2373,6 +2743,185 @@ window.SILSON = (function () {
       }
     }
     $('#cList').innerHTML = html || '<div class="card"><div class="empty">검색 결과가 없습니다.</div></div>';
+  }
+
+  /* ───── ④-b 인보험 정액담보 기준 (수술분류표·입원일당·진단비) ───── */
+  var CGRADES = ['전체', '1종', '2종', '3종', '4종', '5종', '수술 아님'];
+  function renderStatic() {
+    var q = cQ.trim();
+    $('#cChips').innerHTML = CGRADES.map(function (g) {
+      return '<button class="chip ' + (cGrade === g ? 'on' : '') + '" data-ccat="' + g + '">' + g + '</button>';
+    }).join('');
+    var html = '';
+
+    if (cGrade !== '수술 아님') {
+      var allRows = S.SURGERY.filter(function (r) {
+        var okG = cGrade === '전체' || String(r.g) === cGrade.charAt(0);
+        return okG && matchAll([r.no, r.n, r.t, r.note].join(' '), q);
+      });
+      var capped = (!q && cGrade === '전체' && !cAll && allRows.length > 30);
+      var rows = capped ? allRows.slice(0, 30) : allRows;
+      html += '<div class="card"><div class="card-h">생보 표준 1~5종 수술분류표 <span class="sp">' +
+        (capped ? allRows.length + '건 중 30건' : rows.length + '건') + '</span></div>' +
+        '<div class="hint" style="margin-bottom:8px">생명보험협회 등록 생보사 종 수술 분류기준입니다. 특약이 <b>구 1~3종 · 1~7종(수술코드)</b>이면 별표가 다릅니다.</div>' +
+        (rows.length ? '<table class="tbl"><thead><tr><th>항목</th><th>수술명</th><th class="r">종</th></tr></thead><tbody>' +
+          rows.map(function (r) {
+            return '<tr><td><b>' + esc(r.no) + '항</b></td>' +
+              '<td>' + hl(r.n, q) + (r.note ? '<br><span class="hint">' + hl(r.note, q) + '</span>' : '') + '</td>' +
+              '<td class="r"><span class="tag ' + (r.g <= 2 ? 'green' : r.g === 3 ? 'blue' : 'red') + '">' + r.g + '종</span></td></tr>';
+          }).join('') + '</tbody></table>' : '<div class="empty">검색 결과가 없습니다.<br>‘용종’, ‘백내장’, ‘디스크’, ‘인공관절’처럼 수술명으로 검색하세요.</div>') +
+        (capped ? '<div class="btn-row" style="margin-top:10px"><button class="btn soft sm" data-call="1">전체 ' + allRows.length + '건 보기</button></div>' : '') +
+        '</div>';
+    }
+
+    var ruleHits = S.SURG_RULES.filter(function (t) { return matchAll(t, q); });
+    if (!q || ruleHits.length) {
+      html += '<div class="card"><div class="card-h">수술 심사 핵심 원칙</div>' +
+        (ruleHits.length ? ruleHits : S.SURG_RULES).map(function (t, i) {
+          return '<div class="hint" style="padding:6px 0;border-bottom:1px solid #f1f4fa;color:#2f4463;font-size:12.5px">' +
+            (i + 1) + ') ' + hl(t, q) + '</div>';
+        }).join('') + '</div>';
+    }
+
+    var notHits = S.SURG_NOT.filter(function (t) { return matchAll(t, q); });
+    if (cGrade === '수술 아님' || notHits.length) {
+      html += '<div class="card"><div class="card-h">수술로 보지 않는 행위</div><div class="chips" style="margin-bottom:0">' +
+        (notHits.length ? notHits : S.SURG_NOT).map(function (t) {
+          return '<span class="tag gray" style="min-height:0;padding:5px 9px;font-size:11.5px">' + hl(t, q) + '</span>';
+        }).join('') + '</div><div class="notice warn" style="margin-top:10px">분류표에 없는 행위는 수술비 지급 대상이 아닙니다. 수술기록지의 수술명·코드와 약관 항목을 대조하세요.</div></div>';
+    }
+
+    var daily = S.DAILY.filter(function (r) { return matchAll(r.join(' '), q); });
+    if (!q || daily.length) {
+      html += '<div class="card"><div class="card-h">질병·재해 입원일당 기준</div>' +
+        '<table class="tbl"><thead><tr><th>항목</th><th>기준</th></tr></thead><tbody>' +
+        (daily.length ? daily : S.DAILY).map(function (r) {
+          return '<tr><td><b>' + hl(r[0], q) + '</b></td><td>' + hl(r[1], q) +
+            (r[2] ? '<br><span class="hint">' + hl(r[2], q) + '</span>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<div class="notice" style="margin-top:10px">1회 입원 한도(120일/180일)와 면책일수(1일/4일째), 동일 질병 재입원 180일 기준은 상품·판마다 다릅니다. 약관 제3조(보장종목별 보상내용)와 특약 별표를 확인하세요.</div></div>';
+    }
+
+    var diag = S.DIAG.filter(function (r) { return matchAll(r.join(' '), q); });
+    if (!q || diag.length) {
+      html += '<div class="card"><div class="card-h">주요 진단비(암·뇌·심장) KCD·지급 기준</div>' +
+        '<table class="tbl"><thead><tr><th>담보</th><th>KCD 범위</th><th>지급</th></tr></thead><tbody>' +
+        (diag.length ? diag : S.DIAG).map(function (r) {
+          return '<tr><td><b>' + hl(r[0], q) + '</b></td><td>' + hl(r[1], q) +
+            '<br><span class="hint">' + hl(r[2], q) + '</span></td><td class="hint">' + hl(r[3], q) + '</td></tr>';
+        }).join('') + '</tbody></table>' +
+        '<div class="notice warn" style="margin-top:10px">유사암 지급률(10~20%)·감액기간(1년/2년)·뇌·심장 진단비의 KCD 범위는 상품별로 다릅니다. 진단서의 KCD 코드와 약관 ‘보장 대상 질병’ 정의를 대조하세요.</div></div>';
+    }
+
+    $('#cList').innerHTML = html || '<div class="card"><div class="empty">검색 결과가 없습니다.</div></div>';
+  }
+
+  /* ───── ④-c 면책기간·보장일수 날짜 계산 ───── */
+  function dateOutHtml() {
+    var rows = S.datePlan(DC.base, DC.mode);
+    if (!rows.length) return '<div class="card"><div class="empty">기준일을 선택하세요.</div></div>';
+    var html = '<div class="card"><div class="card-h">계산 결과 <span class="sp">' + esc(rows.label) + ' 기준</span></div>' +
+      '<div class="hint" style="margin-bottom:8px">기준일 ' + esc(rows.base) + ' (' + esc(S.dateWeek(rows.base)) + ') · ' + esc(rows.hint) + '</div>';
+    html += rows.map(function (r) {
+      return '<div class="line" style="padding:8px 0"><div class="nm"><b>' + esc(r.label) + '</b>' +
+        '<span>+' + r.off + '일 · ' + esc(r.note) + '</span></div>' +
+        '<div class="amt2"><b style="color:var(--navy);font-size:14px">' + r.date.replace(/-/g, '.') + '</b>' +
+        '<span>' + esc(r.week) + '요일</span></div></div>';
+    }).join('');
+    html += '<div class="notice" style="margin-top:10px">세대·판(0910/1304/1501/1601/1704/2107/2605)에 따라 면책·복원 규정이 다릅니다. 표시된 날짜는 약관 일수를 그대로 더한 값이므로, 실제 청구에서는 보장개시일·보상한도종료일을 증권·지급내역으로 확인하세요.</div></div>';
+    return html;
+  }
+  function renderDateTool() {
+    $('#cChips').innerHTML = '';
+    var modes = [['in', '최초 입원일'], ['discharge', '퇴원일'], ['limit', '한도 소진일'], ['dx', '진단일·계약일']];
+    $('#cList').innerHTML = '<div class="card">' +
+      '<div class="card-h"><span class="n">📅</span>면책기간·보장일수 날짜 계산 <span class="sp">약관 일수 → 날짜</span></div>' +
+      '<div class="field"><label>기준일</label><div class="amt"><input type="date" id="dcDate" value="' + esc(DC.base) + '"></div></div>' +
+      '<div class="field"><label>기준일의 성격</label><div class="chips" style="margin-bottom:0">' +
+      modes.map(function (m) {
+        return '<button class="chip ' + (DC.mode === m[0] ? 'on' : '') + '" data-dcmode="' + m[0] + '">' + m[1] + '</button>';
+      }).join('') + '</div></div>' +
+      '<div class="hint">최초 입원일을 넣으면 365일 보장 종료일·90일 보상제외 후 재개일을, 퇴원일을 넣으면 동일질병 재입원 180일 기준일을, 한도 소진일을 넣으면 90일 보상제외·복원일을, 진단일을 넣으면 90일 면책·1년 감액 종료일을 계산합니다.</div>' +
+      '</div><div id="dcOut">' + dateOutHtml() + '</div>' +
+      '<div class="card"><div class="card-h">세대별 면책·보장기간 정리</div>' +
+      ['1세대: 상해 입원 365일 보장. 질병은 180일 면책기간을 두는 상품이 있고, 퇴원 후 180일이 지나 재입원하면 새 365일을 적용합니다(비표준화 — 증권·약관 확인).',
+        '2세대 0910~1303 판: 최초 입원일부터 365일 보상 후 90일 보상제외 → 다시 365일.',
+        '2세대 1304~1512 판: 위 구조 + 입원의료비 지급 최종 퇴원일부터 180일 경과 재입원 시 다시 365일(1404 이후).',
+        '2세대 1601~1703 판·3세대: 한도 소진 시에만 면책 — 최초 입원일+275일 이후 소진이면 소진일+90일, 275일 이내 소진이면 최초 입원일+365일에 복원. 연간 한도는 다음 계약일 리셋.',
+        '4·5세대: 연간 한도(급여 5천만/비급여 5천만 · 5세대 비중증 1천만)가 계약일 기준 매년 리셋. 한도 소진 시 다음 계약일까지 보장 없음.',
+        '입원일당(정액): 1회 입원 120일(생보)/180일(손보) 한도, 동일 질병 재입원은 합산, 퇴원 후 180일 경과 시 새 입원.',
+        '암·뇌·심 진단비: 90일 면책 + 1년(또는 2년) 미만 50% 감액이 표준. 유사암은 보장개시일이 계약일인 상품이 많음.'].map(function (t) {
+        return '<div class="hint" style="padding:6px 0;border-bottom:1px solid #f1f4fa;color:#2f4463;font-size:12.5px">· ' + esc(t) + '</div>';
+      }).join('') + '</div>';
+  }
+
+  /* ───── ④-d 4·5세대 비급여 할인·할증 5단계 ───── */
+  function calcNonSeverePay() {
+    var res = S.calcGen(calcInput());
+    var keys = ['bi', 'bt', 'onco'];
+    var sum = 0;
+    res.rows.forEach(function (r) { if (keys.indexOf(r.key) >= 0) sum += r.pay; });
+    return Math.max(0, Math.round(sum));
+  }
+  function discOutHtml() {
+    var amt = Math.max(0, Math.round(DS.amt || 0));
+    var r = S.discountStep(amt);
+    var notice;
+    if (r.step === 1) notice = '지급실적이 0원이라 <b>할인</b> 단계입니다. 1원이라도 특약2 보험금을 받으면 2단계(유지)로 바뀝니다.';
+    else if (r.step === 5) notice = '5단계입니다. 특약2 보험료에 요율 상대도 400%(+300% 할증)가 적용될 수 있습니다.';
+    else notice = '다음 단계까지 <b>' + fmt(r.remaining) + '원</b> 남았습니다. 경계값은 ‘이상/미만’ 기준이므로 100만원에 딱 맞으면 3단계입니다.';
+    return '<div class="card"><div class="card-h">판정 결과 <span class="sp">' + (DS.gen >= 5 ? '5세대 특약2' : '4세대 비급여 특약') + '</span></div>' +
+      '<div class="res-hero"><div class="lab">직전 12개월 비급여 지급실적</div>' +
+      '<div class="big">' + fmt(amt) + '<span style="font-size:15px;font-weight:600">원</span></div>' +
+      '<div class="sub2">' + esc(r.label) + ' · ' + esc(r.delta) + '</div></div>' +
+      '<div class="line" style="padding:8px 0"><div class="nm"><b>' + esc(r.label) + '</b><span>구간: ' + esc(r.range) + '</span></div>' +
+      '<div class="amt2"><b>' + esc(r.rel) + '</b><span>요율 상대도</span></div></div>' +
+      '<div class="notice ' + (r.step >= 3 ? 'warn' : 'ok') + '" style="margin-top:10px">' + notice + '</div>' +
+      ((DS.exSpecial || DS.exLtc) ? '<div class="notice ok" style="margin-top:8px">산정특례·장기요양 1·2등급 대상 금액은 실적에서 빠집니다. 제외 후 금액으로 다시 입력하면 단계가 내려갈 수 있습니다.</div>' : '') +
+      '</div>';
+  }
+  function renderDiscount() {
+    $('#cChips').innerHTML = '';
+    var r = S.discountStep(DS.amt);
+    var html = '<div class="card">' +
+      '<div class="card-h"><span class="n">📈</span>비급여 할인·할증 시뮬레이터 <span class="sp">4·5세대</span></div>' +
+      '<div class="field"><label>세대(특약)</label><div class="chips" style="margin-bottom:0">' +
+      [[4, '4세대 비급여 특약'], [5, '5세대 특약2(비중증)']].map(function (g) {
+        return '<button class="chip ' + (DS.gen === g[0] ? 'on' : '') + '" data-dsgen="' + g[0] + '">' + g[1] + '</button>';
+      }).join('') + '</div></div>' +
+      '<div class="field"><label>직전 12개월 비급여 지급실적</label><div class="amt">' +
+      '<input type="number" id="dsAmt" inputmode="numeric" min="0" step="100000" value="' + Math.round(DS.amt || 0) + '">' +
+      '<span class="unit">원</span></div>' +
+      '<div class="note">갱신 3개월 전 말일부터 직전 12개월간 실제 지급된 비급여 보험금 합계(이번 청구 예상액 아님).</div></div>' +
+      '<div class="btn-row"><button class="btn sec sm" data-dsfromcalc="1">계산기 비급여 예상액 불러오기</button>' +
+      '<button class="btn soft sm" data-dsreset="1">비우기</button></div>' +
+      '<div class="hint" style="margin-top:6px">‘계산기 비급여 예상액’은 위 계산기의 비급여 입원·통원·항암주사 지급액 합계입니다(3대 비급여 특약 제외).</div>' +
+      '</div>' +
+      '<div id="dsOut">' + discOutHtml() + '</div>';
+
+    html += '<div class="card"><div class="card-h">할인·할증 5단계 <span class="sp">4세대 · 5세대 특약2</span></div>' +
+      '<table class="tbl"><thead><tr><th>단계</th><th>직전 12개월 비급여 지급실적</th><th class="r">상대도</th><th class="r">보험료</th></tr></thead><tbody>' +
+      S.DISCOUNT.tiers.map(function (t) {
+        var cur = t.step === r.step;
+        return '<tr' + (cur ? ' style="background:#eef3fb"' : '') + '><td><b>' + esc(t.label) + '</b>' + (cur ? ' <span class="tag blue">현재</span>' : '') + '</td>' +
+          '<td>' + esc(t.range) + '</td><td class="r">' + esc(t.rel) + '</td><td class="r">' + esc(t.delta) + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="hint" style="margin-top:8px">4세대는 비급여 특약 보험료에, 5세대는 특약2(비중증 비급여) 보험료에만 적용됩니다. 급여 주계약과 5세대 특약1(중증)은 대상이 아닙니다.</div></div>';
+
+    html += '<div class="card"><div class="card-h">할증 제외 대상 · 적용 범위</div>' +
+      '<div class="chips" style="margin-bottom:8px">' +
+      '<button class="chip ' + (DS.exSpecial ? 'on' : '') + '" data-dsex="special">산정특례 질환 비급여 제외</button>' +
+      '<button class="chip ' + (DS.exLtc ? 'on' : '') + '" data-dsex="ltc">장기요양 1·2등급 비급여 제외</button>' +
+      '</div>' +
+      S.DISCOUNT.exclude.map(function (t) {
+        return '<div class="hint" style="padding:5px 0;border-bottom:1px solid #f1f4fa;color:#2f4463;font-size:12.5px">· ' + esc(t) + '</div>';
+      }).join('') +
+      '<div class="section-title" style="margin:12px 2px 6px">적용 방식</div>' +
+      S.DISCOUNT.scope.map(function (t) {
+        return '<div class="hint" style="padding:5px 0;border-bottom:1px solid #f1f4fa;color:#2f4463;font-size:12.5px">· ' + esc(t) + '</div>';
+      }).join('') + '</div>';
+
+    $('#cList').innerHTML = html;
   }
 
   /* ───── ⑤ 판례·심결 ───── */
@@ -2568,7 +3117,9 @@ window.SILSON = (function () {
       '삼성생명 인보험 심사 실무용 <b>실손 심사 도우미</b>입니다. 기준일 ' + S.UPDATED + '.<br><br>' +
       '· 서버·DB 없이 동작하는 정적 웹앱입니다. 인터넷이 없어도 홈 화면에서 열립니다(첫 실행 후 캐시).<br>' +
       '· 심사메모는 이 기기 브라우저(localStorage)에만 저장되고 외부로 전송되지 않습니다.<br>' +
-      '· 계산기에 세대별 연간 한도·기사용 금액(횟수)을 넣으면 잔여 한도로 이번 지급액을 제한하고, 한도 초과 차감액을 표시합니다.<br>' +'· 3대 비급여(도수·체외충격파·증식 / 주사료 / MRI)는 올해 기사용 횟수·금액과 이번 청구 횟수를 함께 넣어 50회·연 350만/250만/300만 한도를 봅니다.<br>' +'· 5세대 중증은 상급종합·종합병원 입원 자기부담(공제) 연 500만원 상한을, 상급병실료 차액은 50%·1일 10만원 한도를 반영합니다.<br>' +'· 계산 결과는 약관 기준을 옮긴 참고값입니다. 실제 지급 결정은 증권·약관 원문과 진료기록으로 확인하세요.<br><br>' +
+      '· 계산기에 세대별 연간 한도·기사용 금액(횟수)을 넣으면 잔여 한도로 이번 지급액을 제한하고, 한도 초과 차감액을 표시합니다.<br>' +'· 3대 비급여(도수·체외충격파·증식 / 주사료 / MRI)는 올해 기사용 횟수·금액과 이번 청구 횟수를 함께 넣어 50회·연 350만/250만/300만 한도를 봅니다.<br>' +'· 5세대 중증은 상급종합·종합병원 입원 자기부담(공제) 연 500만원 상한을, 상급병실료 차액은 50%·1일 10만원 한도를 반영합니다.<br>' +'· 통원은 처방조제비(약국)를 급여·비급여로 나눠 넣으면 1~3세대는 처방전 1건당 공제·5만원 한도로, 4·5세대는 외래와 합산해 공제 1회로 계산합니다.<br>' +
+      '· 담보·체크 탭의 <b>정액담보</b>에서 생보 표준 1~5종 수술분류표·입원일당·진단비 기준을 검색하고, <b>기간계산</b>에서 면책·보장일수를 날짜로, <b>할인·할증</b>에서 4·5세대 비급여 5단계를 판정합니다.<br>' +
+      '· 계산 결과는 약관 기준을 옮긴 참고값입니다. 실제 지급 결정은 증권·약관 원문과 진료기록으로 확인하세요.<br><br>' +
       '<b>홈 화면에 추가</b><br>Safari에서 이 페이지를 연 뒤 공유 → ‘홈 화면에 추가’를 누르면 앱처럼 전체 화면으로 열립니다.</div>' +
       '<div class="btn-row" style="margin-top:14px"><button class="btn" data-x="close">닫기</button></div>';
     $('#modal').classList.add('on');
