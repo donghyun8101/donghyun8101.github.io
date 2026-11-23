@@ -1,5 +1,5 @@
 /* 실손 심사 도우미 — 오프라인 캐시 (network-first, 캐시 폴백) */
-const CACHE = 'silson-helper-v1';
+const CACHE = 'silson-helper-v2';
 const ASSETS = [
   './',
   './index.html',

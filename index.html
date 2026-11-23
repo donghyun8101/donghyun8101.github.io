@@ -265,6 +265,36 @@ textarea{resize:vertical; min-height:140px; line-height:1.55;}
   opacity:0; pointer-events:none; transition:.22s; z-index:60; max-width:88vw; text-align:center;
 }
 .toast.on{opacity:1; transform:translate(-50%,0);}
+/* ── 빠른 입력·한도·진행률 ── */
+.quick-card select{min-height:44px; flex:1; min-width:0;}
+.quick-card input[type=text]{min-height:44px; flex:1; min-width:0;}
+.quick-card .row > .btn{flex:0 0 auto;}
+.chip.sm{min-height:34px; padding:0 11px; font-size:12px;}
+.lim-item{padding:11px 0; border-bottom:1px solid #f1f4fa;}
+.lim-item:last-child{border-bottom:0;}
+.lim-top{display:flex; align-items:baseline; gap:6px;}
+.lim-top b{font-size:12.5px; color:#22314b; flex:0 0 auto;}
+.lim-top .src{font-size:10.5px; color:var(--muted); margin-left:auto; text-align:right; max-width:56%; line-height:1.35;}
+.lim-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:7px;}
+.lim-grid .f{display:flex; flex-direction:column; gap:3px; min-width:0;}
+.lim-grid label{font-size:10.5px; color:var(--muted); font-weight:700;}
+.lim-grid input{min-height:40px; padding:8px 10px; font-size:15px; text-align:right; font-variant-numeric:tabular-nums; border-radius:9px;}
+.lim-rem{display:flex; align-items:center; gap:6px; margin-top:5px; font-size:11px; color:#5a6780; font-variant-numeric:tabular-nums;}
+.lim-rem .r{margin-left:auto; font-weight:800; color:var(--navy);}
+.bar{height:7px; border-radius:999px; background:#e9eef7; overflow:hidden; margin-top:5px;}
+.bar > i{display:block; height:100%; border-radius:999px; background:var(--primary); transition:width .2s;}
+.bar.ok > i{background:#12a37f;}
+.bar.warn > i{background:#e08a1e;}
+.bar.danger > i{background:var(--danger);}
+.tri-block{padding:11px 0; border-bottom:1px solid #f1f4fa;}
+.tri-block:last-child{border-bottom:0;}
+.tri-h{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+.tri-h b{font-size:12.5px; color:#22314b;}
+.tri-h .val{margin-left:auto; font-size:11.5px; font-weight:800; font-variant-numeric:tabular-nums; color:var(--navy);}
+.badge-warn{display:inline-block; font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px; background:#fdecea; color:#bf3a2b; border:1px solid #f3cdc7;}
+.badge-info{display:inline-block; font-size:10px; font-weight:800; padding:2px 7px; border-radius:999px; background:#e7f0ff; color:#1b4a94; border:1px solid #cfdffc;}
+.tri-sub{font-size:10.5px; color:var(--muted); margin-top:4px;}
+
 </style>
 </head>
 <body>
@@ -307,6 +337,24 @@ textarea{resize:vertical; min-height:140px; line-height:1.55;}
     </div>
 
     <div id="panel-single">
+      <div class="card tight quick-card">
+        <div class="card-h"><span class="n">⚡</span>빠른 금액 입력 <span class="sp">영수증 보고 바로</span></div>
+        <div class="row" style="gap:6px">
+          <input type="text" id="quickLine" placeholder="예: 급여 52000 비급여 85000 도수 120000" autocomplete="off">
+          <button class="btn sm" id="quickApply">채우기</button>
+        </div>
+        <div class="row" style="gap:6px;margin-top:8px">
+          <select id="qTarget" aria-label="빠른 입력 대상"></select>
+        </div>
+        <div class="chips" style="margin:8px 0 0">
+          <button class="chip" data-qadd="10000">+1만</button>
+          <button class="chip" data-qadd="50000">+5만</button>
+          <button class="chip" data-qadd="100000">+10만</button>
+          <button class="chip ghost" data-qadd="reset">초기화</button>
+        </div>
+        <div class="hint" style="margin-top:6px">항목을 고른 뒤 <b>+1만</b>을 누르면 그 칸에 더해집니다. 한 줄 입력은 <b>급여 52000 비급여 85000</b>처럼 띄어 쓰면 됩니다.</div>
+      </div>
+
       <div class="card">
         <div class="card-h"><span class="n">1</span>세대 · 계약 조건</div>
         <div class="chips" id="calcGenChips"></div>
@@ -325,6 +373,17 @@ textarea{resize:vertical; min-height:140px; line-height:1.55;}
         <div class="card-h"><span class="n">2</span>금액 입력 <span class="sp">원 · 보장대상 의료비</span></div>
         <div id="calcInputs"></div>
         <div class="hint" id="calcInputHint" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h"><span class="n">3</span>한도 설정 · 잔여 한도 <span class="sp" id="limSp"></span></div>
+        <div id="calcLimits"></div>
+        <div class="btn-row"><button class="btn sec sm" id="limReset">약관 기본값으로 되돌리기</button></div>
+      </div>
+
+      <div class="card" id="cardTri">
+        <div class="card-h"><span class="n">4</span>3대 비급여 횟수 · 한도 <span class="sp" id="triSp"></span></div>
+        <div id="calcTri"></div>
       </div>
 
       <div id="calcResult"></div>
@@ -347,7 +406,7 @@ textarea{resize:vertical; min-height:140px; line-height:1.55;}
           <button class="btn sec sm" id="mAdd">+ 계약 추가</button>
           <button class="btn soft sm" id="mAutoAll">단일계산 값으로 자동 산출</button>
         </div>
-        <div class="hint" style="margin-top:8px;">독립책임액 = 그 계약만 있었을 때 약관대로 계산한 지급액. 세대를 고르고 <b>자동</b>을 누르면 위 ‘단일 계산’의 입력 금액으로 산출합니다.</div>
+        <div class="hint" style="margin-top:8px;">독립책임액 = 그 계약만 있었을 때 약관대로 계산한 지급액. <b>자동</b>을 누르면 위 ‘단일 계산’의 금액·한도·3대 횟수 설정이 그대로 반영돼 산출됩니다(잔여 한도·횟수 CAP 포함).</div>
       </div>
 
       <div id="mResult"></div>
@@ -579,6 +638,7 @@ window.SILSON = (function () {
     ['5세대 약관', '삼성 인터넷 급여 실손의료비보장보험(2605)[계약전환용](갱신형,무배당) 통합약관 2026.09.23 개정 (LY0849001(260504)) — direct.samsunglife.com 상품공시 PDF'],
     ['5세대 특약', '비중증비급여실손의료비보장특약D[계약전환용] / 중증비급여실손의료비보장특약D[계약전환용] (같은 통합약관 수록)'],
     ['5세대 상품', '생명보험협회 공시실(pub.insure.or.kr) 실손의료보험 상품목록 — 삼성 급여 실손의료비보장보험(2605)(갱신형,무배당)'],
+    ['5세대 한도', '손해보험협회 실손의료보험 안내(kpub.knia.or.kr) 5세대 표 · 금융위 2026.05.06 보도자료 — 급여 5천만, 중증 5천만·통원 회당 20만/연 100회, 3대 350만·250만·300만, 비중증 1천만·병의원 입원 회당 300만·일당 20만/연 100일·MRI 200만, 중증 입원 공제 연 500만 상한, 상급병실료 차액 50%·1일 10만'],
     ['세대 기준', '금융위원회 4세대 실손의료보험 출시 보도자료(2021.06.29), 5세대 실손 및 계약전환·선택형 할인 제도 발표(2026.05.06 / 2026.11.19, 시행 2026.11.23)'],
     ['1세대 기준', '생명보험협회 공시실 ‘1세대 실손의료보험(~’09.9월)’ 대표상품 기준 — 입원 연 3천만, 통원 회당 10만/처방 5만, 자기부담 입원 20%·통원 5천원+20%, 갱신 3년'],
     ['2~3세대 기준', '표준화 실손 표준약관(2009.10 시행)·착한실손(2017.04 시행) 구조 및 공시·약관 해설 자료'],
@@ -986,6 +1046,11 @@ window.SILSON = (function () {
   const DED_BASE = { '의원': 10000, '병원': 15000, '종합병원': 20000, '상급종합': 20000, '약국': 8000 };
   const DED_MODERN = { '의원': 10000, '병원': 10000, '종합병원': 20000, '상급종합': 20000, '약국': 8000 };
   const CAP_G3 = { physio: 3500000, inj: 2500000, mri: 3000000 };
+  const CAP_G5N_MRI = 2000000;
+  const CNT_3 = 50;
+  const CAP_SELF500 = 5000000;
+  const DAY_ROOM = 100000;
+  const TRI_STEPS = [11, 21, 31, 41];
 
   function n(v) {
     if (typeof v === 'number') return isFinite(v) ? v : 0;
@@ -993,9 +1058,10 @@ window.SILSON = (function () {
     return isFinite(x) ? x : 0;
   }
   function r0(v) { return Math.round(n(v)); }
+  function comma(v) { return String(r0(v)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 
   function emptyAmt() {
-    return { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0 };
+    return { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0, room: 0 };
   }
 
   const ROW_META = {
@@ -1003,20 +1069,138 @@ window.SILSON = (function () {
     bi: { label: '비급여 입원 의료비', kind: '비급여', mode: 'in' },
     gt: { label: '급여 통원 1회 본인부담금', kind: '급여', mode: 'out' },
     bt: { label: '비급여 통원 1회 의료비', kind: '비급여', mode: 'out' },
-    physio: { label: '3대 – 도수·체외충격파·증식(1회)', kind: '3대', mode: 'both' },
-    inj: { label: '3대 – 비급여 주사료(1회)', kind: '3대', mode: 'both' },
-    mri: { label: '3대 – MRI·MRA(1회)', kind: '3대', mode: 'both' },
-    onco: { label: '항암·항생·희귀의약품 주사', kind: '기본계약', mode: 'both' }
+    physio: { label: '3대 – 도수·체외충격파·증식', kind: '3대', mode: 'both' },
+    inj: { label: '3대 – 비급여 주사료', kind: '3대', mode: 'both' },
+    mri: { label: '3대 – MRI·MRA', kind: '3대', mode: 'both' },
+    onco: { label: '항암·항생·희귀의약품 주사', kind: '기본계약', mode: 'both' },
+    room: { label: '상급병실료 차액', kind: '비급여', mode: 'in' }
   };
 
+  /* ── 세대별 연간 한도 정의 (기사용·한도 직접 수정 가능) ── */
+  function limitDefs(gen, severe) {
+    if (gen === 1) return [
+      { id: 'g1in', label: '입원 보장한도(질병·상해 합산)', unit: '원', def: 30000000, presets: [10000000, 30000000, 50000000, 100000000], scope: ['gi', 'bi'], mode: 'in',
+        src: '1세대 비표준화 · 증권별 한도 수정' },
+      { id: 'g1out', label: '통원 연 보장횟수', unit: '회', def: 30, scope: ['gt', 'bt'], mode: 'out', count: true,
+        src: '보장기간 365일 · 처방조제 별도' }
+    ];
+    if (gen === 2 || gen === 3) return [
+      { id: 'g' + gen + 'in', label: '입원 보장한도(급여+비급여 합산)', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['gi', 'bi'], mode: 'in',
+        src: (gen === 2 ? '표준화 약관' : '착한실손 1704') + ' · 3대 특약은 별도' },
+      { id: 'g' + gen + 'out', label: '통원 연 보장횟수', unit: '회', def: 180, scope: ['gt', 'bt'], mode: 'out', count: true,
+        src: '회당 한도(30만원) 별도' }
+    ];
+    if (gen === 4) return [
+      { id: 'g4g', label: '급여 연 보장한도', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['gi', 'gt'],
+        src: '급여 입·통원 합산' },
+      { id: 'g4b', label: '비급여 연 보장한도', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['bi', 'bt', 'onco'],
+        src: '3대 비급여·상급병실료는 별도 한도' },
+      { id: 'g4bcnt', label: '비급여 통원 연 보장횟수', unit: '회', def: 100, scope: ['bt'], mode: 'out', count: true,
+        src: '회당 20만원 한도' }
+    ];
+    if (severe) return [
+      { id: 'g5g', label: '급여 연 보장한도', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['gi', 'gt'],
+        src: '급여 입·통원 합산' },
+      { id: 'g5s', label: '중증 비급여 연 보장한도', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['bi', 'bt', 'onco'],
+        src: '3대 비급여·상급병실료는 별도 한도' },
+      { id: 'g5scnt', label: '중증 통원 연 보장횟수', unit: '회', def: 100, scope: ['bt'], mode: 'out', count: true,
+        src: '회당 20만원 한도' }
+    ];
+    return [
+      { id: 'g5g', label: '급여 연 보장한도', unit: '원', def: 50000000, presets: [10000000, 30000000, 50000000], scope: ['gi', 'gt'],
+        src: '급여 입·통원 합산' },
+      { id: 'g5n', label: '비중증 비급여 연 보장한도', unit: '원', def: 10000000, presets: [2000000, 6000000, 10000000], scope: ['bi', 'bt', 'onco'],
+        src: '가입금액 1천만 기준 · MRI 200만·상급병실료 별도' },
+      { id: 'g5ncnt', label: '비중증 통원 연 보장일수', unit: '일', def: 100, scope: ['bt'], mode: 'out', count: true,
+        src: '일당 20만원 한도' }
+    ];
+  }
+
+  /* ── 연간 한도(잔여) 적용 — 초과분은 비례 차감하고 차감액을 남긴다 ── */
+  function applyLimits(rows, gen, severe, mode, limCfg) {
+    const info = [];
+    limitDefs(gen, severe).forEach(function (def) {
+      const cfg = (limCfg && limCfg[def.id]) || {};
+      const cap = (cfg.cap != null && isFinite(n(cfg.cap))) ? Math.max(0, n(cfg.cap)) : def.def;
+      const used = Math.max(0, n(cfg.used));
+      const remain = Math.max(0, cap - used);
+      const applicable = (!def.mode || def.mode === mode);
+      const scope = !applicable ? [] : rows.filter(function (r) {
+        return def.scope.indexOf(r.key) >= 0 && r.gross > 0 && !r.exempt && (r.mode === 'both' || r.mode === mode);
+      });
+      let before = 0;
+      scope.forEach(function (r) { before += r.pay; });
+      if (def.count) {
+        if (scope.length && remain < 1) {
+          scope.forEach(function (r) {
+            r.cut += r.pay;
+            r.notes.push('연 보장' + def.unit + ' 소진(' + comma(used) + '/' + comma(cap) + ') → 면책');
+            r.pay = 0;
+          });
+        }
+      } else if (before > remain) {
+        const f = before > 0 ? remain / before : 0;
+        scope.forEach(function (r) {
+          const np = Math.max(0, Math.round(r.pay * f));
+          r.cut += r.pay - np;
+          r.notes.push('연 한도 잔액 ' + comma(remain) + '원 반영');
+          r.pay = np;
+        });
+      }
+      let after = 0;
+      scope.forEach(function (r) { after += r.pay; });
+      info.push({
+        id: def.id, label: def.label, unit: def.unit, cap: cap, used: used, remain: remain,
+        spent: before, cut: before - after, applicable: applicable, count: !!def.count, src: def.src, def: def
+      });
+    });
+    return info;
+  }
+
+  /* ── 한 줄 빠른 입력 파서: '급여 52000 비급여 85000 도수 120000' ── */
+  function parseQuick(text, mode) {
+    const out = {};
+    const inMode = mode === 'out' ? 'out' : 'in';
+    const A = {
+      '급여': inMode === 'in' ? 'gi' : 'gt',
+      '급여입원': 'gi', '입원급여': 'gi', '급여통원': 'gt', '통원급여': 'gt',
+      '비급여': inMode === 'in' ? 'bi' : 'bt',
+      '비급여입원': 'bi', '입원비급여': 'bi', '비급여통원': 'bt', '통원비급여': 'bt',
+      '도수': 'physio', '도수치료': 'physio', '체외': 'physio', '체외충격파': 'physio',
+      '증식': 'physio', '증식치료': 'physio', '이학요법': 'physio', '근골격': 'physio',
+      '주사': 'inj', '주사료': 'inj', '비급여주사': 'inj',
+      'mri': 'mri', 'mra': 'mri', '엠알아이': 'mri', '자기공명': 'mri',
+      '항암': 'onco', '항암주사': 'onco', '항생': 'onco', '항생제': 'onco', '희귀': 'onco',
+      '병실': 'room', '상급병실': 'room', '병실차액': 'room', '상급병실료': 'room'
+    };
+    const norm = String(text == null ? '' : text).replace(/(\d),(\d)/g, '$1$2');
+    const tokens = norm.split(/[\s,;\/|]+/).filter(function (t) { return t !== ''; });
+    let pending = null;
+    tokens.forEach(function (tk) {
+      const m = tk.match(/^([가-힣A-Za-z]+)[:=]?([0-9][0-9,]*)$/);
+      if (m && A[m[1].toLowerCase()]) { out[A[m[1].toLowerCase()]] = n(m[2]); pending = null; return; }
+      if (A[tk.toLowerCase()]) { pending = A[tk.toLowerCase()]; return; }
+      const num = tk.match(/^[0-9][0-9,]*$/);
+      if (num && pending) { out[pending] = n(num[0]); pending = null; }
+    });
+    return out;
+  }
+
   function calcGen(input) {
+    input = input || {};
     const gen = Number(input.gen) || 1;
     const hosp = input.hosp || '종합병원';
+    const mode = input.mode === 'out' ? 'out' : 'in';
     const form = input.form === '선택형Ⅱ' ? '선택형Ⅱ' : '표준형';
     const d2 = input.d2mode === 'max' ? 'max' : 'flat';
     const severe = !!input.severe;
     const nhirate = input.nhirate == null ? 0.2 : Math.max(0, Math.min(1, n(input.nhirate)));
     const ytd = Math.max(0, n(input.ytd));
+    const ytdS = Math.max(0, n(input.ytdS));
+    const roomDays = Math.max(0, Math.round(n(input.roomDays)));
+    const limCfg = input.lim || {};
+    const cntCfg = input.cnt || {};
+    const usedCfg = input.used || {};
     const a = Object.assign(emptyAmt(), input.amt || {});
     Object.keys(a).forEach(function (k) { a[k] = Math.max(0, n(a[k])); });
 
@@ -1024,33 +1208,98 @@ window.SILSON = (function () {
     const hMod = DED_MODERN[hosp] != null ? DED_MODERN[hosp] : 20000;
     const rateG = form === '선택형Ⅱ' ? 0.9 : 0.8;
     const rows = [];
+    const warnings = [];
+    const tri = {};
+    const cap500 = { applies: false };
     let giPay = 0, gtPay = 0;
 
-    function push(key, gross, deduct, cap, pay, notes, exempt) {
-      gross = r0(gross); deduct = r0(deduct); cap = r0(cap); pay = Math.max(0, r0(pay));
-      if (cap > 0 && gross - deduct > cap) pay = Math.min(pay, cap);
-      rows.push({
-        key: key, label: ROW_META[key].label, kind: ROW_META[key].kind, mode: ROW_META[key].mode,
-        gross: gross, deduct: Math.min(deduct, gross), cap: cap, pay: exempt ? 0 : pay,
-        exempt: !!exempt, notes: notes || []
-      });
-      return exempt ? 0 : pay;
+    function limCap(id, def) {
+      const c = limCfg[id];
+      return (c && c.cap != null && isFinite(n(c.cap))) ? Math.max(0, n(c.cap)) : def;
     }
-    function capped(key, gross, deduct, cap, notes) {
-      const base = Math.max(0, gross - deduct);
-      return push(key, gross, deduct, cap, Math.min(base, cap), notes);
+
+    function row(key, gross, deduct, cap, pay, notes, exempt, cut) {
+      const meta = ROW_META[key] || { label: key, kind: '', mode: 'both' };
+      const r = {
+        key: key, label: meta.label, kind: meta.kind, mode: meta.mode,
+        gross: r0(gross), deduct: Math.min(r0(deduct), r0(gross)), cap: r0(cap),
+        pay: exempt ? 0 : Math.max(0, r0(pay)), cut: Math.max(0, r0(cut || 0)),
+        exempt: !!exempt, notes: (notes || []).filter(function (s) { return s; })
+      };
+      rows.push(r);
+      return r;
+    }
+    function push(key, gross, deduct, cap, pay, notes, exempt) {
+      return row(key, gross, deduct, cap, pay, notes, exempt, 0).pay;
     }
     function payRate(key, gross, deduct, rate, cap, notes) {
       return push(key, gross, deduct, cap, Math.min(Math.max(0, gross - deduct) * rate, cap), notes);
     }
 
+    /* 3대 비급여 — 횟수(회차)·금액 한도·잔여 반영 */
+    function triRow(k, opts) {
+      opts = opts || {};
+      const gross = a[k];
+      const rec = cntCfg[k] || {};
+      const usedCnt = Math.max(0, Math.round(n(rec.used)));
+      const claimed = gross > 0 ? Math.max(1, Math.round(n(rec.n == null ? 1 : rec.n))) : 0;
+      const usedAmt = Math.max(0, n(usedCfg[k]));
+      const capAmt = Math.max(0, n(opts.capAmt));
+      const capCnt = Math.max(0, n(opts.capCnt));
+      const remainAmt = Math.max(0, capAmt - usedAmt);
+      const remainCnt = capCnt ? Math.max(0, capCnt - usedCnt) : null;
+      const st = {
+        key: k, label: ROW_META[k].label, gross: gross, usedAmt: usedAmt, usedCnt: usedCnt, claimed: claimed,
+        capAmt: capAmt, capCnt: capCnt || null, remainAmt: remainAmt, remainCnt: remainCnt,
+        afterAmt: usedAmt + gross, afterCnt: usedCnt + claimed, allowed: 0, pay: 0, cutAmt: 0, cutCnt: 0,
+        exempt: !!opts.exempt, badge: ''
+      };
+      tri[k] = st;
+      if (opts.exempt) {
+        row(k, gross, 0, 0, 0, [opts.exemptNote], true, 0);
+        return st;
+      }
+      if (gross <= 0) { row(k, 0, 0, 0, 0, []); return st; }
+      const perAmt = claimed > 0 ? gross / claimed : gross;
+      const perDed = Math.max(n(opts.floor), perAmt * n(opts.rate));
+      const allowed = remainCnt == null ? claimed : Math.min(claimed, remainCnt);
+      const deduct = allowed * perDed;
+      let pay = allowed * Math.max(0, perAmt - perDed);
+      let cutAmt = 0;
+      const notes = (opts.notes || []).slice();
+      if (claimed > allowed) {
+        st.cutCnt = (claimed - allowed) * Math.max(0, perAmt - perDed);
+        notes.push('잔여 ' + remainCnt + '회 중 ' + allowed + '회만 인정 → 초과 ' + (claimed - allowed) + '회 면책');
+      }
+      if (pay > remainAmt) { cutAmt = pay - remainAmt; pay = remainAmt; }
+      if (cutAmt > 0) notes.push('연 잔여 한도 ' + comma(remainAmt) + '원 적용');
+      notes.push(capCnt ? '연 ' + comma(capAmt) + '원 / ' + capCnt + '회 한도' : '연 ' + comma(capAmt) + '원 한도');
+      if (claimed > 1) notes.push(claimed + '회분 공제 ' + comma(deduct) + '원(회당 ' + comma(perDed) + '원)');
+      row(k, gross, deduct, capAmt, pay, notes, false, cutAmt);
+      st.allowed = allowed; st.pay = pay; st.cutAmt = cutAmt;
+
+      /* 4세대·5세대 중증: 최초 10회 후 10회 단위 심사 */
+      if (opts.tenUnit) {
+        const after = usedCnt + claimed;
+        const crossed = TRI_STEPS.filter(function (t) { return usedCnt < t && after >= t; });
+        if (crossed.length) {
+          st.badge = crossed[crossed.length - 1] + '회차 · 10회 단위 심사';
+          warnings.push('도수·체외충격파 ' + crossed[crossed.length - 1] + '회차 도래 — 최초 10회 이후에는 10회 단위로 병적 호전·객관적 검사결과(ROM·근력 등) 확인이 있어야 지급합니다.');
+        } else if (after > 10) {
+          st.badge = '10회 단위 구간';
+        }
+      }
+      return st;
+    }
+
     if (gen === 1) {
-      giPay = push('gi', a.gi, a.gi * 0.2, 30000000, Math.min(a.gi * 0.8, 30000000),
-        ['자기부담 20%', '입원 연 3천만원 한도(질병·상해 합산)']);
+      const cap = limCap('g1in', 30000000);
+      giPay = push('gi', a.gi, a.gi * 0.2, cap, Math.min(a.gi * 0.8, cap),
+        ['자기부담 20%', '입원 연 ' + comma(cap) + '원 한도(질병·상해 합산)']);
       gtPay = push('gt', a.gt, a.gt > 0 ? 5000 + Math.max(0, a.gt - 5000) * 0.2 : 0, 100000,
         a.gt > 0 ? Math.min(Math.max(0, a.gt - 5000) * 0.8, 100000) : 0,
         ['공제 5천원 + (공제 후) 20%', '회당 10만원 한도(처방 5만원)']);
-      push('bi', a.bi, a.bi * 0.2, Math.max(0, 30000000 - giPay), Math.min(a.bi * 0.8, Math.max(0, 30000000 - giPay)),
+      push('bi', a.bi, a.bi * 0.2, Math.max(0, cap - giPay), Math.min(a.bi * 0.8, Math.max(0, cap - giPay)),
         ['급여와 합산 보상(비급여 구분 없음)', '입원 한도 잔액 적용']);
       const capOut = Math.max(0, 100000 - gtPay);
       push('bt', a.bt, a.bt > 0 ? 5000 + Math.max(0, a.bt - 5000) * 0.2 : 0, capOut,
@@ -1061,12 +1310,13 @@ window.SILSON = (function () {
           ['1세대는 3대 비급여 구분 없음 → 일반 비급여 통원으로 계산']);
       });
     } else if (gen === 2) {
+      const cap = limCap('g2in', 50000000);
       const dOf = function (g) { return d2 === 'max' ? Math.max(hBase, g * 0.2) : Math.min(hBase, g); };
-      giPay = push('gi', a.gi, a.gi * (1 - rateG), 50000000, Math.min(a.gi * rateG, 50000000),
-        [form + ' · 급여 ' + Math.round(rateG * 100) + '%']);
+      giPay = push('gi', a.gi, a.gi * (1 - rateG), cap, Math.min(a.gi * rateG, cap),
+        [form + ' · 급여 ' + Math.round(rateG * 100) + '%', '입원 연 ' + comma(cap) + '원 한도']);
       gtPay = payRate('gt', a.gt, a.gt ? dOf(a.gt) : 0, rateG, 300000,
         [d2 === 'max' ? '공제 MAX(정액, 20%)' : '공제 정액', '회당 30만원 한도']);
-      push('bi', a.bi, a.bi * 0.2, Math.max(0, 50000000 - giPay), Math.min(a.bi * 0.8, Math.max(0, 50000000 - giPay)),
+      push('bi', a.bi, a.bi * 0.2, Math.max(0, cap - giPay), Math.min(a.bi * 0.8, Math.max(0, cap - giPay)),
         ['비급여 80%(급여와 합산 한도)']);
       const capOut = Math.max(0, 300000 - gtPay);
       push('bt', a.bt, a.bt ? dOf(a.bt) : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? dOf(a.bt) : 0)) * 0.8, capOut),
@@ -1077,77 +1327,125 @@ window.SILSON = (function () {
           ['2세대는 3대 비급여 구분 없음 → 일반 비급여 통원(80%)으로 계산']);
       });
     } else if (gen === 3) {
-      giPay = push('gi', a.gi, a.gi * (1 - rateG), 50000000, Math.min(a.gi * rateG, 50000000),
-        [form + ' · 급여 ' + Math.round(rateG * 100) + '%']);
+      const cap = limCap('g3in', 50000000);
+      giPay = push('gi', a.gi, a.gi * (1 - rateG), cap, Math.min(a.gi * rateG, cap),
+        [form + ' · 급여 ' + Math.round(rateG * 100) + '%', '입원 연 ' + comma(cap) + '원 한도']);
       gtPay = payRate('gt', a.gt, a.gt ? hBase : 0, rateG, 300000,
         ['공제 정액(의원 1만/병원 1.5만/상급·종합 2만)', '회당 30만원 한도']);
-      push('bi', a.bi, a.bi * 0.2, Math.max(0, 50000000 - giPay), Math.min(a.bi * 0.8, Math.max(0, 50000000 - giPay)),
+      push('bi', a.bi, a.bi * 0.2, Math.max(0, cap - giPay), Math.min(a.bi * 0.8, Math.max(0, cap - giPay)),
         ['비급여 80%(급여와 합산 한도)']);
       const capOut = Math.max(0, 300000 - gtPay);
       push('bt', a.bt, a.bt ? hBase : 0, capOut, Math.min(Math.max(0, a.bt - (a.bt ? hBase : 0)) * 0.8, capOut),
         ['비급여 통원 80%', '통원 한도 잔액 적용']);
-      ['physio', 'inj', 'mri'].forEach(function (k) {
-        const dd = a[k] ? Math.max(20000, a[k] * 0.3) : 0;
-        push(k, a[k], dd, CAP_G3[k], Math.min(Math.max(0, a[k] - dd), CAP_G3[k]),
-          ['3대 비급여 특약', '공제 MAX(2만원, 30%)', '연 ' + (CAP_G3[k] / 10000) + '만원 한도']);
-      });
       const ddO = a.onco ? hBase : 0;
       push('onco', a.onco, ddO, capOut, Math.min(Math.max(0, a.onco - ddO) * 0.8, capOut),
         ['3대 주사료 한도 제외 → 기본계약 비급여에서 보상']);
     } else if (gen === 4) {
+      const gcap = limCap('g4g', 50000000);
+      const bcap = limCap('g4b', 50000000);
       const excess = Math.max(0, Math.max(0, ytd - a.gi) * 0.2 + a.gi * 0.2 - 2000000)
         - Math.max(0, Math.max(0, ytd - a.gi) * 0.2 - 2000000);
-      giPay = push('gi', a.gi, a.gi * 0.2, 50000000, Math.min(a.gi * 0.8 + excess, 50000000),
-        ['급여 80%', '입원 자기부담 연 200만원 초과분 추가 보상']);
+      giPay = push('gi', a.gi, a.gi * 0.2, gcap, Math.min(a.gi * 0.8 + excess, gcap),
+        ['급여 80%', '입원 자기부담 연 200만원 초과분 추가 보상', '급여 연 ' + comma(gcap) + '원 한도']);
       gtPay = payRate('gt', a.gt, a.gt ? Math.max(hMod, a.gt * 0.2) : 0, 1, 200000,
         ['공제 MAX(1만/2만, 20%)', '회당 20만원 한도']);
-      push('bi', a.bi, a.bi * 0.3, 50000000, Math.min(a.bi * 0.7, 50000000), ['비급여 70%', '비급여 연 5천만원 한도']);
+      push('bi', a.bi, a.bi * 0.3, bcap, Math.min(a.bi * 0.7, bcap),
+        ['비급여 70%', '비급여 연 ' + comma(bcap) + '원 한도']);
       push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
         ['공제 MAX(3만원, 30%)', '회당 20만원·연 100회']);
-      ['physio', 'inj', 'mri'].forEach(function (k) {
-        const dd = a[k] ? Math.max(30000, a[k] * 0.3) : 0;
-        push(k, a[k], dd, CAP_G3[k], Math.min(Math.max(0, a[k] - dd), CAP_G3[k]),
-          ['3대 비급여 특약', '공제 MAX(3만원, 30%)', '연 ' + (CAP_G3[k] / 10000) + '만원 한도', '도수는 최초 10회 후 10회 단위 심사']);
-      });
-      push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, 50000000,
-        Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), 50000000),
+      push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, bcap,
+        Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), bcap),
         ['3대 주사료 한도 제외 → 상해·질병 비급여(70%)']);
     } else {
+      const gcap = limCap('g5g', 50000000);
       const excess = Math.max(0, Math.max(0, ytd - a.gi) * 0.2 + a.gi * 0.2 - 2000000)
         - Math.max(0, Math.max(0, ytd - a.gi) * 0.2 - 2000000);
-      giPay = push('gi', a.gi, a.gi * 0.2, 50000000, Math.min(a.gi * 0.8 + excess, 50000000),
-        ['급여 80%', '입·통원 합산 연 5천만원', '입원 자기부담 연 200만원 초과분 추가 보상']);
+      giPay = push('gi', a.gi, a.gi * 0.2, gcap, Math.min(a.gi * 0.8 + excess, gcap),
+        ['급여 80%', '입·통원 합산 연 ' + comma(gcap) + '원', '입원 자기부담 연 200만원 초과분 추가 보상']);
       gtPay = payRate('gt', a.gt, a.gt ? Math.max(hMod, a.gt * 0.2, a.gt * nhirate) : 0, 1, 200000,
         ['공제 MAX(1만/2만, 20%, 건보 본인부담률)', '회당 20만원 한도']);
       if (severe) {
-        push('bi', a.bi, a.bi * 0.3, 50000000, Math.min(a.bi * 0.7, 50000000),
-          ['중증(특약1) 비급여 입원 70%', '입·통원 합산 연 5천만원', '상급종합·종합병원 입원 자기부담 연 500만원 상한']);
-        push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
+        const scan = limCap('g5s', 50000000);
+        push('bi', a.bi, a.bi * 0.3, scan, Math.min(a.bi * 0.7, scan),
+          ['중증(특약1) 비급여 입원 70%', '입·통원 합산 연 ' + comma(scan) + '원 한도']);
+        push('bt', a.bt, a.bt ? Math.max(30000, a.bt * 0.3) : 0, 200000,
+          Math.min(Math.max(0, a.bt - (a.bt ? Math.max(30000, a.bt * 0.3) : 0)), 200000),
           ['중증 통원 공제 MAX(3만원, 30%)', '회당 20만원·연 100회']);
-        ['physio', 'inj', 'mri'].forEach(function (k) {
-          const dd = a[k] ? Math.max(30000, a[k] * 0.3) : 0;
-          push(k, a[k], dd, CAP_G3[k], Math.min(Math.max(0, a[k] - dd), CAP_G3[k]),
-            ['중증 3대 비급여(산정특례 질환)', '공제 MAX(3만원, 30%)', '연 ' + (CAP_G3[k] / 10000) + '만원 한도']);
-        });
-        push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, 50000000,
-          Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), 50000000),
+        push('onco', a.onco, a.onco ? Math.max(30000, a.onco * 0.3) : 0, scan,
+          Math.min(Math.max(0, a.onco - (a.onco ? Math.max(30000, a.onco * 0.3) : 0)), scan),
           ['3대 주사료 한도 제외 → 상해·질병 비급여(70%)']);
       } else {
-        const biCap = (hosp === '의원' || hosp === '병원') ? Math.min(a.bi * 0.5, 3000000) : a.bi * 0.5;
-        push('bi', a.bi, a.bi * 0.5, 10000000, Math.min(biCap, 10000000),
-          ['비중증(특약2) 비급여 입원 50%', '입·통원 합산 연 1천만원', '종합병원 외 1회 300만원 한도']);
-        push('bt', a.bt, a.bt ? Math.max(50000, a.bt * 0.5) : 0, 200000, Math.min(Math.max(0, a.bt - (a.bt ? Math.max(50000, a.bt * 0.5) : 0)), 200000),
+        const ncap = limCap('g5n', 10000000);
+        const biCap = (hosp === '의원' || hosp === '병원') ? Math.min(a.bi * 0.5, 3000000) : Math.min(a.bi * 0.5, ncap);
+        push('bi', a.bi, a.bi * 0.5, ncap, Math.min(biCap, ncap),
+          ['비중증(특약2) 비급여 입원 50%', '입·통원 합산 연 ' + comma(ncap) + '원', '병·의원 입원 1회 300만원 한도']);
+        push('bt', a.bt, a.bt ? Math.max(50000, a.bt * 0.5) : 0, 200000,
+          Math.min(Math.max(0, a.bt - (a.bt ? Math.max(50000, a.bt * 0.5) : 0)), 200000),
           ['비중증 통원 공제 MAX(5만원, 50%)', '일당 20만원·연 100일']);
-        push('physio', a.physio, 0, 0, 0, ['5세대 비중증: 근골격계 이학요법·체외충격파 수반 일체 의료비 면책'], true);
-        push('inj', a.inj, 0, 0, 0, ['5세대 비중증: 일반 비급여 주사 면책(항암·항생·희귀 제외)'], true);
-        const ddM = a.mri ? Math.max(50000, a.mri * 0.5) : 0;
-        push('mri', a.mri, ddM, 2000000, Math.min(Math.max(0, a.mri - ddM), 2000000),
-          ['비중증 비급여 MRI 연 200만원', '공제 MAX(5만원, 50%)']);
-        const ddO = a.onco ? Math.max(50000, a.onco * 0.5) : 0;
-        push('onco', a.onco, ddO, 10000000, Math.min(Math.max(0, a.onco - ddO), 10000000),
-          ['면책 예외 → 상해·질병 비급여 50%', '입·통원 합산 연 1천만원']);
+        push('onco', a.onco, a.onco ? Math.max(50000, a.onco * 0.5) : 0, ncap,
+          Math.min(Math.max(0, a.onco - (a.onco ? Math.max(50000, a.onco * 0.5) : 0)), ncap),
+          ['면책 예외 → 상해·질병 비급여 50%', '입·통원 합산 연 ' + comma(ncap) + '원']);
       }
     }
+
+    /* 3대 비급여 — 3세대 이상(1·2세대는 일반 비급여) */
+    if (gen >= 3) {
+      const floor = gen === 3 ? 20000 : 30000;
+      if (gen === 5 && !severe) {
+        triRow('physio', { exempt: true, exemptNote: '5세대 비중증: 근골격계 이학요법·체외충격파 수반 일체 의료비 면책' });
+        triRow('inj', { exempt: true, exemptNote: '5세대 비중증: 일반 비급여 주사 면책(항암·항생·희귀 제외)' });
+        triRow('mri', { capAmt: CAP_G5N_MRI, rate: 0.5, floor: 50000,
+          notes: ['5세대 비중증 MRI·MRA', '공제 MAX(5만원, 50%)'] });
+      } else {
+        triRow('physio', { capAmt: CAP_G3.physio, capCnt: CNT_3, rate: 0.3, floor: floor, tenUnit: gen >= 4,
+          notes: ['3대 비급여 특약(근골격계 이학요법·체외충격파·증식)', '공제 MAX(' + (floor / 10000) + '만원, 30%)'] });
+        triRow('inj', { capAmt: CAP_G3.inj, capCnt: CNT_3, rate: 0.3, floor: floor,
+          notes: ['3대 비급여 특약(주사료)', '공제 MAX(' + (floor / 10000) + '만원, 30%)', '항암·항생·희귀 주사는 제외'] });
+        triRow('mri', { capAmt: CAP_G3.mri, rate: 0.3, floor: floor,
+          notes: ['3대 비급여 특약(MRI·MRA)', '공제 MAX(' + (floor / 10000) + '만원, 30%)'] });
+      }
+    }
+
+    /* 상급병실료 차액 — 차액의 50%, 1일 평균 10만원 한도 */
+    if (a.room > 0 || roomDays > 0) {
+      const dayCap = roomDays > 0 ? roomDays * DAY_ROOM : 0;
+      let pay = a.room * 0.5;
+      if (dayCap > 0) pay = Math.min(pay, dayCap);
+      else if (a.room > 0) warnings.push('상급병실 이용일수를 입력하지 않아 1일 10만원 한도를 적용하지 않았습니다(차액의 50%만 반영).');
+      row('room', a.room, a.room - pay, dayCap, pay,
+        ['비급여 병실료 차액의 50%', dayCap > 0 ? '1일 평균 10만원 × ' + roomDays + '일 = ' + comma(dayCap) + '원 한도' : '1일 10만원 한도 미적용',
+          gen === 1 ? '1세대는 2인실 이상 상급병실 50%(상품별 상이)' : '실손 본인부담률과 별도 계산']);
+    }
+
+    /* 5세대 중증 — 상급종합·종합병원 입원 공제(자기부담) 연 500만원 상한 */
+    if (gen === 5 && severe && mode === 'in' && (hosp === '종합병원' || hosp === '상급종합')) {
+      const sc = rows.filter(function (r) { return (r.key === 'bi' || r.key === 'mri') && r.gross > 0 && !r.exempt; });
+      let dedSum = 0;
+      sc.forEach(function (r) { dedSum += r.deduct; });
+      const remainCap = Math.max(0, CAP_SELF500 - ytdS);
+      cap500.applies = true;
+      cap500.ytd = ytdS;
+      cap500.dedBasic = r0(dedSum);
+      cap500.remain = remainCap;
+      let saved = 0;
+      if (dedSum > remainCap) {
+        const f = dedSum > 0 ? remainCap / dedSum : 0;
+        sc.forEach(function (r) {
+          const nd = Math.max(0, Math.round(r.deduct * f));
+          const diff = r.deduct - nd;
+          if (diff <= 0) return;
+          r.deduct = nd;
+          r.pay += diff;
+          saved += diff;
+          r.notes.push('중증 입원 자기부담 연 500만원 상한 비례 반영(공제 ' + comma(nd) + ')');
+        });
+      }
+      cap500.saved = r0(saved);
+      cap500.dedApplied = r0(dedSum - saved);
+    }
+
+    /* 연간 한도(잔여) — 사용자 입력 반영 */
+    const limitInfo = applyLimits(rows, gen, severe, mode, limCfg);
 
     const summary = (function () {
       if (gen === 1) return '1세대(비표준화 대표상품) · 급여/비급여 통합, 입원 80%·통원 5천원+20%, 입원 연 3천만';
@@ -1159,28 +1457,38 @@ window.SILSON = (function () {
         : '5세대 비중증(특약2) · 급여 80% · 비급여 50% · 통원 일당 20만원 · 3대 중 MRI만';
     })();
 
-    const warnings = [];
-    // 항암·항생·희귀 주사는 3대 한도에서 빠지는 ‘기본계약’ 항목 — 산식 기준을 명시
     rows.forEach(function (r) {
       if (r.key === 'onco' && r.gross > 0) {
         r.notes = r.notes.concat(['통원 기준 산식으로 계산 — 입원 건은 비급여 입원 보상률(70% / 비중증 50%)로 계산']);
       }
     });
     if (gen === 1) warnings.push('1세대는 비표준화 세대입니다. 표시된 값은 생보협회 공시 대표상품(입원 20%·통원 5천원+20%) 기준이므로 증권·가입 당시 약관의 보상률을 확인하세요.');
-    if (gen === 5 && severe) warnings.push('중증 특약의 상급종합·종합병원 입원 자기부담 연 500만원 상한은 이 계산기에 반영되지 않았습니다. 고액 입원 건은 별도 확인하세요.');
+    if (gen === 5 && severe) {
+      if (cap500.applies) {
+        warnings.push('중증 비급여 입원 공제는 상급종합·종합병원 건에 대해 연 500만원까지만 차감합니다(근골격계 이학요법·체외충격파·주사료 제외, MRI 포함). 이 건 반영: 공제 ' +
+          comma(cap500.dedBasic) + '원 → ' + comma(cap500.dedApplied) + '원' + (cap500.saved > 0 ? ' (추가 보상 +' + comma(cap500.saved) + '원)' : ''));
+      } else if (mode === 'in') {
+        warnings.push('중증 입원 자기부담 연 500만원 상한은 상급종합·종합병원 입원 건에만 적용됩니다. 병원 규모를 선택하면 반영됩니다.');
+      }
+    }
     if (gen === 5 && !severe) warnings.push('산정특례 질환과 무관한 치료는 중증 특약에서 보상되지 않고 비중증 기준이 적용됩니다. 먼저 산정특례 해당 여부를 확인하세요.');
     if (gen >= 3) warnings.push('3대 비급여는 특약 가입을 전제로 계산했습니다. 특약 미가입 계약은 해당 항목 전부 부지급입니다.');
     if (gen >= 4) warnings.push('통원은 회차별로 계산해야 합니다. 여러 회 청구는 회차별 한도가 각각 적용됩니다.');
 
-    return { gen: gen, hosp: hosp, form: form, severe: severe, nhirate: nhirate, ytd: ytd, amt: a, rows: rows, summary: summary, warnings: warnings };
+    return {
+      gen: gen, hosp: hosp, mode: mode, form: form, severe: severe, nhirate: nhirate, ytd: ytd, ytdS: ytdS,
+      roomDays: roomDays, amt: a, rows: rows, summary: summary, warnings: warnings,
+      tri: tri, limits: limitInfo, cap500: cap500.applies ? cap500 : null,
+      cutTotal: rows.reduce(function (s, r) { return s + r.cut; }, 0)
+    };
   }
 
   function sumRows(rows, mode) {
-    const out = { gross: 0, deduct: 0, pay: 0 };
+    const out = { gross: 0, deduct: 0, pay: 0, cut: 0 };
     rows.forEach(function (r) {
       if (mode && mode !== 'all' && r.mode !== 'both' && r.mode !== mode) return;
       if (r.gross <= 0) return;
-      out.gross += r.gross; out.deduct += r.deduct; out.pay += r.pay;
+      out.gross += r.gross; out.deduct += r.deduct; out.pay += r.pay; out.cut += (r.cut || 0);
     });
     return out;
   }
@@ -1205,14 +1513,14 @@ window.SILSON = (function () {
     };
   }
 
-  /* 독립책임액 자동산출: 단일계산 입력값을 세대·보장구분별로 재계산 */
+  /* 독립책임액 자동산출: 단일계산 입력값(한도·횟수 포함)을 세대·보장구분별로 재계산 */
   function indepFor(calcInput, gen, coverage) {
     const res = calcGen(Object.assign({}, calcInput, { gen: gen }));
     const KEYS = {
       '급여': ['gi', 'gt'],
-      '비급여': ['bi', 'bt', 'onco'],
+      '비급여': ['bi', 'bt', 'onco', 'room'],
       '3대비급여': ['physio', 'inj', 'mri'],
-      '급여+비급여': ['gi', 'gt', 'bi', 'bt', 'onco'],
+      '급여+비급여': ['gi', 'gt', 'bi', 'bt', 'onco', 'room'],
       '전체': null
     };
     const keys = KEYS[coverage] || null;
@@ -1223,14 +1531,16 @@ window.SILSON = (function () {
     });
     return r0(pay);
   }
-
   return {
     UPDATED: UPDATED, GENS: GENS, COMPARE: COMPARE, SOURCES: SOURCES,
     FLOW: FLOW, EXEMPT: EXEMPT, DRUGS: DRUGS, COVERS: COVERS, PRINCIPLES: PRINCIPLES,
     KCD: KCD, KCD_NOTE: KCD_NOTE, NOTES4: NOTES4,
     LAWS: LAWS, FCASES: FCASES, CAP2026: CAP2026, REFS: REFS,
     calcGen: calcGen, sumRows: sumRows, distribute: distribute, indepFor: indepFor,
-    emptyAmt: emptyAmt, n: n, r0: r0, DED: { base: DED_BASE, modern: DED_MODERN }
+    limitDefs: limitDefs, applyLimits: applyLimits, parseQuick: parseQuick,
+    emptyAmt: emptyAmt, n: n, r0: r0, comma: comma,
+    CAP_G3: CAP_G3, CAP_G5N_MRI: CAP_G5N_MRI, CNT_3: CNT_3, CAP_SELF500: CAP_SELF500, DAY_ROOM: DAY_ROOM,
+    DED: { base: DED_BASE, modern: DED_MODERN }
   };
 })();
 </script>
@@ -1362,11 +1672,34 @@ window.SILSON = (function () {
   }
 
   /* ───── ② 계산기 ───── */
-  var C = load('silson.calc', null) || {
-    gen: 1, mode: 'in', hosp: '종합병원', form: '표준형', d2mode: 'flat', severe: false, nhirate: 0.2, ytd: 0,
-    amt: { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0 }
+  var C_DEFAULT = {
+    gen: 1, mode: 'in', hosp: '종합병원', form: '표준형', d2mode: 'flat', severe: false,
+    nhirate: 0.2, ytd: 0, ytdS: 0, roomDays: 0, qTarget: '',
+    amt: { gi: 0, gt: 0, bi: 0, bt: 0, physio: 0, inj: 0, mri: 0, onco: 0, room: 0 },
+    cnt: { physio: { used: 0, n: 1 }, inj: { used: 0, n: 1 } },
+    used: { physio: 0, inj: 0, mri: 0 },
+    lim: {}
   };
-  if (!C.amt) C.amt = S.emptyAmt();
+  function normC(c) {
+    if (!c || typeof c !== 'object') c = {};
+    if (!c.amt || typeof c.amt !== 'object') c.amt = {};
+    Object.keys(C_DEFAULT.amt).forEach(function (k) { if (c.amt[k] == null) c.amt[k] = 0; });
+    if (!c.cnt || typeof c.cnt !== 'object') c.cnt = {};
+    ['physio', 'inj'].forEach(function (k) {
+      if (!c.cnt[k] || typeof c.cnt[k] !== 'object') c.cnt[k] = { used: 0, n: 1 };
+      if (c.cnt[k].n == null) c.cnt[k].n = 1;
+      if (c.cnt[k].used == null) c.cnt[k].used = 0;
+    });
+    if (!c.used || typeof c.used !== 'object') c.used = {};
+    ['physio', 'inj', 'mri'].forEach(function (k) { if (c.used[k] == null) c.used[k] = 0; });
+    if (!c.lim || typeof c.lim !== 'object') c.lim = {};
+    Object.keys(C_DEFAULT).forEach(function (k) {
+      if (k === 'amt' || k === 'cnt' || k === 'used' || k === 'lim') return;
+      if (c[k] == null) c[k] = C_DEFAULT[k];
+    });
+    return c;
+  }
+  var C = normC(load('silson.calc', null));
   var M = load('silson.multi', null) || {
     damage: 3000000,
     contracts: [
@@ -1379,7 +1712,11 @@ window.SILSON = (function () {
   var lastCalcText = '';
 
   function calcInput() {
-    return { gen: C.gen, hosp: C.hosp, form: C.form, d2mode: C.d2mode, severe: C.severe, nhirate: C.nhirate, ytd: C.ytd, amt: C.amt };
+    return {
+      gen: C.gen, mode: C.mode, hosp: C.hosp, form: C.form, d2mode: C.d2mode, severe: C.severe,
+      nhirate: C.nhirate, ytd: C.ytd, ytdS: C.ytdS, roomDays: C.roomDays,
+      amt: C.amt, cnt: C.cnt, used: C.used, lim: C.lim
+    };
   }
   function saveCalc() { store('silson.calc', C); }
 
@@ -1390,12 +1727,12 @@ window.SILSON = (function () {
     }).join('');
   }
   function renderHospChips() {
-    ['의원', '병원', '종합병원', '상급종합'].forEach(function () { });
     $('#calcHospChips').innerHTML = ['의원', '병원', '종합병원', '상급종합'].map(function (h) {
       return '<button class="chip ' + (C.hosp === h ? 'on' : '') + '" data-hosp="' + h + '">' + h + '</button>';
     }).join('');
   }
   function renderCond() {
+    C = normC(C);
     var h = '';
     if (C.gen === 2 || C.gen === 3) {
       h += '<div class="field"><label>계약 형태</label><div class="chips" style="margin-bottom:0">' +
@@ -1422,9 +1759,21 @@ window.SILSON = (function () {
     }
     if (C.gen >= 4) {
       h += '<div class="field"><label>연간 급여 입원 본인부담 누계</label><div class="amt">' +
-        '<input type="number" id="ytd" inputmode="numeric" step="10000" value="' + Math.round(C.ytd) + '">' +
+        '<input type="number" id="ytd" inputmode="numeric" step="10000" min="0" value="' + Math.round(C.ytd) + '">' +
         '<span class="unit">원</span></div>' +
         '<div class="note">이번 청구를 포함한 누계. 자기부담 20%가 연 200만원을 넘는 부분만 추가 보상합니다.</div></div>';
+    }
+    if (C.gen === 5 && C.severe) {
+      h += '<div class="field"><label>중증 입원 자기부담(공제) 연 누계</label><div class="amt">' +
+        '<input type="number" id="ytdS" inputmode="numeric" step="10000" min="0" value="' + Math.round(C.ytdS) + '">' +
+        '<span class="unit">원</span></div>' +
+        '<div class="note">상급종합·종합병원 입원의 중증 비급여 공제(30%) 누계(이번 청구 제외). 연 500만원 초과분은 전액 보상합니다. 근골격계 이학요법·체외충격파·주사료는 제외, MRI 포함.</div></div>';
+    }
+    if (C.mode === 'in') {
+      h += '<div class="field"><label>상급병실 이용일수 <span class="muted" style="font-weight:400">· 상급병실료 차액 계산</span></label><div class="amt">' +
+        '<input type="number" id="roomDays" inputmode="numeric" step="1" min="0" value="' + Math.round(C.roomDays) + '">' +
+        '<span class="unit">일</span></div>' +
+        '<div class="note">차액의 50%, 1일 평균 10만원 한도로 계산합니다(2~5세대).</div></div>';
     }
     if (C.gen === 1) {
       h += '<div class="notice warn">1세대는 비표준화 세대입니다. 계산은 생보협회 공시 대표상품(입원 자기부담 20%·통원 5천원+20%) 기준이므로 증권·가입 당시 약관의 보상률을 확인하세요.</div>';
@@ -1435,22 +1784,24 @@ window.SILSON = (function () {
   var INPUTS = {
     in: [
       ['gi', '급여 입원 본인부담금', '건강보험 급여 본인부담(일부+전액)'],
-      ['bi', '비급여 입원 의료비', '비급여 병실료 제외 · 상급병실료 차액은 별도'],
-      ['physio', '3대 – 도수·체외충격파(입원 중)', '특약 가입 전제'],
-      ['inj', '3대 – 비급여 주사료(입원 중)', '항암·항생·희귀 제외'],
-      ['mri', '3대 – MRI·MRA(입원 중)', '조영제·판독료 포함'],
+      ['bi', '비급여 입원 의료비', '비급여 병실료 제외 · 상급병실료 차액은 아래 별도'],
+      ['room', '상급병실료 차액', '2·3인실 이상 상급병실 차액(50%·1일 10만 한도)'],
+      ['physio', '3대 – 도수·체외충격파·증식', '이번 청구 합계 · 횟수는 4번 카드에서'],
+      ['inj', '3대 – 비급여 주사료', '이번 청구 합계 · 항암·항생·희귀 제외'],
+      ['mri', '3대 – MRI·MRA', '조영제·판독료 포함'],
       ['onco', '항암·항생·희귀의약품 주사', '3대 한도 제외 → 기본계약에서 보상']
     ],
     out: [
       ['gt', '급여 통원 1회 본인부담금', '외래+처방조제 합산 1회'],
       ['bt', '비급여 통원 1회 의료비', '3대 비급여 제외'],
-      ['physio', '3대 – 도수·체외충격파(1회)', '도수·증식·체외충격파'],
-      ['inj', '3대 – 비급여 주사료(1회)', '항암·항생·희귀 제외'],
-      ['mri', '3대 – MRI·MRA(1회)', '조영제·판독료 포함'],
+      ['physio', '3대 – 도수·체외충격파', '이번 청구 합계 · 도수·증식·체외충격파'],
+      ['inj', '3대 – 비급여 주사료', '이번 청구 합계 · 항암·항생·희귀 제외'],
+      ['mri', '3대 – MRI·MRA', '조영제·판독료 포함'],
       ['onco', '항암·항생·희귀의약품 주사', '3대 한도 제외 → 기본계약에서 보상']
     ]
   };
   function renderInputs() {
+    C = normC(C);
     $('#calcInputs').innerHTML = INPUTS[C.mode].map(function (r) {
       return '<div class="field" style="margin-bottom:12px"><label>' + r[1] + '</label>' +
         '<div class="amt"><input type="number" inputmode="numeric" step="1000" min="0" data-amt="' + r[0] + '" value="' + Math.round(C.amt[r[0]] || 0) + '">' +
@@ -1458,8 +1809,101 @@ window.SILSON = (function () {
         (r[2] ? '<div class="note">' + r[2] + '</div>' : '') + '</div>';
     }).join('');
     $('#calcInputHint').textContent = C.mode === 'in'
-      ? '입원 건은 퇴원 후 1건으로 계산합니다. 3대 비급여는 입원 중 시행분만 입력하세요.'
-      : '통원은 1회(1일) 기준입니다. 여러 회 청구는 회차별로 계산해 합산하세요(회차별 한도 각각 적용).';
+      ? '입원 건은 퇴원 후 1건으로 계산합니다. 3대 비급여는 입원 중 시행분 합계를 넣으세요.'
+      : '통원은 1회(1일) 기준입니다. 3대 비급여는 이번 청구에 포함된 회차 합계를 넣으세요.';
+  }
+
+  function quickFields() {
+    return INPUTS[C.mode].map(function (r) { return { k: r[0], label: r[1] }; });
+  }
+  function renderQuick() {
+    C = normC(C);
+    var fs = quickFields();
+    var cur = fs.filter(function (f) { return f.k === C.qTarget; })[0];
+    if (!cur) { cur = fs[0]; C.qTarget = cur.k; }
+    $('#qTarget').innerHTML = fs.map(function (f) {
+      return '<option value="' + f.k + '"' + (f.k === cur.k ? ' selected' : '') + '>' + f.label + '</option>';
+    }).join('');
+  }
+
+  function renderLimits() {
+    C = normC(C);
+    var defs = S.limitDefs(C.gen, C.severe).filter(function (d) { return !d.mode || d.mode === C.mode; });
+    $('#limSp').textContent = defs.length ? '한도·기사용 직접 수정' : '';
+    var html = '';
+    defs.forEach(function (d) {
+      var cfg = C.lim[d.id] || {};
+      var cap = cfg.cap != null ? Math.round(cfg.cap) : d.def;
+      var used = Math.round(cfg.used || 0);
+      var remain = Math.max(0, cap - used);
+      var pct = cap > 0 ? Math.min(100, used / cap * 100) : 100;
+      var tone = pct >= 100 ? 'danger' : pct >= 80 ? 'warn' : 'ok';
+      var isAmt = d.unit === '원';
+      html += '<div class="lim-item">' +
+        '<div class="lim-top"><b>' + esc(d.label) + '</b><span class="src">' + esc(d.src || '') + '</span></div>' +
+        '<div class="lim-grid">' +
+        '<div class="f"><label>한도 (' + d.unit + ')</label><input type="number" inputmode="numeric" min="0" step="' + (isAmt ? 1000000 : 1) + '" data-lim="' + d.id + '" data-lf="cap" value="' + cap + '"></div>' +
+        '<div class="f"><label>기사용 (' + d.unit + ')</label><input type="number" inputmode="numeric" min="0" step="' + (isAmt ? 10000 : 1) + '" data-lim="' + d.id + '" data-lf="used" value="' + used + '"></div>' +
+        '</div>' +
+        ((d.presets && d.presets.length) ? '<div class="chips" style="margin:7px 0 0">' + d.presets.map(function (pv) {
+          return '<button class="chip sm' + (cap === pv ? ' on' : '') + '" data-limset="' + d.id + '" data-limpreset="' + pv + '">' +
+            (pv >= 100000000 ? (pv / 100000000) + '억' : pv >= 10000000 ? (pv / 10000000) + '천만' : (pv / 10000) + '만') + '</button>';
+        }).join('') + '</div>' : '') +
+        '<div class="bar ' + tone + '"><i style="width:' + pct.toFixed(1) + '%"></i></div>' +
+        '<div class="lim-rem"><span>사용 ' + fmt(used) + ' / ' + fmt(cap) + d.unit + '</span><span class="r">잔여 ' + fmt(remain) + d.unit + '</span></div>' +
+        '</div>';
+    });
+    $('#calcLimits').innerHTML = html || '<div class="empty">이 세대·구분에는 별도 한도 설정이 없습니다.</div>';
+  }
+
+  function renderTri() {
+    C = normC(C);
+    var show = C.gen >= 3;
+    $('#cardTri').hidden = !show;
+    $('#triSp').textContent = show ? (C.gen === 5 && !C.severe ? '비중증: MRI만' : '연 350만/250만/300만') : '';
+    if (!show) {
+      $('#calcTri').innerHTML = '<div class="hint">1·2세대는 3대 비급여 구분이 없어 일반 비급여(통원 회당 한도)로 계산합니다.</div>';
+      return;
+    }
+    var res = S.calcGen(calcInput());
+    var t = res.tri || {};
+    var items = [['physio', '도수·체외충격파·증식'], ['inj', '비급여 주사료'], ['mri', 'MRI·MRA']];
+    var html = '';
+    if (C.gen === 5 && !C.severe) {
+      html += '<div class="notice warn" style="margin:0 0 6px">5세대 비중증(특약2)은 근골격계 이학요법·체외충격파와 일반 비급여 주사가 전면 면책입니다. MRI만 연 200만원 한도로 계산합니다.</div>';
+    }
+    items.forEach(function (it) {
+      var k = it[0];
+      var st = t[k] || { gross: C.amt[k] || 0, usedAmt: C.used[k] || 0, usedCnt: 0, claimed: 0, capAmt: 0, capCnt: null, remainAmt: 0, remainCnt: null, afterAmt: 0, afterCnt: 0, exempt: false, badge: '' };
+      var isMri = k === 'mri';
+      var badge = st.badge ? '<span class="badge-warn">' + esc(st.badge) + '</span>' : '';
+      if (st.exempt) {
+        html += '<div class="tri-block"><div class="tri-h"><b>' + it[1] + '</b><span class="badge-warn">면책</span>' +
+          '<span class="val">지급 0원</span></div><div class="tri-sub">5세대 비중증 — 수반 처치료·재료대까지 부지급</div></div>';
+        return;
+      }
+      var amtPct = st.capAmt > 0 ? Math.min(100, st.afterAmt / st.capAmt * 100) : 0;
+      var amtTone = amtPct >= 100 ? 'danger' : amtPct >= 80 ? 'warn' : 'ok';
+      var cntPct = st.capCnt ? Math.min(100, st.afterCnt / st.capCnt * 100) : 0;
+      var cntTone = cntPct >= 100 ? 'danger' : cntPct >= 80 ? 'warn' : 'ok';
+      html += '<div class="tri-block">' +
+        '<div class="tri-h"><b>' + it[1] + '</b>' + badge +
+        '<span class="val">' + (isMri ? fmt(st.afterAmt) + ' / ' + fmt(st.capAmt) + '원' : fmt(st.afterCnt) + ' / ' + st.capCnt + '회') + '</span></div>' +
+        '<div class="lim-grid">' +
+        '<div class="f"><label>기사용 금액 (연 누계)</label><input type="number" inputmode="numeric" min="0" step="10000" data-tri="' + k + '" data-tf="usedAmt" value="' + Math.round(st.usedAmt) + '"></div>' +
+        '<div class="f"><label>이번 청구 금액</label><input type="number" inputmode="numeric" min="0" step="1000" data-amt="' + k + '" value="' + Math.round(C.amt[k] || 0) + '"></div>' +
+        (isMri ? '' :
+          '<div class="f"><label>기사용 횟수</label><input type="number" inputmode="numeric" min="0" step="1" data-tri="' + k + '" data-tf="usedCnt" value="' + Math.round(st.usedCnt) + '"></div>' +
+          '<div class="f"><label>이번 청구 횟수</label><input type="number" inputmode="numeric" min="1" step="1" data-tri="' + k + '" data-tf="n" value="' + Math.round(st.claimed || 1) + '"></div>') +
+        '</div>' +
+        '<div class="bar ' + amtTone + '"><i style="width:' + amtPct.toFixed(1) + '%"></i></div>' +
+        '<div class="lim-rem"><span>금액 ' + fmt(st.afterAmt) + ' / ' + fmt(st.capAmt) + '원</span><span class="r">잔여 ' + fmt(st.remainAmt) + '원</span></div>' +
+        (isMri ? '' :
+          '<div class="bar ' + cntTone + '" style="margin-top:4px"><i style="width:' + cntPct.toFixed(1) + '%"></i></div>' +
+          '<div class="lim-rem"><span>횟수 ' + fmt(st.afterCnt) + ' / ' + st.capCnt + '회</span><span class="r">잔여 ' + fmt(st.remainCnt) + '회</span></div>') +
+        '</div>';
+    });
+    $('#calcTri').innerHTML = html;
   }
 
   function resultText(res, sums) {
@@ -1467,19 +1911,31 @@ window.SILSON = (function () {
     lines.push('[실손 지급 계산] ' + res.gen + '세대 · ' + res.hosp + ' · ' + (C.mode === 'in' ? '입원' : '통원 1회'));
     lines.push(res.summary);
     lines.push('보장대상 ' + fmt(sums.gross) + '원 / 공제 ' + fmt(sums.deduct) + '원 / 예상지급 ' + fmt(sums.pay) + '원');
+    if (sums.cut > 0) lines.push('한도 초과 차감 -' + fmt(sums.cut) + '원');
     res.rows.forEach(function (r) {
       if (r.mode !== C.mode && r.mode !== 'both') return;
       if (r.gross <= 0) return;
       lines.push('- ' + r.label + ': ' + fmt(r.gross) + ' → 공제 ' + fmt(r.deduct) +
-        ' → ' + (r.exempt ? '면책' : fmt(r.pay) + '원'));
+        ' → ' + (r.exempt ? '면책' : fmt(r.pay) + '원') + (r.cut > 0 ? ' (한도 차감 -' + fmt(r.cut) + ')' : ''));
     });
-    if (res.warnings.length) {
-      res.warnings.forEach(function (w) { lines.push('※ ' + w); });
-    }
+    (res.limits || []).forEach(function (L) {
+      if (!L.applicable) return;
+      lines.push('· 한도 ' + L.label + ': ' + fmt(L.cap) + L.unit + ' 중 기사용 ' + fmt(L.used) + L.unit +
+        ' → 잔여 ' + fmt(L.remain) + L.unit + (L.cut > 0 ? ' (차감 -' + fmt(L.cut) + '원)' : ''));
+    });
+    var tri = res.tri || {};
+    Object.keys(tri).forEach(function (k) {
+      var st = tri[k];
+      if (!st || st.gross <= 0) return;
+      lines.push('· ' + st.label + ': ' + (st.exempt ? '면책' : (st.capCnt ? fmt(st.afterCnt) + '/' + st.capCnt + '회 · ' : '') +
+        fmt(st.afterAmt) + '/' + fmt(st.capAmt) + '원' + (st.badge ? ' [' + st.badge + ']' : '')));
+    });
+    if (res.warnings.length) res.warnings.forEach(function (w) { lines.push('※ ' + w); });
     return lines.join('\n');
   }
 
   function renderResult() {
+    C = normC(C);
     var res = S.calcGen(calcInput());
     var sums = S.sumRows(res.rows, C.mode);
     var rows = res.rows.filter(function (r) { return r.mode === C.mode || r.mode === 'both'; });
@@ -1487,7 +1943,7 @@ window.SILSON = (function () {
     var rate = sums.gross > 0 ? sums.pay / sums.gross : 0;
     lastCalcText = resultText(res, sums);
     var html = '<div class="card">' +
-      '<div class="card-h"><span class="n">3</span>예상 지급보험금 <span class="sp">' + (C.mode === 'in' ? '입원 기준' : '통원 1회 기준') + '</span></div>' +
+      '<div class="card-h"><span class="n">5</span>예상 지급보험금 <span class="sp">' + (C.mode === 'in' ? '입원 기준' : '통원 1회 기준') + '</span></div>' +
       '<div class="res-hero"><div class="lab">예상 지급액</div>' +
       '<div class="big">' + fmt(sums.pay) + '<span style="font-size:15px;font-weight:600">원</span></div>' +
       '<div class="sub2">' + esc(res.summary) + '</div>' +
@@ -1499,15 +1955,47 @@ window.SILSON = (function () {
     } else {
       html += active.map(function (r) {
         var notes = r.notes.slice();
-        if (r.cap > 0 && r.gross - r.deduct > r.cap) notes.push('한도 ' + fmt(r.cap) + '원 적용');
+        if (r.cap > 0 && r.gross - r.deduct > r.cap && !r.cut) notes.push('한도 ' + fmt(r.cap) + '원 적용');
         if (r.exempt) notes = r.notes;
         return '<div class="line' + (r.exempt ? ' exempt' : '') + '">' +
           '<div class="nm"><b>' + esc(r.label) + '</b>' +
-          '<span>' + esc(notes.join(' · ')) + '</span></div>' +
+          '<span>' + esc(notes.join(' · ')) + '</span>' +
+          (r.cut > 0 ? '<span style="color:var(--danger);font-weight:700">한도 차감 -' + fmt(r.cut) + '원</span>' : '') + '</div>' +
           '<div class="amt2"><b>' + (r.exempt ? '면책' : fmt(r.pay) + '원') + '</b>' +
           '<span>' + (r.exempt ? '지급 0원' : '공제 ' + fmt(r.deduct) + '원') + '</span></div></div>';
       }).join('');
     }
+
+    var cutLines = [];
+    (res.limits || []).forEach(function (L) {
+      if (L.cut > 0) cutLines.push(esc(L.label) + ': <b>-' + fmt(L.cut) + '원</b> (잔여 한도 ' + fmt(L.remain) + L.unit + ')');
+    });
+    Object.keys(res.tri || {}).forEach(function (k) {
+      var st = res.tri[k];
+      if (st && st.cutCnt > 0) cutLines.push(esc(st.label) + ' 초과 회차 면책: <b>-' + fmt(st.cutCnt) + '원</b> (잔여 ' + fmt(st.remainCnt) + '회)');
+    });
+    if (cutLines.length) {
+      html += '<div class="notice warn" style="margin-top:12px"><b>한도 초과 차감</b><br>' + cutLines.join('<br>') + '</div>';
+    }
+
+    if (res.cap500) {
+      html += '<div class="notice ok" style="margin-top:10px"><b>중증 입원 자기부담 연 500만원 상한</b><br>' +
+        '이 건 공제 ' + fmt(res.cap500.dedBasic) + '원 → <b>' + fmt(res.cap500.dedApplied) + '원</b>' +
+        (res.cap500.saved > 0 ? ' (추가 보상 +' + fmt(res.cap500.saved) + '원, 연 누계 ' + fmt(res.cap500.ytd) + '원)' : '') + '</div>';
+    }
+
+    var limRows = (res.limits || []).filter(function (L) { return L.applicable; });
+    if (limRows.length) {
+      html += '<div class="card-h" style="margin-top:14px">잔여 한도</div>';
+      html += limRows.map(function (L) {
+        var usedNow = L.count ? (L.remain >= 1 ? 1 : 0) : (L.spent - L.cut);
+        var post = Math.max(0, L.remain - usedNow);
+        return '<div class="line" style="padding:7px 0"><div class="nm"><b>' + esc(L.label) + '</b>' +
+          '<span>한도 ' + fmt(L.cap) + L.unit + ' · 기사용 ' + fmt(L.used) + L.unit + '</span></div>' +
+          '<div class="amt2"><b style="color:var(--navy)">' + fmt(post) + L.unit + '</b><span>이번 청구 후 잔여</span></div></div>';
+      }).join('');
+    }
+
     if (res.warnings.length) {
       html += '<div class="notice warn" style="margin-top:12px"><b>확인 필요</b><br>' + res.warnings.map(esc).join('<br>') + '</div>';
     }
@@ -1519,7 +2007,18 @@ window.SILSON = (function () {
   }
 
   function renderCalcAll() {
-    renderCalcGen(); renderHospChips(); renderCond(); renderInputs(); renderResult();
+    C = normC(C);
+    renderCalcGen(); renderHospChips(); renderCond(); renderQuick();
+    renderInputs(); renderLimits(); renderTri(); renderResult();
+  }
+
+  function applyQuick(text) {
+    var parsed = S.parseQuick(text, C.mode);
+    var keys = Object.keys(parsed);
+    if (!keys.length) { toast('예: 급여 52000 비급여 85000 처럼 입력하세요'); return; }
+    keys.forEach(function (k) { C.amt[k] = Math.max(0, Math.round(parsed[k])); });
+    saveCalc(); renderInputs(); renderTri(); renderResult();
+    toast(keys.length + '개 항목을 채웠습니다');
   }
 
   function initCalc() {
@@ -1535,18 +2034,20 @@ window.SILSON = (function () {
       var b = e.target.closest('[data-cmode]'); if (!b) return;
       C.mode = b.getAttribute('data-cmode');
       $$('#calcModeSeg button').forEach(function (x) { x.classList.toggle('on', x === b); });
-      renderInputs(); renderResult();
+      renderCond(); renderQuick(); renderInputs(); renderLimits(); renderResult();
     });
     $('#calcCond').addEventListener('click', function (e) {
       var f = e.target.closest('[data-form]'), d = e.target.closest('[data-d2]'), s = e.target.closest('[data-sev]');
       if (f) C.form = f.getAttribute('data-form');
       if (d) C.d2mode = d.getAttribute('data-d2');
       if (s) C.severe = s.getAttribute('data-sev') === '1';
-      if (f || d || s) { saveCalc(); renderCond(); renderResult(); }
+      if (f || d || s) { saveCalc(); renderCond(); renderLimits(); renderTri(); renderResult(); }
     });
     $('#calcCond').addEventListener('input', function (e) {
       if (e.target.id === 'nhirate') C.nhirate = Math.max(0, Math.min(100, Number(e.target.value) || 0)) / 100;
       if (e.target.id === 'ytd') C.ytd = Math.max(0, Number(e.target.value) || 0);
+      if (e.target.id === 'ytdS') C.ytdS = Math.max(0, Number(e.target.value) || 0);
+      if (e.target.id === 'roomDays') C.roomDays = Math.max(0, Math.round(Number(e.target.value) || 0));
       saveCalc(); renderResult();
     });
     $('#calcInputs').addEventListener('input', function (e) {
@@ -1554,14 +2055,76 @@ window.SILSON = (function () {
       C.amt[k] = Math.max(0, Math.round(Number(e.target.value) || 0));
       saveCalc(); renderResult();
     });
+    $('#calcInputs').addEventListener('change', function () { renderTri(); });
+
+    /* 빠른 입력 */
+    $('#quickApply').addEventListener('click', function () { applyQuick($('#quickLine').value); });
+    $('#quickLine').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); applyQuick(e.target.value); } });
+    $('#qTarget').addEventListener('change', function (e) { C.qTarget = e.target.value; saveCalc(); });
+    $('#panel-single').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-qadd]'); if (!b) return;
+      var v = b.getAttribute('data-qadd');
+      if (v === 'reset') {
+        C.amt = S.emptyAmt();
+        saveCalc(); renderInputs(); renderTri(); renderResult();
+        toast('금액을 지웠습니다');
+        return;
+      }
+      var k = C.qTarget || (quickFields()[0] || {}).k;
+      C.amt[k] = Math.max(0, Math.round((C.amt[k] || 0) + Number(v)));
+      saveCalc(); renderInputs(); renderTri(); renderResult();
+    });
+
+    /* 한도 설정 */
+    $('#calcLimits').addEventListener('input', function (e) {
+      var id = e.target.getAttribute('data-lim'); if (!id) return;
+      var f = e.target.getAttribute('data-lf');
+      var v = Math.max(0, Math.round(Number(e.target.value) || 0));
+      if (!C.lim[id]) C.lim[id] = {};
+      C.lim[id][f] = v;
+      saveCalc(); renderResult();
+    });
+    $('#calcLimits').addEventListener('change', function () { renderLimits(); renderResult(); });
+    $('#calcLimits').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-limset]'); if (!b) return;
+      var id = b.getAttribute('data-limset');
+      if (!C.lim[id]) C.lim[id] = {};
+      C.lim[id].cap = Number(b.getAttribute('data-limpreset')) || 0;
+      saveCalc(); renderLimits(); renderResult();
+    });
+    $('#limReset').addEventListener('click', function () {
+      Object.keys(C.lim).forEach(function (id) { delete C.lim[id].cap; });
+      saveCalc(); renderLimits(); renderResult(); toast('약관 기본 한도로 되돌렸습니다');
+    });
+
+    /* 3대 비급여 횟수·금액 */
+    $('#calcTri').addEventListener('input', function (e) {
+      var ak = e.target.getAttribute('data-amt');
+      if (ak) { C.amt[ak] = Math.max(0, Math.round(Number(e.target.value) || 0)); saveCalc(); renderResult(); return; }
+      var k = e.target.getAttribute('data-tri'); if (!k) return;
+      var f = e.target.getAttribute('data-tf');
+      var v = Math.max(0, Math.round(Number(e.target.value) || 0));
+      if (f === 'usedAmt') C.used[k] = v;
+      else if (f === 'usedCnt') C.cnt[k].used = v;
+      else if (f === 'n') C.cnt[k].n = Math.max(1, v);
+      saveCalc(); renderResult();
+    });
+    $('#calcTri').addEventListener('change', function () { renderTri(); renderInputs(); renderResult(); });
+
     $('#calcResult').addEventListener('click', function (e) {
       if (e.target.id === 'calcSample') {
-        C.amt = { gi: 1000000, gt: 50000, bi: 2000000, bt: 300000, physio: 150000, inj: 100000, mri: 700000, onco: 500000 };
-        C.ytd = 1000000; saveCalc(); renderInputs(); renderResult();
+        C.amt = { gi: 1000000, gt: 50000, bi: 2000000, bt: 300000, physio: 150000, inj: 100000, mri: 700000, onco: 500000, room: 600000 };
+        C.ytd = 1000000; C.ytdS = 4200000; C.roomDays = 4;
+        C.cnt = { physio: { used: 9, n: 2 }, inj: { used: 4, n: 1 } };
+        C.used = { physio: 1200000, inj: 500000, mri: 800000 };
+        saveCalc(); renderCond(); renderInputs(); renderLimits(); renderTri(); renderResult();
         toast('예시값을 채웠습니다');
       }
       if (e.target.id === 'calcReset') {
-        C.amt = S.emptyAmt(); C.ytd = 0; saveCalc(); renderInputs(); renderResult();
+        C.amt = S.emptyAmt(); C.ytd = 0; C.ytdS = 0; C.roomDays = 0;
+        C.cnt = { physio: { used: 0, n: 1 }, inj: { used: 0, n: 1 } };
+        C.used = { physio: 0, inj: 0, mri: 0 }; C.lim = {};
+        saveCalc(); renderCond(); renderInputs(); renderLimits(); renderTri(); renderResult();
       }
       if (e.target.id === 'calcCopy') copyText(lastCalcText);
     });
@@ -1585,7 +2148,7 @@ window.SILSON = (function () {
     });
     $('#mAutoAll').addEventListener('click', function () {
       M.contracts.forEach(function (c) { c.indep = S.indepFor(calcInput(), c.gen, c.coverage); });
-      store('silson.multi', M); renderMulti(); toast('단일계산 금액으로 독립책임액을 채웠습니다');
+      store('silson.multi', M); renderMulti(); toast('한도·횟수까지 반영해 독립책임액을 채웠습니다');
     });
     $('#mList').addEventListener('input', function (e) {
       var i = Number(e.target.getAttribute('data-mi')); if (isNaN(i)) return;
@@ -2005,7 +2568,7 @@ window.SILSON = (function () {
       '삼성생명 인보험 심사 실무용 <b>실손 심사 도우미</b>입니다. 기준일 ' + S.UPDATED + '.<br><br>' +
       '· 서버·DB 없이 동작하는 정적 웹앱입니다. 인터넷이 없어도 홈 화면에서 열립니다(첫 실행 후 캐시).<br>' +
       '· 심사메모는 이 기기 브라우저(localStorage)에만 저장되고 외부로 전송되지 않습니다.<br>' +
-      '· 계산 결과는 약관 기준을 옮긴 참고값입니다. 실제 지급 결정은 증권·약관 원문과 진료기록으로 확인하세요.<br><br>' +
+      '· 계산기에 세대별 연간 한도·기사용 금액(횟수)을 넣으면 잔여 한도로 이번 지급액을 제한하고, 한도 초과 차감액을 표시합니다.<br>' +'· 3대 비급여(도수·체외충격파·증식 / 주사료 / MRI)는 올해 기사용 횟수·금액과 이번 청구 횟수를 함께 넣어 50회·연 350만/250만/300만 한도를 봅니다.<br>' +'· 5세대 중증은 상급종합·종합병원 입원 자기부담(공제) 연 500만원 상한을, 상급병실료 차액은 50%·1일 10만원 한도를 반영합니다.<br>' +'· 계산 결과는 약관 기준을 옮긴 참고값입니다. 실제 지급 결정은 증권·약관 원문과 진료기록으로 확인하세요.<br><br>' +
       '<b>홈 화면에 추가</b><br>Safari에서 이 페이지를 연 뒤 공유 → ‘홈 화면에 추가’를 누르면 앱처럼 전체 화면으로 열립니다.</div>' +
       '<div class="btn-row" style="margin-top:14px"><button class="btn" data-x="close">닫기</button></div>';
     $('#modal').classList.add('on');
