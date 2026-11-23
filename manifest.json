@@ -1,0 +1,20 @@
+{
+  "name": "실손 심사 도우미 · 1~5세대",
+  "short_name": "실손도우미",
+  "description": "삼성생명 1~5세대 실손·인보험 심사 실무 도구 — 세대비교, 지급·비례계산, 3대비급여·약제, 담보·체크, 판례·분조위, 심사메모",
+  "lang": "ko",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#eef1f7",
+  "theme_color": "#12294d",
+  "categories": ["business", "productivity", "medical"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
