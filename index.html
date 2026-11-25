@@ -392,24 +392,33 @@ textarea{resize:vertical; min-height:140px; line-height:1.55;}
 
     <div id="panel-multi" hidden>
       <div class="card">
-        <div class="card-h"><span class="n">1</span>이번 사고의 실제 손해액</div>
-        <div class="amt">
-          <input type="number" id="mDamage" inputmode="numeric" value="3000000" min="0" step="1000">
-          <span class="unit">원</span>
+        <div class="card-h"><span class="n">1</span>비례분담 기준</div>
+        <label for="mRule">적용 약관의 다수보험 조항</label>
+        <select id="mRule">
+          <option value="">약관 확인 후 선택</option>
+          <option value="net">최고 보상대상의료비 − 최저 공제금</option>
+          <option value="gross">최고 보상대상의료비</option>
+          <option value="expense">개별 약관상 분담 대상 비용 직접 입력</option>
+        </select>
+        <div id="mExpenseField" hidden>
+          <label for="mExpense">약관상 분담 대상 비용 (원)</label>
+          <input type="number" min="0" step="1" inputmode="numeric" id="mExpense">
+          <div class="hint">해당 특약의 다수보험 조항에서 정한 동일 사고의 비용을 입력하세요.</div>
         </div>
-        <div class="hint" style="margin-top:6px;">급여 본인부담 + 비급여 합계(상급병실료 차액·면책 항목 제외).</div>
+        <label for="mUnit">같은 사고의 계산 단위</label>
+        <select id="mUnit">
+          <option value="">계산 단위 선택</option>
+          <option value="in">입원</option><option value="out">외래</option>
+          <option value="rx">처방조제</option><option value="accident">상해의료비 · 동일 사고 단위</option><option value="other">약관에서 정한 별도 계산 단위</option>
+        </select>
+        <div class="hint">같은 계산 단위의 계약끼리 입력하세요. 1세대는 생보·손보 모두 계약의 상품명, 가입 시기, 특약명과 다수보험 조항을 확인하세요. 약관 판에 따라 외래·처방 합산 여부와 담보 구분이 다릅니다. 기준이 다른 계약이 섞이면 적용할 기준을 확인한 뒤 선택하세요.</div>
       </div>
-
       <div class="card">
-        <div class="card-h"><span class="n">2</span>계약별 독립책임액 <span class="sp" id="mCount">3건</span></div>
+        <div class="card-h"><span class="n">2</span>계약별 보상 정보 <span class="sp" id="mCount"></span></div>
         <div id="mList"></div>
-        <div class="btn-row">
-          <button class="btn sec sm" id="mAdd">+ 계약 추가</button>
-          <button class="btn soft sm" id="mAutoAll">단일계산 값으로 자동 산출</button>
-        </div>
-        <div class="hint" style="margin-top:8px;">독립책임액 = 그 계약만 있었을 때 약관대로 계산한 지급액. <b>자동</b>을 누르면 위 ‘단일 계산’의 금액·한도·3대 횟수 설정이 그대로 반영돼 산출됩니다(잔여 한도·횟수 CAP 포함).</div>
+        <button class="btn sec sm" id="mAdd">+ 계약 추가</button>
+        <div class="hint">독립책임액은 그 계약만 있었다면 지급할 금액입니다. 특약 가입, 면책, 잔여 한도와 횟수를 확인하세요. 보상책임이 없는 계약은 독립책임액에 0원을 입력하세요.</div>
       </div>
-
       <div id="mResult"></div>
     </div>
   </section>
@@ -647,7 +656,8 @@ window.SILSON = (function () {
     ['5세대 상품', '생명보험협회 공시실(pub.insure.or.kr) 실손의료보험 상품목록 — 삼성 급여 실손의료비보장보험(2605)(갱신형,무배당)'],
     ['5세대 한도', '손해보험협회 실손의료보험 안내(kpub.knia.or.kr) 5세대 표 · 금융위 2026.05.06 보도자료 — 급여 5천만, 중증 5천만·통원 회당 20만/연 100회, 3대 350만·250만·300만, 비중증 1천만·병의원 입원 회당 300만·일당 20만/연 100일·MRI 200만, 중증 입원 공제 연 500만 상한, 상급병실료 차액 50%·1일 10만'],
     ['세대 기준', '금융위원회 4세대 실손의료보험 출시 보도자료(2021.06.29), 5세대 실손 및 계약전환·선택형 할인 제도 발표(2026.05.06 / 2026.11.19, 시행 2026.11.23)'],
-    ['1세대 기준', '생명보험협회 공시실 ‘1세대 실손의료보험(~’09.9월)’ 대표상품 기준 — 입원 연 3천만, 통원 회당 10만/처방 5만, 자기부담 입원 20%·통원 5천원+20%, 갱신 3년'],
+    ['1세대 손보 예시', '삼성화재 엄마사랑 자녀보험(0904.1) 상해의료비 특약은 사고일부터 180일 이내 의료비를 사고당 가입금액 한도로 보상하며 건강보험 미적용 시 별도 50% 기준을 적용. 같은 상품의 상해·질병 입원 및 통원 특약은 각각 약관 확인. 계산기 → 다수계약 비례분담에서 특약 선택 가능.'],
+    ['1세대 생보 예시', '생명보험협회 공시실 ‘1세대 실손의료보험(~’09.9월)’ 대표상품 기준 — 입원 연 3천만, 통원 회당 10만/처방 5만, 자기부담 입원 20%·통원 5천원+20%, 갱신 3년'],
     ['2~3세대 기준', '표준화 실손 표준약관(2009.10 시행)·착한실손(2017.04 시행) 구조 및 공시·약관 해설 자료'],
     ['주의', '1세대는 비표준화 세대이므로 회사·상품·가입시기별 보장이 다릅니다. 표의 1세대 값은 생보협회 공시 대표상품 기준이며, 실제 심사는 증권·가입 당시 약관 원문으로 확인해야 합니다.']
   ];
@@ -2448,94 +2458,233 @@ window.SILSON = (function () {
       $('#panel-multi').hidden = !multiMode;
       if (multiMode) renderMulti(); else renderResult();
     });
-    $('#mDamage').addEventListener('input', function (e) {
-      M.damage = Math.max(0, Math.round(Number(e.target.value) || 0)); store('silson.multi', M); renderMultiResult();
-    });
-    $('#mAdd').addEventListener('click', function () {
-      if (M.contracts.length >= 5) { toast('계약은 최대 5건입니다'); return; }
-      M.contracts.push({ name: '', gen: 4, coverage: '급여+비급여', indep: 0 });
+    $('#mRule').addEventListener('change', function (e) {
+      M.rule = e.target.value;
       store('silson.multi', M); renderMulti();
     });
-    $('#mAutoAll').addEventListener('click', function () {
-      M.contracts.forEach(function (c) { c.indep = S.indepFor(calcInput(), c.gen, c.coverage); });
-      store('silson.multi', M); renderMulti(); toast('한도·횟수까지 반영해 독립책임액을 채웠습니다');
-    });
-    $('#mList').addEventListener('input', function (e) {
-      var i = Number(e.target.getAttribute('data-mi')); if (isNaN(i)) return;
-      var f = e.target.getAttribute('data-mf');
-      if (f === 'name') M.contracts[i].name = e.target.value;
-      if (f === 'indep') M.contracts[i].indep = Math.max(0, Math.round(Number(e.target.value) || 0));
+    $('#mExpense').addEventListener('input', function (e) {
+      M.expense = e.target.value;
       store('silson.multi', M); renderMultiResult();
     });
-    $('#mList').addEventListener('change', function (e) {
-      var i = Number(e.target.getAttribute('data-mi')); if (isNaN(i)) return;
+    $('#mUnit').addEventListener('change', function (e) {
+      M.unit = e.target.value;
+      M.contracts.forEach(clearMultiAmounts);
+      store('silson.multi', M); renderMulti();
+    });
+    $('#mAdd').addEventListener('click', function () {
+      M.contracts.push({});
+      store('silson.multi', M); renderMulti();
+    });
+    $('#mList').addEventListener('input', function (e) {
       var f = e.target.getAttribute('data-mf');
-      if (f === 'gen') M.contracts[i].gen = Number(e.target.value);
-      if (f === 'coverage') M.contracts[i].coverage = e.target.value;
-      store('silson.multi', M);
+      if (!f) return;
+      var c = M.contracts[Number(e.target.getAttribute('data-mi'))];
+      if (['preset', 'mri', 'covered', 'uncovered', 'limit', 'legacyCost'].indexOf(f) >= 0) clearMultiAmounts(c);
+      c[f] = e.target.value;
+      if (f === 'preset' && MULTI_PRESETS[c.preset]?.kind) c.kind = MULTI_PRESETS[c.preset].kind;
+      if (['cost', 'deduct', 'indep'].indexOf(f) >= 0) c.autoUnit = '';
+      store('silson.multi', M); renderMultiResult();
+      var status = document.querySelector('[data-mstatus="' + e.target.getAttribute('data-mi') + '"]');
+      if (status && !c.autoUnit) status.textContent = '';
+    });
+    $('#mList').addEventListener('change', function (e) {
+      if (['preset', 'mri', 'covered', 'uncovered', 'limit', 'legacyCost'].indexOf(e.target.getAttribute('data-mf')) >= 0) renderMulti();
     });
     $('#mList').addEventListener('click', function (e) {
       var del = e.target.closest('[data-del]'), auto = e.target.closest('[data-auto]');
       if (del) {
         if (M.contracts.length <= 2) { toast('계약은 최소 2건입니다'); return; }
-        M.contracts.splice(Number(del.getAttribute('data-del')), 1); store('silson.multi', M); renderMulti();
-      }
-      if (auto) {
-        var i = Number(auto.getAttribute('data-auto'));
-        M.contracts[i].indep = S.indepFor(calcInput(), M.contracts[i].gen, M.contracts[i].coverage);
-        store('silson.multi', M); renderMulti(); toast('독립책임액을 산출했습니다');
-      }
+        M.contracts.splice(Number(del.getAttribute('data-del')), 1);
+      } else if (e.target.closest('[data-rule]')) {
+        var preset = MULTI_PRESETS[M.contracts[Number(e.target.closest('[data-rule]').getAttribute('data-rule'))].preset];
+        M.rule = preset.rule;
+        if (preset.rule === 'expense') {
+          M.expense = '';
+          if (M.unit !== preset.unit) M.contracts.forEach(clearMultiAmounts);
+          M.unit = preset.unit;
+        }
+      } else if (auto) {
+        var c = M.contracts[Number(auto.getAttribute('data-auto'))];
+        var p = MULTI_PRESETS[c.preset];
+        if (!p || !p.calculate || M.unit !== p.unit) {
+          toast('약관 판에 맞는 계산 단위를 선택하세요'); return;
+        }
+        if (p.fields.some(function (field) { return !validMultiMoney(c[field[0]]); })) {
+          toast('보상대상의료비와 잔여 지급한도를 모두 입력하세요'); return;
+        }
+        Object.assign(c, p.calculate(c), { autoUnit: M.unit });
+      } else return;
+      store('silson.multi', M); renderMulti();
     });
 
     renderCalcAll();
     renderMulti();
   }
 
+  function clearMultiAmounts(contract) {
+    if (!contract.autoUnit) return;
+    delete contract.cost;
+    delete contract.deduct;
+    delete contract.indep;
+    delete contract.autoUnit;
+  }
+
+  function validMultiMoney(value) {
+    return value != null && String(value).trim() !== '' &&
+      Number.isSafeInteger(Number(value)) && Number(value) >= 0;
+  }
+
+  function multiAmounts(cost, deduct, limit) {
+    var selfPay = Math.min(cost, Math.round(deduct));
+    return { cost: cost, deduct: selfPay, indep: Math.min(limit, cost - selfPay) };
+  }
+
+  function legacyAccidentPreset(insured) {
+    return {
+      label: '1세대 손보 · 삼성화재 엄마사랑 자녀보험(0904.1) · 상해의료비 · 건강보험 ' + (insured ? '적용' : '미적용'),
+      kind: '손해보험',
+      source: 'https://www.samsungfire.com/publication/pdf/95345_0_20090401_file1.pdf#page=35',
+      rule: 'expense', unit: 'accident',
+      note: '특약 제1조. 같은 사고의 보상기간(사고일부터 180일)과 면책을 확인한 뒤 약관상 대상 의료비만 입력하세요.',
+      fields: [['legacyCost', insured ? '실제 부담한 보상대상 의료비' : '건강보험 미적용 보상대상 발생 의료비 총액'], ['limit', '사고당 잔여 가입금액']],
+      calculate: function (c) {
+        var cost = Number(c.legacyCost);
+        return {
+          cost: cost, deduct: 0,
+          indep: Math.min(Number(c.limit), Math.floor(cost * (insured ? 1 : 0.5)))
+        };
+      }
+    };
+  }
+
+  var MULTI_RULE_LABELS = {
+    net: '최고액 − 최저 공제금',
+    gross: '최고 보상대상의료비',
+    expense: '개별 약관상 분담 대상 비용'
+  };
+
+  var MULTI_PRESETS = {
+    sf0904Insured: legacyAccidentPreset(true),
+    sf0904Uninsured: legacyAccidentPreset(false),
+    db1704: {
+      label: 'DB생명 · 동부실손의료보험(1704) · 비급여 MRI/MRA 특약',
+      source: 'https://www.idblife.com/notice/product/file/A014500001.pdf?fileName=DB%EC%83%9D%EB%AA%85_%EB%AC%B4%EB%B0%B0%EB%8B%B9+DB%EC%8B%A4%EC%86%90%EC%9D%98%EB%A3%8C%EB%B3%B4%ED%97%98%28%EA%B0%B1%EC%8B%A0%ED%98%95%29%281704%29%28A014500001%29_%EC%8B%A4%EC%86%90%EC%9D%98%EB%A3%8C%EB%B3%B4%ED%97%98.pdf',
+      rule: 'net', unit: 'other',
+      fields: [['mri', '1회 보상대상 비급여 MRI/MRA'], ['limit', '특약 잔여 지급한도']],
+      calculate: function (c) {
+        var cost = Number(c.mri);
+        return multiAmounts(cost, Math.max(20000, cost * 0.3), Math.min(3000000, Number(c.limit)));
+      }
+    },
+    sf2101: {
+      label: '삼성화재 · 실손의료비보험(2101.6) · 선택형Ⅱ 의원 외래',
+      source: 'https://www.samsungfire.co.kr/product/leaflet/P02_03_04_075_20210401.pdf',
+      rule: 'net', unit: 'out',
+      fields: [['covered', '1회 보상대상 급여 본인부담'], ['uncovered', '1회 보상대상 비급여'], ['limit', '이번 외래 잔여 지급한도']],
+      calculate: function (c) {
+        var covered = Number(c.covered), uncovered = Number(c.uncovered);
+        return multiAmounts(covered + uncovered, Math.max(10000, covered * 0.1 + uncovered * 0.2), Number(c.limit));
+      }
+    },
+    abl1304: {
+      label: 'ABL생명 · 알리안츠실손의료비보장보험(130401) · 비례조항',
+      source: 'https://www.abllife.co.kr/cms/pban/prdtPban/whlPrdt/__icsFiles/afieldfile/2017/05/15/02_%EC%82%AC%EC%97%85%EB%B0%A9%EB%B2%95%EC%84%9C%28130401%29_%28%EB%AC%B4%29%EC%95%8C%EB%A6%AC%EC%95%88%EC%B8%A0%EC%8B%A4%EC%86%90%EC%9D%98%EB%A3%8C%EB%B9%84%EB%B3%B4%EC%9E%A5%EB%B3%B4%ED%97%98%28%EA%B0%B1%EC%8B%A0%ED%98%95%29.pdf',
+      rule: 'gross'
+    }
+  };
+
   function renderMulti() {
-    $('#mDamage').value = Math.round(M.damage || 0);
+    $('#mRule').value = M.rule || '';
+    $('#mUnit').value = M.unit || '';
+    $('#mExpenseField').hidden = M.rule !== 'expense';
+    $('#mExpense').value = M.expense == null ? '' : M.expense;
     $('#mCount').textContent = M.contracts.length + '건';
     $('#mList').innerHTML = M.contracts.map(function (c, i) {
+      var attrs = ' data-mi="' + i + '" data-mf="';
+      var p = MULTI_PRESETS[c.preset];
+      function money(key, label) {
+        return '<label style="display:block;margin-top:8px">' + label +
+          '<input type="number" min="0" step="1" inputmode="numeric"' + attrs + key +
+          '" value="' + esc(c[key] == null ? '' : c[key]) + '"></label>';
+      }
       return '<div class="card tight" style="margin-bottom:10px;background:#fbfcff;box-shadow:none;border:1px solid var(--line)">' +
-        '<div class="row" style="margin-bottom:8px"><b style="font-size:12.5px">계약 ' + (i + 1) + '</b>' +
-        '<button class="btn sm danger" style="margin-left:auto" data-del="' + i + '">삭제</button></div>' +
-        '<input type="text" data-mi="' + i + '" data-mf="name" placeholder="보험사·상품명 (선택)" value="' + esc(c.name) + '" style="margin-bottom:8px">' +
-        '<div class="row" style="gap:8px;margin-bottom:8px">' +
-        '<select data-mi="' + i + '" data-mf="gen" style="flex:1">' + S.GENS.map(function (g) {
-          return '<option value="' + g.id + '"' + (Number(c.gen) === g.id ? ' selected' : '') + '>' + g.label + '</option>';
-        }).join('') + '</select>' +
-        '<select data-mi="' + i + '" data-mf="coverage" style="flex:1.4">' + ['급여+비급여', '급여', '비급여', '3대비급여', '전체'].map(function (k) {
-          return '<option value="' + k + '"' + (c.coverage === k ? ' selected' : '') + '>' + k + '</option>';
-        }).join('') + '</select></div>' +
-        '<div class="amt"><input type="number" inputmode="numeric" step="1000" min="0" data-mi="' + i + '" data-mf="indep" value="' + Math.round(c.indep || 0) + '"><span class="unit">원</span></div>' +
-        '<button class="btn soft sm block" style="margin-top:8px" data-auto="' + i + '">이 세대로 자동 산출</button>' +
-        '</div>';
+        '<div class="row"><b>계약 ' + (i + 1) + '</b><button class="btn sm danger" style="margin-left:auto" data-del="' + i + '">삭제</button></div>' +
+        '<label>보험사 유형<select' + attrs + 'kind"><option value="">선택</option>' +
+        ['생명보험', '손해보험', '우체국·공제 등'].map(function (kind) {
+          return '<option' + (kind === c.kind ? ' selected' : '') + '>' + kind + '</option>';
+        }).join('') + '</select></label>' +
+        '<label>보험사·상품명·가입 시기·특약명<input type="text"' + attrs + 'name" value="' + esc(c.name || '') + '"></label>' +
+        '<label>상품·약관 판<select' + attrs + 'preset"><option value="">직접 입력</option>' +
+        Object.keys(MULTI_PRESETS).map(function (key) {
+          return '<option value="' + key + '"' + (c.preset === key ? ' selected' : '') + '>' + MULTI_PRESETS[key].label + '</option>';
+        }).join('') + '</select></label>' +
+        (p ? '<div class="hint"><a href="' + p.source + '" target="_blank" rel="noopener">공시 원문</a> · 비례조항 기준: ' +
+          MULTI_RULE_LABELS[p.rule] + '</div>' +
+          '<button class="btn sec sm" data-rule="' + i + '">이 약관의 비례 기준 적용</button>' : '') +
+        (p && p.calculate ? '<div class="hint">가입한 담보에서 보상 가능한 항목만 입력하세요. 계산 단위: ' +
+          (p.unit === 'out' ? '외래' : p.unit === 'accident' ? '동일 사고' : '약관에서 정한 별도 계산 단위') + '</div>' +
+          (p.note ? '<div class="hint">' + p.note + '</div>' : '') +
+          p.fields.map(function (field) { return money(field[0], field[1] + ' (원)'); }).join('') +
+          '<button class="btn soft sm" data-auto="' + i + '" style="margin-top:8px">약관 기준으로 산출</button>' : '') +
+        money('cost', '보상대상의료비 (원)') + money('deduct', '피보험자부담 공제금 (원)') +
+        money('indep', '독립책임액 (원)') +
+        '<div class="hint" data-mstatus="' + i + '">' + (c.autoUnit ? '선택한 약관의 입력값으로 산출했습니다.' : '') + '</div></div>';
     }).join('');
     renderMultiResult();
   }
 
-  function renderMultiResult() {
-    var res = S.distribute(M.damage, M.contracts);
-    var html = '<div class="card"><div class="card-h"><span class="n">3</span>비례배분 결과</div>' +
-      '<div class="res-hero"><div class="lab">계약 합계 지급액</div>' +
-      '<div class="big">' + fmt(res.totalPay) + '<span style="font-size:15px;font-weight:600">원</span></div>' +
-      '<div class="sub2">' + (res.needProportion ? '독립책임액 합계가 손해액을 넘어 비례배분을 적용합니다.' : '독립책임액 합계가 손해액 이하입니다(각 계약 독립책임액 한도 내 지급).') + '</div>' +
-      '<div class="split"><div><div class="l">실제 손해액</div><div class="v">' + fmt(res.damage) + '원</div></div>' +
-      '<div><div class="l">Σ독립책임액</div><div class="v">' + fmt(res.sumIndep) + '원</div></div>' +
-      '<div><div class="l">미보상</div><div class="v">' + fmt(res.uncovered) + '원</div></div></div></div>';
-    if (!res.rows.length) {
-      html += '<div class="empty">계약별 독립책임액을 입력하거나 <b>자동 산출</b>을 눌러 주세요.</div>';
-    } else {
-      html += '<table class="tbl"><thead><tr><th>계약</th><th>세대</th><th class="r">비중</th><th class="r">지급액</th></tr></thead><tbody>' +
-        res.rows.map(function (x) {
-          return '<tr><td>' + esc(x.name || '계약') + '<br><span class="hint">' + esc(x.coverage) + '</span></td>' +
-            '<td>' + x.gen + '세대</td><td class="r">' + (x.share * 100).toFixed(1) + '%</td>' +
-            '<td class="r"><b>' + fmt(x.pay) + '</b></td></tr>';
-        }).join('') + '</tbody></table>';
-      html += '<div class="hint" style="margin-top:8px">· 비중 = 독립책임액 ÷ Σ독립책임액<br>· 지급액 = MIN(손해액 × 비중, 독립책임액)<br>· 계약별 보장구분이 다르면 보장대상 의료비도 다릅니다. 단일계산에서 계약별로 산출한 금액을 넣는 방식이 정확합니다.</div>';
+  function multiResult(rule, contracts, expense) {
+    if (!Object.hasOwn(MULTI_RULE_LABELS, rule)) return null;
+    if (rule === 'expense' && !validMultiMoney(expense)) return null;
+    var active = [];
+    for (var c of contracts) {
+      if (!validMultiMoney(c.indep)) return null;
+      if (Number(c.indep) === 0) continue;
+      if (!validMultiMoney(c.cost) || (rule === 'net' && !validMultiMoney(c.deduct))) return null;
+      if (Number(c.indep) > Number(c.cost) || (rule === 'net' && Number(c.deduct) > Number(c.cost))) return null;
+      active.push(c);
     }
-    html += '<div class="notice">정액형 담보(입원일당·수술비·진단비·후유장해 등)는 비례보상 대상이 아니므로 실손 지급액과 별도로 지급됩니다.</div>';
-    html += '</div>';
-    $('#mResult').innerHTML = html;
+    if (!active.length) return { rows: [], gross: 0, deduct: 0, cap: rule === 'expense' ? Number(expense) : 0, sum: 0, pay: 0 };
+    var gross = Math.max.apply(null, active.map(function (c) { return Number(c.cost); }));
+    var deduct = rule === 'net' ? Math.min.apply(null, active.map(function (c) { return Number(c.deduct); })) : 0;
+    var cap = rule === 'expense' ? Number(expense) : Math.max(0, gross - deduct);
+    var sum = active.reduce(function (total, c) { return total + Number(c.indep); }, 0);
+    var pay = Math.min(cap, sum);
+    if (!Number.isSafeInteger(sum)) return null;
+    var rows = active.map(function (c) {
+      var numerator = BigInt(pay) * BigInt(c.indep);
+      var denominator = BigInt(sum);
+      return { contract: c, pay: Number(numerator / denominator), remainder: numerator % denominator };
+    });
+    var remaining = pay - rows.reduce(function (total, row) { return total + row.pay; }, 0);
+    rows.slice().sort(function (a, b) {
+      return a.remainder === b.remainder ? 0 : a.remainder > b.remainder ? -1 : 1;
+    }).slice(0, remaining).forEach(function (row) { row.pay++; });
+    return { rows: rows, gross: gross, deduct: deduct, cap: cap, sum: sum, pay: pay };
+  }
+
+  function renderMultiResult() {
+    var res = M.unit ? multiResult(M.rule, M.contracts, M.expense) : null;
+    var result = $('#mResult');
+    if (!res) {
+      result.innerHTML = '<div class="notice">계산 단위와 비례 기준을 선택하고, 모든 계약에 독립책임액을 입력하세요. 지급 대상 계약에는 보상대상의료비와 해당 기준의 공제금이 필요합니다. 독립책임액은 보상대상의료비 이하로 입력하세요. 개별 약관 기준을 선택한 경우 약관상 분담 대상 비용도 입력하세요.</div>';
+      return;
+    }
+    result.innerHTML = '<div class="card"><div class="card-h"><span class="n">3</span>비례분담 결과</div>' +
+      '<div class="hint">' + (M.rule === 'expense' ? '약관상 분담 대상 비용 ' + fmt(res.cap) + '원' :
+        '최고 보상대상의료비 ' + fmt(res.gross) + '원' +
+        (M.rule === 'net' ? ' − 최저 공제금 ' + fmt(res.deduct) + '원' : '')) +
+      ' = 분담 기준액 ' + fmt(res.cap) + '원<br>독립책임액 합계 ' + fmt(res.sum) +
+      '원 · 합계 지급액 <b>' + fmt(res.pay) + '원</b></div>' +
+      '<table class="tbl"><thead><tr><th>계약</th><th class="r">독립책임액</th><th class="r">지급액</th></tr></thead><tbody>' +
+      res.rows.map(function (row) {
+        var c = row.contract;
+        var p = MULTI_PRESETS[c.preset];
+        return '<tr><td>' + esc(c.name || (p && p.label) || ('계약 ' + (M.contracts.indexOf(c) + 1))) +
+          '<br><span class="hint">' + esc(c.kind || '') + '</span></td><td class="r">' + fmt(Number(c.indep)) +
+          '</td><td class="r"><b>' + fmt(row.pay) + '</b></td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="hint">독립책임액 합계가 기준액을 초과하면 기준액에 계약의 독립책임액 비중을 곱합니다. 원 단위 잔액은 소수점 이하가 큰 계약부터 배정합니다.</div></div>';
   }
 
   /* ───── ③ 3대비급여·약제 ───── */
