@@ -442,6 +442,12 @@
     opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:5}
   .ofbub::after{content:'';position:absolute;left:50%;bottom:-4px;margin-left:-4px;width:8px;height:8px;background:#FFFDF9;border-right:1px solid #E4D0B4;border-bottom:1px solid #E4D0B4;transform:rotate(45deg);border-radius:0 0 2px 0}
   .ofcell.bub .ofbub{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  .ofcell:first-child .ofbub{left:1px;transform:translateX(0) translateY(3px) scale(.92)}
+  .ofcell:first-child.bub .ofbub{transform:translateX(0) translateY(0) scale(1)}
+  .ofcell:first-child .ofbub::after{left:16px;margin-left:0}
+  .ofcell:last-child .ofbub{left:auto;right:1px;transform:translateX(0) translateY(3px) scale(.92)}
+  .ofcell:last-child.bub .ofbub{transform:translateX(0) translateY(0) scale(1)}
+  .ofcell:last-child .ofbub::after{left:auto;right:16px;margin-left:0}
   .ofstick .ofarm{fill:none;stroke:#6B4E33;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   .ofstick .ofarm-work,.ofstick .ofarm-up{display:none}
   .ofstick .offig{transform-box:fill-box;transform-origin:50% 100%}
