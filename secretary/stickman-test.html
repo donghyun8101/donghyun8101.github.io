@@ -795,7 +795,7 @@
     const t = Date.now();
     const mk = (id,emoji,name,role,fields,prompt)=>({id,emoji,name,role,fields,prompt,provider:'inherit'});
     return {
-      version:1,
+      version:2,
       assistants:[
         mk('hana','🌸','하나','총괄 비서',['일정','조율','진행 보고'],P.hana),
         mk('simsa','🛡️','심사비서','보험·실손 심사',['1~5세대 실손','3대비급여','인보험'],P.simsa),
@@ -870,6 +870,18 @@
       ROOMS.forEach(r=>{ if(!Array.isArray(s.messages[r.id])) s.messages[r.id]=[]; });
       s.processed = (s.processed && typeof s.processed==='object') ? s.processed : {};
       if(!s.assistants.length) s.assistants = base.assistants;
+      /* v1 → v2: 기본 비서실에 제미나이·클로드를 추가 (한 번만) */
+      if(!(s.version >= 2)){
+        ['gemini','claude'].forEach(function(id){
+          const exists = s.assistants.some(function(a){ return a.id===id; });
+          if(!exists){
+            const add = base.assistants.filter(function(a){ return a.id===id; })[0];
+            if(add) s.assistants.push(add);
+          }
+        });
+        s.version = 2;
+        try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
+      }
       return s;
     }catch(e){ console.warn('load failed', e); return seedState(); }
   }
