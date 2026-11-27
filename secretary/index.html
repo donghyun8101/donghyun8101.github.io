@@ -234,8 +234,9 @@
   .inwrap:focus-within{border-color:#CBAE86;box-shadow:0 0 0 3px rgba(203,174,134,.18)}
   textarea#input{
     flex:1 1 auto;border:none;outline:none;background:transparent;resize:none;
-    font-size:14.5px;line-height:1.5;max-height:110px;padding:5px 0;min-height:30px;min-width:0;
+    font-size:16px;line-height:1.45;max-height:110px;padding:4px 0;min-height:26px;min-width:0;
   }
+  @media (min-width:700px){ textarea#input{font-size:14.5px} }
   textarea#input::placeholder{color:#C0AB90}
   .send{
     width:40px;height:40px;flex:0 0 auto;border-radius:50%;
@@ -246,8 +247,11 @@
   .send:disabled{opacity:.45;box-shadow:none}
   .toolchip{
     display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#9A8062;
-    padding:5px 9px;border-radius:999px;border:1px dashed #E2D2BB;background:#FFFDF9;flex:0 0 auto;
+    padding:8px 9px;border-radius:999px;border:1px dashed #E2D2BB;background:#FFFDF9;flex:0 0 auto;
+    white-space:nowrap;
   }
+  .toolchip .tl{display:none}
+  @media (min-width:560px){ .toolchip .tl{display:inline} }
   .toolchip.on{background:#F1E7D6;border-style:solid;color:#6F5230;border-color:#DCC5A4}
 
   /* ── generic panel pages ── */
@@ -279,7 +283,8 @@
   .task.done .ttl{text-decoration:line-through;color:#A08A70}
   .task .stat{
     flex:0 0 auto;font-size:11px;font-weight:800;padding:5px 9px;border-radius:999px;
-    border:1px solid transparent;white-space:nowrap;margin-top:1px;
+    border:1px solid transparent;white-space:nowrap;word-break:keep-all;min-width:56px;
+    text-align:center;line-height:1.35;margin-top:1px;
   }
   .stat.todo{background:#F3EDE4;color:#8B7355;border-color:#E8DCC9}
   .stat.doing{background:var(--amber-bg);color:var(--amber);border-color:#F0DEC0}
@@ -304,9 +309,12 @@
   .hide{display:none !important}
   .field{margin-bottom:9px}
   .field label{display:block;font-size:11.5px;font-weight:800;color:#A2855F;margin-bottom:4px}
-  .field input[type=text],.field textarea,.field select{
+  .field input[type=text],.field input[type=password],.field textarea,.field select{
     width:100%;padding:9px 11px;border-radius:11px;border:1.5px solid #E7D7C0;
-    background:#FFFDF9;outline:none;font-size:13.5px;
+    background:#FFFDF9;outline:none;font-size:16px;
+  }
+  @media (min-width:700px){
+    .field input[type=text],.field input[type=password],.field textarea,.field select{font-size:13.5px}
   }
   .field textarea{resize:vertical;min-height:62px;line-height:1.55}
   .field input:focus,.field textarea:focus,.field select:focus{border-color:#CBAE86;box-shadow:0 0 0 3px rgba(203,174,134,.16)}
@@ -381,7 +389,7 @@
   .sect > .st{font-size:11.5px;font-weight:900;color:#A2855F;letter-spacing:.5px;margin-bottom:7px;text-transform:uppercase}
   .box{background:var(--card);border:1px solid var(--line-soft);border-radius:14px;padding:12px}
   .seg{display:flex;gap:5px;background:#F2E8DA;padding:4px;border-radius:12px;margin-bottom:10px}
-  .seg button{flex:1 1 0;padding:8px 4px;border-radius:9px;font-size:12px;font-weight:800;color:#8A6F4F;transition:.15s}
+  .seg button{flex:1 1 0;padding:8px 2px;border-radius:9px;font-size:11.5px;font-weight:800;color:#8A6F4F;transition:.15s;white-space:nowrap}
   .seg button.on{background:#FFFDF9;color:var(--brown-d);box-shadow:0 2px 6px rgba(120,85,45,.14)}
   .prow{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed #F0E3D1}
   .prow:last-child{border-bottom:none}
@@ -446,9 +454,9 @@
           <div class="chips" id="mentionChips"></div>
         </div>
         <div class="inrow">
-          <button class="toolchip on" id="taskToggle" title="보낸 지시를 작업실에 자동 등록">📋 작업 등록</button>
+          <button class="toolchip on" id="taskToggle" title="보낸 지시를 작업실에 자동 등록" aria-label="작업 등록">📋<span class="tl"> 작업 등록</span></button>
           <div class="inwrap">
-            <textarea id="input" rows="1" placeholder="지시를 입력하고 @비서를 부르세요 (@all 전체)"></textarea>
+            <textarea id="input" rows="1" placeholder="지시 입력 · @비서 호출"></textarea>
           </div>
           <button class="send" id="sendBtn" title="보내기">↑</button>
         </div>
@@ -538,7 +546,7 @@
 
           <div id="geminiBox" class="hide">
             <div class="field"><label>Google Gemini API 키</label>
-              <input type="text" id="gKey" placeholder="AIza... (Google AI Studio에서 무료 발급)" autocomplete="off" spellcheck="false">
+              <input type="password" id="gKey" placeholder="AIza... (Google AI Studio에서 무료 발급)" autocomplete="off" spellcheck="false">
               <div class="hint">키는 이 브라우저(localStorage)에만 저장되고 다른 곳으로 보내지 않아요. 브라우저에서 직접 Google로 요청합니다.</div>
             </div>
             <div class="field"><label>모델</label>
@@ -846,7 +854,7 @@
   }
   function setRoom(room){
     state.ui.room = room; save();
-    renderRooms(); renderChat();
+    renderRooms(); renderChat(); paintMentionState();
   }
   function renderRooms(){
     $('#rooms').innerHTML = ROOMS.map(r=>
@@ -855,7 +863,7 @@
     const room = ROOMS.filter(r=>r.id===state.ui.room)[0] || ROOMS[0];
     const n = roomMembers(room.id).length;
     $('#roomTitle').textContent = room.label + ' · ON ' + n + '명';
-    $('#roomMini').textContent = room.mini;
+    $('#roomMini').textContent = room.id==='lounge' ? '상주: 하나·어사이드' : room.mini;
   }
   function renderSenderChips(){
     let html = '<button class="chip '+(state.ui.sender==='user'?'on':'')+'" data-sender="user">👑 동현 (대장님)</button>';
@@ -920,7 +928,10 @@
   function scrollBottom(){
     const el = $('#chatScroll');
     if(!el) return;
-    requestAnimationFrame(()=>{ el.scrollTop = el.scrollHeight; });
+    const go = ()=>{ el.scrollTop = el.scrollHeight; };
+    requestAnimationFrame(go);
+    setTimeout(go, 90);
+    setTimeout(go, 260);
   }
 
   /* ────────── 작업실 렌더 ────────── */
@@ -1046,7 +1057,9 @@
   function maybeCreateTask(text, targets){
     if(!state.ui.taskAuto) return false;
     if(state.ui.sender!=='user') return false;
-    const clean = text.replace(/@[가-힣A-Za-z]+/g, '').replace(/\s+/g,' ').trim();
+    let clean = text.replace(/@[가-힣A-Za-z]+/g, '').replace(/\s+/g,' ').trim();
+    clean = clean.replace(/[\s,.!?~]+$/,'');
+    clean = clean.replace(/(해 주세요|해주세요|해 줘|해줘|해 주라|해라|해|줘|좀)$/,'').trim();
     if(clean.length < 4) return false;
     const title = clean.split('\n')[0].slice(0, 70);
     const norm = title.replace(/\s/g,'');
@@ -1494,7 +1507,7 @@
       state.ui.sender = b.dataset.sender; save();
       renderSenderChips(); renderMentionChips();
       $('#input').placeholder = state.ui.sender==='user'
-        ? '지시를 입력하고 @비서를 부르세요 (@all 전체)'
+        ? '지시 입력 · @비서 호출'
         : '해당 비서 이름으로 말합니다 (응답 없음)';
     });
     $('#mentionChips').addEventListener('click', e=>{
@@ -1646,6 +1659,7 @@
       const b = e.target.closest('button[data-prov]');
       if(!b) return;
       state.settings.provider = b.dataset.prov;
+      $('#testOut').className = 'testout'; $('#testOut').textContent = '';
       paintProvSeg(); save(); paintStatus(); renderTeam();
     });
     $('#gModel').addEventListener('change', ()=>{
