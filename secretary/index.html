@@ -1898,7 +1898,7 @@
   function ofTap(id){
     const a = findA(id); if(!a) return;
     const lines = OF_LINES[id] || OF_LINES.__;
-    ofTapMap[id] = {text: pick(lines), until: Date.now() + 2600};
+    ofTapMap[id] = {text: pick(lines), until: Date.now() + 3600};
     $$('.ofcell[data-aid="'+id+'"]').forEach(function(c){
       c.classList.remove('tapped');
       void c.offsetWidth;
