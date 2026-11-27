@@ -12,8 +12,10 @@
 <body>
 <div class="wrap"><iframe id="f" src="stickman-test.html?v=1"></iframe></div>
 <script>
-  var q = location.search || '';
-  document.getElementById('f').src = 'stickman-test.html' + (q ? q : '?v=1');
+  var p = new URLSearchParams(location.search);
+  var src = p.get('src') || 'stickman-test.html';
+  var v = p.get('v') || '1';
+  document.getElementById('f').src = src + '?v=' + encodeURIComponent(v);
 </script>
 </body>
 </html>

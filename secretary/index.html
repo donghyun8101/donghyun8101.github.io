@@ -410,6 +410,74 @@
   .testout.err{display:block;background:var(--red-bg);color:#A34E3F;border:1px solid #F0D6CE}
   .testout.wait{display:block;background:#F4EEE4;color:#8A7154;border:1px solid #EADCC8}
 
+  /* ── 미니 오피스 · 졸라맨 스테이지 ── */
+  .office{flex:0 0 auto;background:linear-gradient(180deg,#FFFBF4,#FCF3E6);border-bottom:1px solid var(--line-soft)}
+  .office .ofhead{display:flex;align-items:center;gap:6px;padding:6px 14px 2px}
+  .office .oft{font-size:11px;font-weight:900;color:#8A6A44;display:flex;align-items:center;gap:4px;white-space:nowrap}
+  .office .ofsum{font-size:10px;font-weight:700;color:#B39979;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  .office .oftog{flex:0 0 auto;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:9px;line-height:1;color:#9A7C56;background:#FFFDF8;border:1px solid #EDDFC9}
+  .office .ofsvc{position:relative;margin:2px auto 9px;padding-top:22px;max-width:460px;width:calc(100% - 20px)}
+  .office.ofcollapsed .ofsvc{display:none}
+  .ofwall{position:absolute;inset:0;border-radius:14px;overflow:hidden;border:1px solid #EBD8BE;
+    background:linear-gradient(180deg,#FCF5EA 0%,#FAF0E1 68%,#EBD7BA 68%,#E3CBA9 100%);
+    box-shadow:inset 0 -10px 18px rgba(150,110,60,.07)}
+  .ofwall::before{content:'';position:absolute;left:0;right:0;top:0;height:68%;background:repeating-linear-gradient(90deg,rgba(198,168,128,.13) 0 1px,transparent 1px 13px)}
+  .ofwall::after{content:'';position:absolute;left:0;right:0;top:calc(68% - 1.5px);height:2px;background:#DDC6A6;opacity:.8}
+  .ofdeco{position:absolute;inset:0}
+  .ofdeco .ofclk{position:absolute;left:9px;top:5px;width:16px;height:16px;border-radius:50%;background:#FFFDF8;border:1.2px solid #CBAF8A;display:block}
+  .ofdeco .ofclk i{position:absolute;left:50%;top:50%;background:#A9855F;transform-origin:0 50%;border-radius:2px;display:block}
+  .ofdeco .ofclk i.h{width:4.2px;height:1.2px;margin-top:-.6px;animation:ofClock 30s linear infinite}
+  .ofdeco .ofclk i.m{width:6px;height:1px;margin-top:-.5px;animation:ofClock 10s linear infinite}
+  .ofdeco .ofsign{position:absolute;left:50%;transform:translateX(-50%);top:4px;font-size:8px;font-weight:900;letter-spacing:.5px;color:#9A7A53;background:#FFFDF8;border:1px solid #E4D2B7;border-radius:6px;padding:1px 7px;box-shadow:0 1px 2px rgba(140,100,50,.08)}
+  .ofdeco .ofplant{position:absolute;right:10px;top:3px;width:16px;height:15px}
+  @keyframes ofClock{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+  .ofcells{position:relative;display:flex;align-items:flex-end;gap:0;z-index:1;padding:0 2px}
+  .ofcell{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+  .ofcell:focus-visible{outline:2px solid #CBAE86;outline-offset:2px;border-radius:8px}
+  .ofstick{display:block;width:100%;max-width:76px;height:auto}
+  .ofname{font-size:9px;font-weight:800;color:#8C7150;line-height:1.15;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.2px}
+  .ofbub{position:absolute;left:50%;top:-20px;transform:translateX(-50%) translateY(3px) scale(.92);transform-origin:50% 100%;
+    background:#FFFDF9;border:1px solid #E4D0B4;color:#5B4328;font-size:9.5px;font-weight:800;line-height:1.2;
+    padding:2px 6px;border-radius:9px;white-space:nowrap;box-shadow:0 3px 8px rgba(120,85,45,.16);
+    opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:5}
+  .ofbub::after{content:'';position:absolute;left:50%;bottom:-4px;margin-left:-4px;width:8px;height:8px;background:#FFFDF9;border-right:1px solid #E4D0B4;border-bottom:1px solid #E4D0B4;transform:rotate(45deg);border-radius:0 0 2px 0}
+  .ofcell.bub .ofbub{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
+  .ofstick .ofarm{fill:none;stroke:#6B4E33;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .ofstick .ofarm-work,.ofstick .ofarm-up{display:none}
+  .ofstick .offig{transform-box:fill-box;transform-origin:50% 100%}
+  .ofstick .ofbody{transform-box:fill-box;transform-origin:50% 100%;animation:ofBreath 4.2s ease-in-out infinite}
+  .ofstick .ofheadgrp{transform-box:fill-box;transform-origin:50% 100%;animation:ofBob 4.8s ease-in-out infinite}
+  .ofstick .ofeye{transform-box:fill-box;transform-origin:50% 50%;animation:ofBlink 5.6s linear infinite}
+  .ofstick .ofarm-idle{transform-box:fill-box;transform-origin:50% 0;animation:ofSway 5.2s ease-in-out infinite}
+  .ofstick .ofarm-idle.r{animation-delay:-1.9s}
+  .ofstick .ofsteam{animation:ofSteam 3.6s ease-in-out infinite}
+  .ofstick .ofkeys rect{opacity:.3}
+  .ofcell.working .ofarm-idle,.ofcell.done .ofarm-idle{display:none}
+  .ofcell.working .ofarm-work{display:block;transform-box:fill-box;transform-origin:50% 0}
+  .ofcell.working .ofarm-work.l{animation:ofTypeL .23s ease-in-out infinite alternate}
+  .ofcell.working .ofarm-work.r{animation:ofTypeR .19s ease-in-out infinite alternate}
+  .ofcell.working .ofkeys rect{opacity:1;animation:ofKey .25s ease-in-out infinite alternate}
+  .ofcell.working .ofkeys rect:nth-child(2){animation-delay:-.08s}
+  .ofcell.working .ofkeys rect:nth-child(3){animation-delay:-.16s}
+  .ofcell.working .ofheadgrp{animation-duration:2.2s}
+  .ofcell.working .ofbody{animation:ofLean 1.9s ease-in-out infinite}
+  .ofcell.done .ofarm-up{display:block;transform-box:fill-box;transform-origin:50% 0}
+  .ofcell.done .offig{animation:ofJump .56s cubic-bezier(.32,.9,.4,1) 3}
+  .ofcell.done .ofbub{border-color:#BFDCBF;background:#F6FCF3}
+  .ofcell.tapped .offig{animation:ofNod .5s ease-out 2}
+  @keyframes ofBreath{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.02) translateY(-.4px)}}
+  @keyframes ofBob{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2.4deg)}}
+  @keyframes ofBlink{0%,91%,97%,100%{transform:scaleY(1)}94%{transform:scaleY(.1)}}
+  @keyframes ofSway{0%,100%{transform:rotate(0)}50%{transform:rotate(-6deg)}}
+  @keyframes ofSteam{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:.75;transform:translateY(-1.4px)}}
+  @keyframes ofKey{from{fill:#C9AE8B}to{fill:#9A7C55}}
+  @keyframes ofTypeL{from{transform:rotate(-7deg)}to{transform:rotate(6deg)}}
+  @keyframes ofTypeR{from{transform:rotate(7deg)}to{transform:rotate(-6deg)}}
+  @keyframes ofLean{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(.6px) scaleY(1.02)}}
+  @keyframes ofJump{0%{transform:translateY(0)}18%{transform:translateY(-5.5px)}38%{transform:translateY(0) scaleY(.95)}58%{transform:translateY(-3.4px)}78%,100%{transform:translateY(0)}}
+  @keyframes ofNod{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-2px) rotate(-2deg)}}
+  @media (prefers-reduced-motion:reduce){ .ofstick *{animation:none !important} }
+
   /* toast */
   #toast{
     position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom));transform:translate(-50%,14px);
@@ -444,6 +512,7 @@
   <main>
     <!-- 회의실 -->
     <section class="view on" id="view-chat">
+      <div class="office" id="officeChat" data-kind="chat"></div>
       <div class="rooms" id="rooms"></div>
       <div class="roomline"><span class="rt" id="roomTitle"></span><span class="mini" id="roomMini"></span></div>
       <div class="scroll" id="chatScroll"><div id="msgList"></div></div>
@@ -468,6 +537,7 @@
 
     <!-- 작업실 -->
     <section class="view" id="view-tasks">
+      <div class="office" id="officeTasks" data-kind="tasks"></div>
       <div class="page">
         <div class="phead">
           <h2>📋 작업실</h2>
@@ -541,9 +611,10 @@
         <div class="st">전체 기본 연결</div>
         <div class="box">
           <div class="seg" id="provSeg">
-            <button data-prov="demo">데모 모드</button>
-            <button data-prov="gemini">Gemini API</button>
-            <button data-prov="custom">노트북 서버</button>
+            <button data-prov="demo">데모</button>
+            <button data-prov="gemini">Gemini</button>
+            <button data-prov="claude">Claude</button>
+            <button data-prov="custom">노트북</button>
           </div>
           <div class="hint" id="provHint" style="margin-top:0;margin-bottom:8px"></div>
 
@@ -560,6 +631,22 @@
                 <option value="__custom">직접 입력…</option>
               </select>
               <input type="text" id="gModelCustom" class="hide" placeholder="예: gemini-2.5-flash-lite" style="margin-top:6px">
+            </div>
+          </div>
+
+          <div id="claudeBox" class="hide">
+            <div class="field"><label>Anthropic Claude API 키</label>
+              <input type="password" id="clKey" placeholder="sk-ant-... (console.anthropic.com에서 발급)" autocomplete="off" spellcheck="false">
+              <div class="hint">키는 이 브라우저(localStorage)에만 저장되고 다른 곳으로 보내지 않아요. 브라우저에서 직접 호출하므로 Anthropic 공식 지원 헤더(<code>anthropic-dangerous-direct-browser-access: true</code>)를 붙입니다. 크레디트가 있는 유료 키여야 합니다.</div>
+            </div>
+            <div class="field"><label>모델</label>
+              <select id="clModel">
+                <option value="claude-sonnet-4-5">claude-sonnet-4-5 (균형·추천)</option>
+                <option value="claude-opus-4-1">claude-opus-4-1 (정확·느림)</option>
+                <option value="claude-3-5-haiku-latest">claude-3-5-haiku-latest (빠름)</option>
+                <option value="__custom">직접 입력…</option>
+              </select>
+              <input type="text" id="clModelCustom" class="hide" placeholder="예: claude-sonnet-4-5-20250929" style="margin-top:6px">
             </div>
           </div>
 
@@ -605,7 +692,7 @@
           <div class="hint" style="margin-top:8px">대화·작업·메모·비서 설정이 모두 이 브라우저에만 저장됩니다. 기기를 바꿀 때는 내보내기 → 새 기기에서 불러오기.</div>
         </div>
       </div>
-      <div class="note">앱 정보 · <b>동현님 비서실</b> v1.0 — 정적 웹앱(GitHub Pages), 서버 없이 동작.</div>
+      <div class="note">앱 정보 · <b>동현님 비서실</b> v1.2 — 졸라맨 미니 오피스(7명) · 정적 웹앱(GitHub Pages), 서버 없이 동작.</div>
     </div>
   </div>
 </div>
@@ -630,6 +717,7 @@
           <option value="inherit">전체 기본값 따름</option>
           <option value="demo">데모 모드</option>
           <option value="gemini">Gemini API</option>
+          <option value="claude">Claude API</option>
           <option value="custom">노트북 서버</option>
         </select>
       </div>
@@ -687,7 +775,17 @@
         +"역할: 쇼핑(무신사·쿠팡) 후보 비교와 장바구니, 체험단·이벤트 응모, 가계부·구독·공과금 결제수단 정리, 일정·서류·메모 정리, 링크·자료 모으기. "
         +"말투: 산뜻하고 실용적, 존댓말. '실행하겠습니다!'로 시작. 체크리스트로 정리하고 바로 다음 행동을 제안한다. "
         +"원칙: 결제·주문·예약 같은 실제 지출은 대장님 확인 없이 진행하지 않는다. 결제는 케이뱅크 체크카드(3199)를 기본으로 제안한다. "
-        +"옷·상품 후보는 색상별 실물 사진을 함께 보여 주는 걸 선호한다는 점을 기억한다."
+        +"옷·상품 후보는 색상별 실물 사진을 함께 보여 주는 걸 선호한다는 점을 기억한다.",
+      gemini:"너는 이동현님의 '제미나이'다. 리서치·멀티모달 비서. "
+        +"역할: 검색·자료 조사, 최신 정보 확인, 이미지·PDF·표·스크린샷 읽기, 긴 문서 요약, 후보 비교표 만들기, 번역·교정. "
+        +"말투: 밝고 또렷하게, 존댓말. '실행하겠습니다'로 시작. 결론 3줄 → 근거(출처 링크·수치) → 다음 행동 순서로 짧게. "
+        +"원칙: 출처를 함께 적고 확인된 사실과 추정을 구분한다. 확인하지 못한 것은 확인하지 못했다고 말한다. "
+        +"이미지·PDF를 받으면 보이는 것만 근거로 말하고, 안 보이는 부분은 추측하지 않는다.",
+      claude:"너는 이동현님의 '클로드'다. 분석·코딩·글쓰기 비서. "
+        +"역할: 글 구조 잡기·퇴고, 보고서·메일 초안, 코드 작성·리뷰·디버깅, 데이터 정리와 계산 검증, 긴 글 요약. "
+        +"말투: 차분하고 정확하게, 존댓말. '실행하겠습니다'로 시작. 결론 먼저, 근거는 짧게. 코드는 코드블록으로 준다. "
+        +"원칙: 숫자는 계산 과정을 남기고, 가정이 필요하면 가정을 밝힌다. 틀린 부분은 먼저 인정하고 고친다. "
+        +"보험·의료 내용은 단정하지 말고 '일반 정보, 개인차 있음'을 붙인다."
     };
   }
 
@@ -697,17 +795,20 @@
     const t = Date.now();
     const mk = (id,emoji,name,role,fields,prompt)=>({id,emoji,name,role,fields,prompt,provider:'inherit'});
     return {
-      version:1,
+      version:2,
       assistants:[
         mk('hana','🌸','하나','총괄 비서',['일정','조율','진행 보고'],P.hana),
         mk('simsa','🛡️','심사비서','보험·실손 심사',['1~5세대 실손','3대비급여','인보험'],P.simsa),
         mk('content','✍️','콘텐츠비서','블로그·SNS',['생활보험 & 환급 노트','복음 한 조각','SEO'],P.content),
         mk('hermes','🦉','헤르메스','로컬·원격 에이전트',['자동화','파일·스크립트','로컬 LLM'],P.hermes),
-        mk('aside','📎','어사이드','작업 보조',['쇼핑·체험단','가계부','자료 정리'],P.aside)
+        mk('aside','📎','어사이드','작업 보조',['쇼핑·체험단','가계부','자료 정리'],P.aside),
+        mk('gemini','✨','제미나이','리서치·멀티모달',['검색·조사','이미지·PDF','요약·비교'],P.gemini),
+        mk('claude','🧠','클로드','분석·코딩·글쓰기',['문서·퇴고','코드','계산 검증'],P.claude)
       ],
       settings:{
         provider:'demo',
         gemini:{key:'',model:'gemini-2.5-flash'},
+        claude:{key:'',model:'claude-sonnet-4-5'},
         custom:{url:'',token:'',model:''},
         lastTest:null
       },
@@ -726,7 +827,9 @@
         grand:[
           {id:uid(),from:'hana',ts:t-1000*60*95,text:'좋은 아침입니다, 대장님! 🌸\n오늘 비서실 브리핑 먼저 올립니다.\n\n📌 오늘 챙길 것\n• 07:50 출근 알림 — 오류동역 1호선 실시간 확인\n• 티스토리 「생활보험 & 환급 노트」 21시 자동 포스팅 초안 점검\n• 무신사 장바구니 결제 전 사이즈 재확인\n\n지시는 이 방에서 @비서 이름으로 불러 주시면 작업실에 자동 등록하겠습니다.'},
           {id:uid(),from:'simsa',ts:t-1000*60*88,text:'심사 쪽 공유드립니다. 🛡️\n5세대 비중증 특약2의 도수·체외충격파·일반주사·신의료기술·NECA D등급은 전면 면책이라, 청구서에 이 항목이 섞여 있으면 트리거 확인부터 하시면 빠릅니다.\n정리한 표는 작업실 「5세대 비중증 특약2 면책 항목 표로 정리」로 올려 두었습니다.'},
-          {id:uid(),from:'aside',ts:t-1000*60*80,text:'잔일 쪽도 정리해 두었어요! 📎\n체험단 응모 결과 대기 3건, 구독 자동결제 이관 확인 2건, 장바구니 1건이에요.\n결제는 대장님 확인 받고 진행하겠습니다. "결제 목록 보여줘"라고만 해 주세요.'}
+          {id:uid(),from:'aside',ts:t-1000*60*80,text:'잔일 쪽도 정리해 두었어요! 📎\n체험단 응모 결과 대기 3건, 구독 자동결제 이관 확인 2건, 장바구니 1건이에요.\n결제는 대장님 확인 받고 진행하겠습니다. "결제 목록 보여줘"라고만 해 주세요.'},
+          {id:uid(),from:'gemini',ts:t-1000*60*76,text:'리서치 쪽도 대기 중입니다, 대장님. ✨\n검색·자료 조사, 이미지나 PDF 읽기, 비교표 만들기는 저에게 맡겨 주세요.\n출처 링크와 함께, 확인된 것과 추정을 구분해서 보고드리겠습니다.'},
+          {id:uid(),from:'claude',ts:t-1000*60*72,text:'분석·코딩·글쓰기도 붙였습니다. 🧠\n보고서 초안, 코드 리뷰, 계산 검증, 긴 글 요약을 맡습니다.\n결론 먼저 → 근거 → 다음 행동 순서로 정리해 올리겠습니다.'}
         ],
         command:[
           {id:uid(),from:'user',ts:t-1000*60*96,text:'작업 받은 사람은 작업하기 전에 "실행하겠습니다"라고 말하고 시작해. 내가 하는지 안 하는지 모르니까. @하나 @심사비서 @콘텐츠비서 @헤르메스 @어사이드'},
@@ -741,7 +844,7 @@
           {id:uid(),from:'aside',ts:t-1000*60*68,text:'라운지 상주는 저랑 하나예요! 📎\n"이거 뭐가 나을까?" 같은 고민, 후보 비교부터 시작해 볼게요.'}
         ]
       },
-      ui:{tab:'chat',room:'command',sender:'user',activeFilter:'all',taskAuto:true},
+      ui:{tab:'chat',room:'command',sender:'user',activeFilter:'all',taskAuto:true,officeCollapsed:{chat:false,tasks:false}},
       processed:{}
     };
   }
@@ -760,12 +863,25 @@
       s.settings = Object.assign({}, base.settings, s.settings||{});
       s.settings.gemini = Object.assign({}, base.settings.gemini, (s.settings||{}).gemini||{});
       s.settings.custom = Object.assign({}, base.settings.custom, (s.settings||{}).custom||{});
+      s.settings.claude = Object.assign({}, base.settings.claude, (s.settings||{}).claude||{});
       s.ui = Object.assign({}, base.ui, s.ui||{});
       ['assistants','tasks','memos'].forEach(k=>{ if(!Array.isArray(s[k])) s[k]=base[k]; });
       s.messages = (s.messages && typeof s.messages==='object') ? s.messages : base.messages;
       ROOMS.forEach(r=>{ if(!Array.isArray(s.messages[r.id])) s.messages[r.id]=[]; });
       s.processed = (s.processed && typeof s.processed==='object') ? s.processed : {};
       if(!s.assistants.length) s.assistants = base.assistants;
+      /* v1 → v2: 기본 비서실에 제미나이·클로드를 추가 (한 번만) */
+      if(!(s.version >= 2)){
+        ['gemini','claude'].forEach(function(id){
+          const exists = s.assistants.some(function(a){ return a.id===id; });
+          if(!exists){
+            const add = base.assistants.filter(function(a){ return a.id===id; })[0];
+            if(add) s.assistants.push(add);
+          }
+        });
+        s.version = 2;
+        try{ localStorage.setItem(KEY, JSON.stringify(s)); }catch(e){}
+      }
       return s;
     }catch(e){ console.warn('load failed', e); return seedState(); }
   }
@@ -822,8 +938,9 @@
   function resolveProvider(a){
     const raw = (a && a.provider && a.provider!=='inherit') ? a.provider : state.settings.provider;
     if(raw==='gemini' && !state.settings.gemini.key) return 'demo';
+    if(raw==='claude' && !(state.settings.claude && state.settings.claude.key)) return 'demo';
     if(raw==='custom' && !state.settings.custom.url) return 'demo';
-    return (raw==='gemini'||raw==='custom') ? raw : 'demo';
+    return (raw==='gemini'||raw==='claude'||raw==='custom') ? raw : 'demo';
   }
   function providerSummary(){
     const list = state.assistants.map(a=>resolveProvider(a));
@@ -929,6 +1046,7 @@
     }
     $('#msgList').innerHTML = html;
     scrollBottom();
+    refreshOffice();
   }
   function scrollBottom(){
     const el = $('#chatScroll');
@@ -978,7 +1096,7 @@
       const p = resolveProvider(a);
       const pBadge = p==='demo'
         ? '<span class="kpi demo">🧪 데모</span>'
-        : '<span class="kpi ok">⚡ '+(p==='gemini'?'Gemini':'노트북 서버')+'</span>';
+        : '<span class="kpi ok">⚡ '+(p==='gemini'?'Gemini':(p==='claude'?'Claude':'노트북 서버'))+'</span>';
       const mine = state.tasks.filter(t=>t.owner===a.id);
       const doing = mine.filter(t=>t.status==='doing').length;
       const doneN = mine.filter(t=>t.status==='done').length;
@@ -1081,6 +1199,8 @@
     const order = {todo:'doing', doing:'done', done:'todo'};
     t.status = order[t.status] || 'todo';
     save(); renderTasks();
+    if(t.status==='done') ofPulse(t.owner, 'done', 2600); else ofPulse(t.owner, 'idle', 10);
+    refreshOffice();
     if(state.ui.tab==='team') renderTeam();
     toast('상태를 "'+ST[t.status]+'"(으)로 바꿨어요');
   }
@@ -1144,7 +1264,7 @@
       typingIds = typingIds.filter(x=> x!==id);
       state.messages[room].push(Object.assign({id:uid(), ts:Date.now()}, msg));
       first = false;
-      save(); renderChat();
+      save(); renderChat(); ofPulse(id, 'done', 2600);
     }
     typingIds = [];
     renderChat();
@@ -1180,6 +1300,8 @@
     if(a.id==='content') return contentDemo(topic, q, tail, errNote);
     if(a.id==='hermes') return hermesDemo(topic, q, tail, errNote);
     if(a.id==='aside') return asideDemo(topic, q, tail, errNote);
+    if(a.id==='gemini') return geminiDemo(topic, q, tail, errNote);
+    if(a.id==='claude') return claudeDemo(topic, q, tail, errNote);
     return '실행하겠습니다, 대장님. '+a.emoji+'\n「'+q+'」 건으로 접수했습니다.\n\n제가 맡은 범위에서 확인할 수 있는 것부터 정리해 이 방에 보고드리겠습니다.'+tail+errNote;
   }
 
@@ -1239,6 +1361,26 @@
     return '실행하겠습니다! 📎\n「'+q+'」 건이요.\n\n' + body
       + '\n\n✅ 체크리스트\n1) 지금 상태 확인 (있는 것 / 없는 것)\n2) 필요한 링크·금액·기한 정리\n3) 대장님 확인이 필요한 지출은 따로 표시\n4) 처리 후 결과와 남은 것 보고'
       + '\n\n결제·예약처럼 되돌리기 어려운 일은 진행 전에 꼭 확인 받겠습니다.' + tail + errNote;
+  }
+
+  function claudeDemo(topic, q, tail, errNote){
+    let body;
+    if(topic==='insurance') body = '청구서를 항목별로 쪼개 계산 과정을 남기고, 면책·한도·횟수 조건을 표로 정리하겠습니다. 실제 지급 판단은 약관 원문이 우선입니다.';
+    else if(topic==='content') body = '글 구조(도입-본문-마무리)를 먼저 잡고, 문장 다듬기와 중복 제거까지 한 번에 하겠습니다.';
+    else if(topic==='tech') body = '코드를 읽고 원인 후보를 좁힌 뒤, 재현 방법과 수정안을 코드블록으로 드리겠습니다.';
+    else body = '요청을 분석해 단계로 나누고, 각 단계의 근거와 결과를 정리하겠습니다.';
+    return '실행하겠습니다. 🧠\n「'+q+'」 건입니다.\n\n' + body
+      + '\n\n🧩 접근\n1) 입력·조건 정리(가정은 명시)\n2) 계산·검증(과정 남김)\n3) 결론 + 다음에 할 일\n\n숫자가 걸리면 두 번 계산해 확인하고, 틀린 부분은 바로 고쳐 다시 올리겠습니다.' + tail + errNote;
+  }
+  function geminiDemo(topic, q, tail, errNote){
+    let body;
+    if(topic==='insurance') body = '심사 기준·약관 원문과 최신 개정(5세대 2026.11.23 시행)을 검색해 대조표로 정리하겠습니다. 출처 링크를 함께 드립니다.';
+    else if(topic==='shopping') body = '무신사·쿠팡·네이버 후보를 검색해 가격·색상·후기 수를 비교표로 만들고, 색상별 실물 사진 링크도 모으겠습니다.';
+    else if(topic==='content') body = '키워드 검색량과 상위 글 구성을 먼저 조사해, 제목 후보와 소제목 뼈대를 뽑아 드리겠습니다.';
+    else if(topic==='tech') body = '관련 문서·이슈·릴리스 노트를 찾아 지금 버전에서 되는 방법만 골라 정리하겠습니다.';
+    else body = '자료를 먼저 찾아보고, 확인된 것과 추정을 나눠 정리하겠습니다.';
+    return '실행하겠습니다. ✨\n「'+q+'」 건입니다.\n\n' + body
+      + '\n\n🔎 조사 순서\n1) 공식 문서·원문 우선 확인\n2) 2차 자료 교차 확인(날짜 표시)\n3) 3줄 요약 + 출처 링크\n\n모르는 건 모른다고 말하고, 확인 못 한 부분은 따로 표시하겠습니다.' + tail + errNote;
   }
 
   /* ────────── 실제 AI 호출 ────────── */
@@ -1320,19 +1462,51 @@
     if(!out || !String(out).trim()) throw new Error('빈 응답');
     return String(out).trim();
   }
+  async function claudeCall(cfg, systemText, msgs){
+    const model = cfg.model || 'claude-sonnet-4-5';
+    const url = 'https://api.anthropic.com/v1/messages';
+    let list = msgs.map(m=>({role: m.role==='assistant' ? 'assistant' : 'user', content: m.text}));
+    while(list.length && list[0].role!=='user') list.shift();
+    const merged = [];
+    list.forEach(function(m){
+      if(merged.length && merged[merged.length-1].role===m.role) merged[merged.length-1].content += '\n' + m.content;
+      else merged.push({role:m.role, content:m.content});
+    });
+    if(!merged.length) merged.push({role:'user', content:'(대화 맥락을 참고해 다음 지시를 처리해 주세요.)'});
+    const body = {model:model, max_tokens:900, temperature:0.85, system:systemText, messages:merged};
+    const r = await withTimeout(fetch(url, {method:'POST', headers:{
+      'Content-Type':'application/json',
+      'x-api-key': cfg.key || '',
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true'
+    }, body:JSON.stringify(body)}), 45000);
+    let j = null;
+    try{ j = await r.json(); }catch(e){ throw new Error('응답을 읽지 못했습니다 (HTTP '+r.status+')'); }
+    if(!r.ok){
+      const msg = (j && j.error && j.error.message) ? j.error.message : ('HTTP '+r.status);
+      throw new Error(String(msg).slice(0,180));
+    }
+    const out = ((j && j.content) || []).map(c=> c.text || '').join('').trim();
+    if(!out) throw new Error('Claude가 빈 응답을 보냈습니다');
+    return out;
+  }
   async function askAI(a, prov, room){
     const sys = a.prompt + '\n\n' + commonRules();
     const msgs = historyFor(room, 10);
     if(prov==='gemini') return geminiCall(state.settings.gemini, sys, msgs);
+    if(prov==='claude') return claudeCall(state.settings.claude, sys, msgs);
     return customCall(state.settings.custom, sys, msgs);
   }
   function readSettingsForm(){
     const prov = state.settings.provider;
     let gm = $('#gModel').value;
     if(gm==='__custom') gm = ($('#gModelCustom').value||'').trim() || 'gemini-2.5-flash';
+    let cm = $('#clModel').value;
+    if(cm==='__custom') cm = ($('#clModelCustom').value||'').trim() || 'claude-sonnet-4-5';
     return {
       provider: prov,
       gemini:{key:($('#gKey').value||'').trim(), model:gm},
+      claude:{key:($('#clKey').value||'').trim(), model:cm},
       custom:{url:($('#cUrl').value||'').trim(), token:($('#cToken').value||'').trim(), model:($('#cModel').value||'').trim()}
     };
   }
@@ -1341,10 +1515,12 @@
   function paintProvSeg(){
     $$('#provSeg button').forEach(b=> b.classList.toggle('on', b.dataset.prov===state.settings.provider));
     $('#geminiBox').classList.toggle('hide', state.settings.provider!=='gemini');
+    $('#claudeBox').classList.toggle('hide', state.settings.provider!=='claude');
     $('#customBox').classList.toggle('hide', state.settings.provider!=='custom');
     const hints = {
       demo:'API 없이도 동작합니다. @멘션하면 각 비서가 페르소나대로 시뮬레이션 응답을 하고, 작업실에도 자동 등록됩니다.',
       gemini:'Google AI Studio에서 무료 키를 받아 붙여 넣으면, 브라우저에서 바로 Gemini와 통신합니다.',
+      claude:'console.anthropic.com에서 API 키를 발급해 붙여 넣으면 브라우저에서 바로 Claude와 통신합니다(유료 크레디트).',
       custom:'집 노트북(헤르메스)·Ollama·LM Studio·vLLM 등 OpenAI 호환 서버에 직접 붙습니다. 서버가 CORS를 허용해야 합니다.'
     };
     $('#provHint').textContent = hints[state.settings.provider] || '';
@@ -1362,6 +1538,11 @@
     $('#cUrl').value = s.custom.url || '';
     $('#cToken').value = s.custom.token || '';
     $('#cModel').value = s.custom.model || '';
+    const cs = s.claude || {key:'', model:'claude-sonnet-4-5'};
+    $('#clKey').value = cs.key || '';
+    const knownCl = ['claude-sonnet-4-5','claude-opus-4-1','claude-3-5-haiku-latest'];
+    if(knownCl.indexOf(cs.model||'')>=0){ $('#clModel').value = cs.model; $('#clModelCustom').value=''; $('#clModelCustom').classList.add('hide'); }
+    else { $('#clModel').value='__custom'; $('#clModelCustom').value = cs.model||''; $('#clModelCustom').classList.remove('hide'); }
     $('#testOut').className = 'testout';
     $('#testOut').textContent = '';
     paintProvSeg();
@@ -1375,6 +1556,7 @@
       +'<option value="inherit"'+(a.provider==='inherit'?' selected':'')+'>기본값 따름</option>'
       +'<option value="demo"'+(a.provider==='demo'?' selected':'')+'>데모</option>'
       +'<option value="gemini"'+(a.provider==='gemini'?' selected':'')+'>Gemini</option>'
+      +'<option value="claude"'+(a.provider==='claude'?' selected':'')+'>Claude</option>'
       +'<option value="custom"'+(a.provider==='custom'?' selected':'')+'>노트북 서버</option>'
       +'</select></div>'
     ).join('');
@@ -1391,12 +1573,15 @@
       save(); paintStatus(); return;
     }
     if(cfg.provider==='gemini' && !cfg.gemini.key){ el.className='testout err'; el.textContent='❌ Gemini API 키를 입력해 주세요.'; return; }
+    if(cfg.provider==='claude' && !cfg.claude.key){ el.className='testout err'; el.textContent='❌ Claude API 키를 입력해 주세요.'; return; }
     if(cfg.provider==='custom' && !cfg.custom.url){ el.className='testout err'; el.textContent='❌ 서버 URL을 입력해 주세요.'; return; }
     try{
       let out;
       const msgs = [{role:'user', text:'연결 테스트입니다. "연결됨"이라고만 답하세요.'}];
       const sys = 'You are a connection test. Reply with the single word: 연결됨';
-      out = cfg.provider==='gemini' ? await geminiCall(cfg.gemini, sys, msgs) : await customCall(cfg.custom, sys, msgs);
+      out = cfg.provider==='gemini' ? await geminiCall(cfg.gemini, sys, msgs)
+          : cfg.provider==='claude' ? await claudeCall(cfg.claude, sys, msgs)
+          : await customCall(cfg.custom, sys, msgs);
       el.className = 'testout ok';
       el.textContent = '✅ 연결 성공 — 응답: ' + String(out).slice(0,70);
       state.settings.lastTest = {ok:true, at:Date.now(), mode:cfg.provider};
@@ -1411,6 +1596,7 @@
     const cfg = readSettingsForm();
     state.settings.provider = cfg.provider;
     state.settings.gemini = cfg.gemini;
+    state.settings.claude = cfg.claude;
     state.settings.custom = cfg.custom;
     save(); paintStatus(); renderTeam(); close('settingsModal');
     toast('설정을 저장했어요');
@@ -1454,7 +1640,7 @@
         provider:provider});
     }
     save(); close('memberModal');
-    renderSenderChips(); renderMentionChips(); renderRooms(); renderTeam(); renderOwnerSelect();
+    renderSenderChips(); renderMentionChips(); renderRooms(); renderTeam(); renderOwnerSelect(); renderOffice();
     toast('저장했어요');
   }
 
@@ -1487,13 +1673,239 @@
   /* ────────── 초기화/렌더 ────────── */
   function renderAll(){
     renderRooms(); renderSenderChips(); renderMentionChips();
-    renderChat(); renderOwnerSelect(); renderTasks(); renderTeam(); renderMemos();
+    renderChat(); renderOwnerSelect(); renderTasks(); renderTeam(); renderMemos(); renderOffice();
     paintStatus(); setTab(state.ui.tab||'chat');
   }
   function autoGrow(){
     const el = $('#input');
     el.style.height = 'auto';
     el.style.height = Math.min(el.scrollHeight, 110) + 'px';
+  }
+
+  /* ────────── 미니 오피스 (졸라맨 스테이지) ────────── */
+  const OF_LOOKS = {
+    hana:   {body:'#9CCDEB', accent:'#F49CBE', prop:'flower'},
+    simsa:  {body:'#415E86', accent:'#7FD1B9', prop:'shield'},
+    content:{body:'#B07B4E', accent:'#F2A45A', prop:'beret'},
+    hermes: {body:'#7A69AE', accent:'#E7BC55', prop:'owl'},
+    aside:  {body:'#4FA89F', accent:'#8FC96B', prop:'clip'},
+    gemini: {body:'#5E7FF0', accent:'#FFD35E', prop:'sparkle'},
+    claude: {body:'#C46A42', accent:'#EFB25A', prop:'laptop'}
+  };
+  const OF_EXTRAS = [
+    {body:'#E4917F', accent:'#F6C86A', prop:'glasses'},
+    {body:'#6BA9D6', accent:'#F2A6A0', prop:'cap'},
+    {body:'#8AA86B', accent:'#E3A34E', prop:'tie'},
+    {body:'#B98BC6', accent:'#8FD3C6', prop:'star'},
+    {body:'#D09A5C', accent:'#7FBFD1', prop:'headset'}
+  ];
+  const OF_LINES = {
+    hana:   ['오늘도 열일 중이에요!','대장님, 부르셨어요? 🌸','커피 한 잔 하실래요?','브리핑 준비 완료!'],
+    simsa:  ['약관 확인 중입니다 🛡️','청구서 보여 주세요','한도 계산 끝났어요!','면책 항목 체크!'],
+    content:['제목 짜는 중이에요 ✍️','21시 발행 준비 완료!','이 문장 어때요?','키워드 뽑았어요'],
+    hermes: ['서버 상태 정상 🦉','스크립트 돌려볼까요?','백업은 제게!','삐빅— 대기 중'],
+    aside:  ['장바구니 봐 드릴까요? 📎','체험단 응모 완료!','잔일은 제게!','서류 정리해 뒀어요'],
+    gemini: ['자료 찾아 왔어요 ✨','출처까지 정리했어요!','이미지 읽는 중…','비교표 만들까요?'],
+    claude: ['코드 리뷰 중이에요 🧠','문장 다듬었습니다','계산 두 번 확인했어요','구조 잡아 드릴까요?'],
+    __:     ['부르셨어요?','열일 중입니다!','필요한 거 있으세요?']
+  };
+  const ofTmp = {};
+  let ofTapMap = {};
+
+  function ofLookFor(a, i){
+    if(a && OF_LOOKS[a.id]) return OF_LOOKS[a.id];
+    return OF_EXTRAS[Math.max(0, i) % OF_EXTRAS.length];
+  }
+  function ofPropSvg(prop, L){
+    const ac = L.accent, bd = L.body;
+    const P = {head:'', desk:'', behind:''};
+    if(prop==='flower'){
+      P.head = '<circle cx="33" cy="6.6" r="2.2" fill="#FBD6E4" stroke="'+ac+'" stroke-width=".45"/>'
+        + '<circle cx="31.9" cy="8.7" r="1.8" fill="#FDEBF2" stroke="'+ac+'" stroke-width=".45"/>'
+        + '<circle cx="33" cy="6.6" r=".7" fill="'+ac+'"/>';
+      P.desk = '<rect x="38.6" y="36.4" width="4.2" height="3.6" rx=".9" fill="#FFF3E2" stroke="#D9BE96" stroke-width=".5"/>';
+    } else if(prop==='shield'){
+      P.head = '<g fill="none" stroke="#3D5A80" stroke-width=".85"><circle cx="25.9" cy="12.2" r="2.1"/><circle cx="30.1" cy="12.2" r="2.1"/></g>';
+      P.desk = '<path d="M39.4 47.2 l3.8-1.2 3.8 1.2 v2.3 c0 2-2.4 3.4-3.8 4.2 -1.4-.8-3.8-2.2-3.8-4.2z" fill="'+ac+'" opacity=".95" stroke="#34506F" stroke-width=".5"/>';
+    } else if(prop==='beret'){
+      P.head = '<path d="M22.6 8.4 q5.4-4.6 10.8 0 q-5.4 2.3-10.8 0z" fill="'+ac+'" stroke="#8A5A2E" stroke-width=".55"/>'
+        + '<circle cx="28" cy="4.3" r=".85" fill="'+ac+'" stroke="#8A5A2E" stroke-width=".4"/>';
+      P.desk = '<path d="M38.2 37.6 l3.6 1.6 -1.3 1.3 -2.6-1.8z" fill="'+ac+'" stroke="#8A5A2E" stroke-width=".4"/>';
+    } else if(prop==='owl'){
+      P.head = '<path d="M22.8 8.2 l1.4-3.8 2.5 2.8z" fill="'+bd+'"/><path d="M33.2 8.2 l-1.4-3.8 -2.5 2.8z" fill="'+bd+'"/>'
+        + '<path d="M23.6 11.2 q4.4-3 8.8 0" fill="none" stroke="'+ac+'" stroke-width=".9"/>';
+      P.behind = '<path d="M23.8 20.4 L19.4 37 L28 40.2 L36.6 37 L32.2 20.4 Z" fill="'+bd+'" opacity=".45"/>';
+    } else if(prop==='clip'){
+      P.head = '<path d="M32.2 5.8 q2.5 0 2.5 2.5 v2.5 q0 1.8-1.8 1.8 t-1.8-1.8 V8.2" fill="none" stroke="'+ac+'" stroke-width=".9" stroke-linecap="round"/>';
+      P.desk = '<rect x="41.4" y="36.6" width="7.4" height="3.4" rx=".9" fill="'+ac+'" opacity=".9" stroke="#3F7F77" stroke-width=".4"/>';
+    } else if(prop==='sparkle'){
+      P.head = '<path d="M33.6 3.6 l1 2.3 2.3 1 -2.3 1 -1 2.3 -1-2.3 -2.3-1 2.3-1z" fill="'+ac+'"/>'
+        + '<circle cx="23.4" cy="6.4" r=".85" fill="#FFF0B8"/>'
+        + '<circle cx="36.8" cy="10.6" r=".7" fill="#FFF0B8"/>'
+        + '<circle cx="22.8" cy="10.2" r=".55" fill="#FFF7D8"/>';
+      P.desk = '<rect x="38.6" y="36.4" width="4.2" height="3.6" rx=".9" fill="#E8EEFF" stroke="#9FB2E8" stroke-width=".5"/>';
+    } else if(prop==='laptop'){
+      P.head = '<g fill="none" stroke="#6B4E33" stroke-width=".8"><circle cx="25.9" cy="12.2" r="2"/><circle cx="30.1" cy="12.2" r="2"/></g>';
+      P.desk = '<g><path d="M36.2 33.2 h8.6 v5.8 h-8.6z" fill="#F7E9DA" stroke="#B98A5E" stroke-width=".6"/>'
+        + '<path d="M35.4 39 h11.2 l1.2 2 h-13.6z" fill="#C99A6E"/>'
+        + '<path d="M37.4 34.8h6.2M37.4 36.4h4.2" stroke="#C9A480" stroke-width=".55"/></g>';
+    } else if(prop==='glasses'){
+      P.head = '<g fill="none" stroke="#6B4E33" stroke-width=".8"><circle cx="25.9" cy="12.2" r="2"/><circle cx="30.1" cy="12.2" r="2"/></g>';
+    } else if(prop==='cap'){
+      P.head = '<path d="M22.6 10 q5.4-6.4 10.8 0z" fill="'+ac+'"/><path d="M33.2 9.6 q4-.8 4.6 1.8 h-4.6z" fill="'+ac+'"/>';
+    } else if(prop==='tie'){
+      P.desk = '<path d="M28 20.4 l1.9 2.8 -1.9 5.2 -1.9-5.2z" fill="'+ac+'"/>';
+    } else if(prop==='star'){
+      P.head = '<path d="M34.4 4.6 l.9 1.9 2.1.3 -1.5 1.5 .4 2.1 -1.9-1 -1.9 1 .4-2.1 -1.5-1.5 2.1-.3z" fill="'+ac+'"/>';
+    } else if(prop==='headset'){
+      P.head = '<path d="M23.2 11.2 q4.8-7.2 9.6 0" fill="none" stroke="'+ac+'" stroke-width="1.1"/><circle cx="23.2" cy="12.6" r="1.3" fill="'+ac+'"/><circle cx="32.8" cy="12.6" r="1.3" fill="'+ac+'"/>';
+    }
+    return P;
+  }
+  function ofStick(a, i){
+    const L = ofLookFor(a, i);
+    const P = ofPropSvg(L.prop, L);
+    return '<svg class="ofstick" viewBox="0 0 56 70" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">'
+      + '<ellipse cx="28" cy="64.2" rx="16" ry="2.5" fill="#C6A782" opacity=".33"/>'
+      + '<g class="offig">'
+        + P.behind
+        + '<g class="ofbody">'
+          + '<rect x="24.8" y="19" width="6.4" height="22" rx="3.2" fill="'+L.body+'"/>'
+          + '<path class="ofarm ofarm-idle l" d="M25.2 22.6 L21.4 36.2"/>'
+          + '<path class="ofarm ofarm-idle r" d="M30.8 22.6 L34.6 36.2"/>'
+          + '<path class="ofarm ofarm-work l" d="M25.2 22.6 L20.6 31 L23.8 38.4"/>'
+          + '<path class="ofarm ofarm-work r" d="M30.8 22.6 L35.4 31 L32.2 38.4"/>'
+          + '<path class="ofarm ofarm-up l" d="M25.2 22.6 L19.8 16.2 L18.6 11.2"/>'
+          + '<path class="ofarm ofarm-up r" d="M30.8 22.6 L36.2 16.2 L37.4 11.2"/>'
+          + '<g class="ofheadgrp">'
+            + '<circle cx="28" cy="12" r="6" fill="#FBEFE2" stroke="#6B4E33" stroke-width="1.4"/>'
+            + '<ellipse class="ofeye" cx="25.9" cy="12.2" rx=".8" ry="1.05" fill="#5B4328"/>'
+            + '<ellipse class="ofeye" cx="30.1" cy="12.2" rx=".8" ry="1.05" fill="#5B4328"/>'
+            + '<path d="M26.9 14.8 q1.1 .9 2.2 0" stroke="#B98E68" stroke-width=".8" fill="none" stroke-linecap="round"/>'
+            + P.head
+          + '</g>'
+        + '</g>'
+        + '<g class="ofdesk">'
+          + '<g class="ofmon">'
+            + '<rect x="3.2" y="27" width="10.6" height="9.2" rx="1.3" fill="#FBF3E7" stroke="#CFB08A" stroke-width=".8"/>'
+            + '<rect x="4.4" y="28.1" width="8.2" height="6.9" rx="1" fill="#DFEFF7"/>'
+            + '<path d="M5.8 30.3h5M5.8 32.2h3" stroke="#A9C9D6" stroke-width=".65" stroke-linecap="round"/>'
+            + '<path d="M8.5 36.2v2M6.2 38.2h4.6" stroke="#CFB08A" stroke-width=".8" stroke-linecap="round"/>'
+          + '</g>'
+          + '<rect x="0" y="40" width="56" height="4.5" rx="2.1" fill="#E9D1B1" stroke="#D5B48D" stroke-width=".8"/>'
+          + '<rect x="2" y="44.5" width="52" height="13.5" rx="2.2" fill="#D3AD83"/>'
+          + '<rect x="4.4" y="46.8" width="47.2" height="9.6" rx="1.6" fill="none" stroke="#C59C6F" stroke-width=".7"/>'
+          + '<text x="28" y="54.2" font-size="6.4" text-anchor="middle">'+esc(a ? a.emoji : '🙂')+'</text>'
+          + P.desk
+          + '<g class="ofkeys">'
+            + '<rect x="22" y="40.8" width="11.4" height="2.9" rx=".9" fill="#F5E9D7" stroke="#D8BC98" stroke-width=".55"/>'
+            + '<rect x="23.7" y="41.5" width="1.5" height="1.2" rx=".3" fill="#C9AE8B"/>'
+            + '<rect x="26.3" y="41.5" width="1.5" height="1.2" rx=".3" fill="#C9AE8B"/>'
+            + '<rect x="28.9" y="41.5" width="1.5" height="1.2" rx=".3" fill="#C9AE8B"/>'
+          + '</g>'
+          + '<g class="ofmug">'
+            + '<path class="ofsteam" d="M41.6 34.2 q.9-1.4 0-2.8" stroke="#D6C0A3" stroke-width=".8" fill="none" stroke-linecap="round"/>'
+            + '<rect x="39.6" y="36.4" width="4.4" height="3.6" rx="1" fill="#FFF8EC" stroke="#CFB08A" stroke-width=".7"/>'
+            + '<path d="M44.1 37.3 q1.5 .7 0 1.8" stroke="#CFB08A" stroke-width=".7" fill="none"/>'
+          + '</g>'
+          + '<path d="M46 38.4h6l1 1.6h-7.2z" fill="#FFFCF4" stroke="#D8BC98" stroke-width=".5"/>'
+        + '</g>'
+      + '</g>'
+    + '</svg>';
+  }
+  function ofWallHtml(){
+    return '<div class="ofdeco">'
+      + '<span class="ofclk"><i class="h"></i><i class="m"></i></span>'
+      + '<span class="ofsign">👑 비서실</span>'
+      + '<svg class="ofplant" viewBox="0 0 16 15" xmlns="http://www.w3.org/2000/svg"><path d="M8 10.4 V12.6" stroke="#8E7350" stroke-width=".8"/><ellipse cx="5.2" cy="5.4" rx="3.1" ry="1.9" fill="#8FC96B" transform="rotate(-22 5.2 5.4)"/><ellipse cx="10.8" cy="4.6" rx="3.1" ry="1.9" fill="#A7D77E" transform="rotate(20 10.8 4.6)"/><ellipse cx="8" cy="7.2" rx="2.7" ry="1.6" fill="#7DBC5C"/><path d="M5.6 12.4 h4.8 l-.6 2.4 h-3.6z" fill="#D8A98A"/></svg>'
+      + '</div>';
+  }
+  function ofStageHtml(kind){
+    const col = ofCollapsed(kind);
+    const cells = state.assistants.map(function(a,i){
+      return '<div class="ofcell" data-aid="'+a.id+'" data-kind="'+kind+'" role="button" tabindex="0" aria-label="'+esc(a.name)+' 졸라맨">'
+        + '<span class="ofbub"></span>'
+        + ofStick(a,i)
+        + '<span class="ofname">'+esc(a.name)+'</span>'
+      + '</div>';
+    }).join('');
+    return '<div class="ofhead">'
+        + '<span class="oft">🕺 미니 오피스</span>'
+        + '<span class="ofsum"></span>'
+        + '<button class="oftog" data-oftog="'+kind+'" aria-label="'+(col?'미니 오피스 펼치기':'미니 오피스 접기')+'">'+(col?'▸':'▾')+'</button>'
+      + '</div>'
+      + '<div class="ofsvc">'
+        + '<div class="ofwall">'+ofWallHtml()+'</div>'
+        + '<div class="ofcells">'+cells+'</div>'
+      + '</div>';
+  }
+  function ofCollapsed(kind){
+    const o = state.ui.officeCollapsed || {};
+    return !!o[kind];
+  }
+  function renderOffice(){
+    [['chat','officeChat'],['tasks','officeTasks']].forEach(function(kv){
+      const el = document.getElementById(kv[1]);
+      if(!el) return;
+      el.className = 'office' + (ofCollapsed(kv[0]) ? ' ofcollapsed' : '');
+      el.innerHTML = ofStageHtml(kv[0]);
+    });
+    refreshOffice();
+  }
+  function ofStatusOf(id, now){
+    const t = ofTmp[id];
+    if(t && t.until > now) return t.state;
+    if(typingIds.indexOf(id) >= 0) return 'working';
+    if(state.tasks.some(function(x){ return x.owner===id && x.status==='doing'; })) return 'working';
+    return 'idle';
+  }
+  function refreshOffice(){
+    const now = Date.now();
+    Object.keys(ofTmp).forEach(function(k){ if(ofTmp[k].until <= now) delete ofTmp[k]; });
+    Object.keys(ofTapMap).forEach(function(k){ if(ofTapMap[k].until <= now) delete ofTapMap[k]; });
+    ['officeChat','officeTasks'].forEach(function(fid){
+      const root = document.getElementById(fid);
+      if(!root || root.classList.contains('ofcollapsed') || !root.firstChild) return;
+      let workingN = 0, idleN = 0;
+      $$('.ofcell', root).forEach(function(cell){
+        const id = cell.dataset.aid;
+        const st = ofStatusOf(id, now);
+        const done = st==='done';
+        cell.classList.toggle('working', st==='working');
+        cell.classList.toggle('done', done);
+        if(st==='working') workingN++; else if(!done) idleN++;
+        const tap = ofTapMap[id];
+        const txt = (tap && tap.until > now) ? tap.text : (done ? '✅ 보고완료!' : (st==='working' ? '⚡ 작업중…' : ''));
+        const bub = cell.querySelector('.ofbub');
+        if(bub && bub.textContent !== txt) bub.textContent = txt;
+        cell.classList.toggle('bub', !!txt);
+      });
+      const sum = root.querySelector('.ofsum');
+      if(sum){
+        const parts = [state.assistants.length+'명'];
+        if(workingN) parts.push('💻 '+workingN);
+        if(idleN) parts.push('☕ '+idleN);
+        sum.textContent = parts.join(' · ');
+      }
+    });
+  }
+  function ofPulse(id, st, ms){
+    if(!id || !findA(id)) return;
+    ofTmp[id] = {state: st, until: Date.now() + (ms || 2400)};
+    refreshOffice();
+    if(st==='done') setTimeout(refreshOffice, (ms || 2400) + 80);
+  }
+  function ofTap(id){
+    const a = findA(id); if(!a) return;
+    const lines = OF_LINES[id] || OF_LINES.__;
+    ofTapMap[id] = {text: pick(lines), until: Date.now() + 2600};
+    $$('.ofcell[data-aid="'+id+'"]').forEach(function(c){
+      c.classList.remove('tapped');
+      void c.offsetWidth;
+      c.classList.add('tapped');
+      setTimeout(function(){ c.classList.remove('tapped'); }, 1100);
+    });
+    refreshOffice();
   }
 
   /* ────────── 이벤트 ────────── */
@@ -1529,6 +1941,30 @@
       if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); }
     });
     $('#sendBtn').addEventListener('click', send);
+
+    ['officeChat','officeTasks'].forEach(function(fid){
+      const el = document.getElementById(fid);
+      if(!el) return;
+      el.addEventListener('click', function(e){
+        const tg = e.target.closest('[data-oftog]');
+        if(tg){
+          const k = tg.dataset.oftog;
+          state.ui.officeCollapsed = state.ui.officeCollapsed || {};
+          state.ui.officeCollapsed[k] = !state.ui.officeCollapsed[k];
+          save(); renderOffice();
+          return;
+        }
+        const cell = e.target.closest('.ofcell');
+        if(cell) ofTap(cell.dataset.aid);
+      });
+      el.addEventListener('keydown', function(e){
+        const cell = e.target.closest('.ofcell');
+        if(cell && (e.key==='Enter' || e.key===' ')){
+          e.preventDefault(); ofTap(cell.dataset.aid);
+        }
+      });
+    });
+    setInterval(refreshOffice, 800);
 
     $('#newTaskBtn').addEventListener('click', ()=>{
       if(!state.assistants.length){ toast('먼저 비서를 추가해 주세요'); return; }
@@ -1586,7 +2022,7 @@
         if(state.assistants.length<=1){ toast('비서는 최소 1명은 있어야 해요'); return; }
         if(confirm(a.emoji+' '+a.name+'을(를) 비서실에서 내보낼까요?\n(지난 대화는 남고, 이후 호출되지 않습니다)')){
           state.assistants = state.assistants.filter(x=>x.id!==a.id);
-          save(); renderTeam(); renderSenderChips(); renderMentionChips(); renderRooms(); renderOwnerSelect();
+          save(); renderTeam(); renderSenderChips(); renderMentionChips(); renderRooms(); renderOwnerSelect(); renderOffice();
           toast('내보냈어요');
         }
         return;
@@ -1670,6 +2106,10 @@
     $('#gModel').addEventListener('change', ()=>{
       $('#gModelCustom').classList.toggle('hide', $('#gModel').value!=='__custom');
       if($('#gModel').value==='__custom') $('#gModelCustom').focus();
+    });
+    $('#clModel').addEventListener('change', ()=>{
+      $('#clModelCustom').classList.toggle('hide', $('#clModel').value!=='__custom');
+      if($('#clModel').value==='__custom') $('#clModelCustom').focus();
     });
     $('#testBtn').addEventListener('click', testConnection);
     $('#saveSettings').addEventListener('click', saveSettings);
