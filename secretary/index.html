@@ -871,6 +871,8 @@
       '<button class="chip '+(state.ui.sender===a.id?'on':'')+'" data-sender="'+a.id+'">'+esc(a.emoji)+' '+esc(a.name)+'</button>'
     ).join('');
     $('#senderChips').innerHTML = html;
+    const inp = $('#input');
+    if(inp) inp.placeholder = state.ui.sender==='user' ? '지시 입력 · @비서 호출' : '해당 비서 이름으로 말합니다 (응답 없음)';
   }
   function renderMentionChips(){
     const dis = state.ui.sender!=='user';
