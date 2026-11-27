@@ -347,6 +347,20 @@
   }
   .kpi.ok{background:var(--green-bg);color:#357F58;border-color:#D6ECDF}
   .kpi.demo{background:#FDF2E4;color:#A87831;border-color:#F3DFC5}
+  /* 비서 카드 · 토큰 잔여 게이지 */
+  .tkg{margin-top:11px;padding:10px 12px;border-radius:14px;background:#FBF6EC;border:1px solid #EFE3D1}
+  .tkgh{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+  .tkgh .tl{font-size:11px;font-weight:900;color:#8A6A44;letter-spacing:-.2px}
+  .tkgh .tv{font-size:12.5px;font-weight:900;color:#2F7A53;margin-left:auto;font-variant-numeric:tabular-nums}
+  .tkgh .tv.mid{color:#B77A17}
+  .tkgh .tv.low{color:var(--red)}
+  .tkgbar{margin-top:7px;height:8px;border-radius:99px;background:#EADCC8;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(160,120,70,.06)}
+  .tkgbar i{display:block;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#8FD8B2,#4FAF84);transition:width .45s ease}
+  .tkgbar.mid i{background:linear-gradient(90deg,#F7CE7E,#E8A030)}
+  .tkgbar.low i{background:linear-gradient(90deg,#F0A793,#CF5C45)}
+  .tkgsub{margin-top:6px;font-size:11px;font-weight:700;color:#A78D6C;line-height:1.5;font-variant-numeric:tabular-nums}
+  .tkgact{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+  .tkgact .btn{font-size:11px;padding:5px 9px}
   details.prompt{margin-top:10px}
   details.prompt summary{
     font-size:12px;font-weight:800;color:#8A6A44;cursor:pointer;list-style:none;
@@ -398,6 +412,7 @@
   .prow:last-child{border-bottom:none}
   .prow .who{flex:1 1 auto;font-size:12.5px;font-weight:700;color:#4B3927;display:flex;align-items:center;gap:5px;min-width:0}
   .prow .who span.n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prow .who .ptok{flex:0 0 auto;font-size:10px;font-weight:900;color:#A78D6C;background:#F7F0E6;border:1px solid #EEDFC9;border-radius:7px;padding:1px 5px;font-variant-numeric:tabular-nums}
   select.psel{
     flex:0 0 auto;padding:6px 8px;border-radius:9px;border:1.5px solid #E7D7C0;background:#FFFDF9;font-size:11.5px;font-weight:700;color:#6B4E2E;
   }
@@ -416,13 +431,13 @@
   .office .oft{font-size:11px;font-weight:900;color:#8A6A44;display:flex;align-items:center;gap:4px;white-space:nowrap}
   .office .ofsum{font-size:10px;font-weight:700;color:#B39979;margin-left:auto;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .office .oftog{flex:0 0 auto;width:22px;height:22px;border-radius:7px;display:grid;place-items:center;font-size:9px;line-height:1;color:#9A7C56;background:#FFFDF8;border:1px solid #EDDFC9}
-  .office .ofsvc{position:relative;margin:2px auto 9px;padding-top:22px;max-width:460px;width:calc(100% - 20px)}
+  .office .ofsvc{position:relative;margin:2px auto 9px;padding-top:24px;max-width:460px;width:calc(100% - 20px)}
   .office.ofcollapsed .ofsvc{display:none}
   .ofwall{position:absolute;inset:0;border-radius:14px;overflow:hidden;border:1px solid #EBD8BE;
-    background:linear-gradient(180deg,#FCF5EA 0%,#FAF0E1 68%,#EBD7BA 68%,#E3CBA9 100%);
+    background:linear-gradient(180deg,#FCF5EA 0%,#FAF0E1 var(--offloor,68%),#EBD7BA var(--offloor,68%),#E3CBA9 100%);
     box-shadow:inset 0 -10px 18px rgba(150,110,60,.07)}
-  .ofwall::before{content:'';position:absolute;left:0;right:0;top:0;height:68%;background:repeating-linear-gradient(90deg,rgba(198,168,128,.13) 0 1px,transparent 1px 13px)}
-  .ofwall::after{content:'';position:absolute;left:0;right:0;top:calc(68% - 1.5px);height:2px;background:#DDC6A6;opacity:.8}
+  .ofwall::before{content:'';position:absolute;left:0;right:0;top:0;height:var(--offloor,68%);background:repeating-linear-gradient(90deg,rgba(198,168,128,.13) 0 1px,transparent 1px 13px)}
+  .ofwall::after{content:'';position:absolute;left:0;right:0;top:calc(var(--offloor,68%) - 1.5px);height:2px;background:#DDC6A6;opacity:.8}
   .ofdeco{position:absolute;inset:0}
   .ofdeco .ofclk{position:absolute;left:9px;top:5px;width:16px;height:16px;border-radius:50%;background:#FFFDF8;border:1.2px solid #CBAF8A;display:block}
   .ofdeco .ofclk i{position:absolute;left:50%;top:50%;background:#A9855F;transform-origin:0 50%;border-radius:2px;display:block}
@@ -431,14 +446,23 @@
   .ofdeco .ofsign{position:absolute;left:50%;transform:translateX(-50%);top:4px;font-size:8px;font-weight:900;letter-spacing:.5px;color:#9A7A53;background:#FFFDF8;border:1px solid #E4D2B7;border-radius:6px;padding:1px 7px;box-shadow:0 1px 2px rgba(140,100,50,.08)}
   .ofdeco .ofplant{position:absolute;right:10px;top:3px;width:16px;height:15px}
   @keyframes ofClock{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-  .ofcells{position:relative;display:flex;align-items:flex-end;gap:0;z-index:1;padding:0 2px}
-  .ofcell{position:relative;flex:1 1 0;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+  .ofcells{position:relative;display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:center;gap:22px 0;z-index:1;padding:0 2px}
+  .ofcell{position:relative;flex:0 0 24.9%;max-width:112px;min-width:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent;padding-bottom:1px}
   .ofcell:focus-visible{outline:2px solid #CBAE86;outline-offset:2px;border-radius:8px}
-  .ofstick{display:block;width:100%;max-width:76px;height:auto;padding:0 1.5px}
-  .ofname{font-size:9px;font-weight:800;color:#8C7150;line-height:1.15;margin-top:1px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.2px}
-  .ofbub{position:absolute;left:50%;top:-20px;transform:translateX(-50%) translateY(3px) scale(.92);transform-origin:50% 100%;
-    background:#FFFDF9;border:1px solid #E4D0B4;color:#5B4328;font-size:9.5px;font-weight:800;line-height:1.2;
-    padding:2px 6px;border-radius:9px;white-space:nowrap;box-shadow:0 3px 8px rgba(120,85,45,.16);
+  .ofstick{display:block;width:100%;max-width:100px;height:auto;padding:0 2px}
+  .ofname{font-size:9.5px;font-weight:800;color:#8C7150;line-height:1.15;margin-top:2px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;letter-spacing:-.2px}
+  /* 졸라맨 발밑 초소형 토큰 잔여 게이지 */
+  .oftok{position:relative;width:76%;max-width:76px;height:4px;border-radius:99px;background:#E9DAC3;margin-top:3px;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(160,120,70,.06)}
+  .oftok i{display:block;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,#8FD8B2,#4FAF84);transition:width .45s ease, background .3s}
+  .oftok.mid i{background:linear-gradient(90deg,#F7CE7E,#E8A030)}
+  .oftok.low i{background:linear-gradient(90deg,#F0A793,#CF5C45)}
+  .oftokt{font-size:8px;font-weight:800;color:#A28B6D;line-height:1.15;margin-top:2px;letter-spacing:-.25px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ofcell .oftok.mid + .oftokt{color:#B77A17}
+  .ofcell .oftok.low + .oftokt{color:#B5503F}
+  .ofcell .oftok + .oftokt{transition:color .3s}
+  .ofbub{position:absolute;left:50%;top:-19px;transform:translateX(-50%) translateY(3px) scale(.92);transform-origin:50% 100%;
+    background:#FFFDF9;border:1px solid #E4D0B4;color:#5B4328;font-size:10.5px;font-weight:800;line-height:1.2;
+    padding:3px 7px;border-radius:10px;white-space:nowrap;box-shadow:0 3px 8px rgba(120,85,45,.16);
     opacity:0;pointer-events:none;transition:opacity .18s, transform .18s;z-index:5}
   .ofbub::after{content:'';position:absolute;left:50%;bottom:-4px;margin-left:-4px;width:8px;height:8px;background:#FFFDF9;border-right:1px solid #E4D0B4;border-bottom:1px solid #E4D0B4;transform:rotate(45deg);border-radius:0 0 2px 0}
   .ofcell.bub .ofbub{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}
@@ -576,7 +600,7 @@
           <button class="btn solid sm" id="newMemberBtn">＋ 비서 추가</button>
         </div>
         <div id="teamList"></div>
-        <div class="note">각 카드의 <b>프롬프트</b>를 눌러 담당 분야·말투를 바로 고칠 수 있고, <b>⚙️</b>로 이름·역할·연결 방식을 바꿀 수 있어요. 모든 변경은 이 브라우저에 저장됩니다.</div>
+        <div class="note">각 카드의 <b>프롬프트</b>를 눌러 담당 분야·말투를 바로 고칠 수 있고, <b>⚙️</b>로 이름·역할·연결 방식을 바꿀 수 있어요. 모든 변경은 이 브라우저에 저장됩니다.<br>🪙 <b>토큰 게이지</b>는 남은 비율이 <b>30% 이하면 주황</b>, <b>10% 이하면 빨강</b>으로 바뀝니다. 데모 모드의 사용량은 글자 수로 추정한 값이고, 실제 Gemini·Claude·노트북 서버를 연결하면 응답의 실제 usage로 집계됩니다.</div>
       </div>
     </section>
 
@@ -687,6 +711,22 @@
       </div>
 
       <div class="sect">
+        <div class="st">토큰 한도</div>
+        <div class="box">
+          <div class="frow">
+            <div class="field"><label>기본 일일 한도 (토큰)</label>
+              <input type="text" id="tokDay" inputmode="numeric" placeholder="1000000">
+            </div>
+            <div class="field"><label>기본 월간 한도 (0 = 제한 없음)</label>
+              <input type="text" id="tokMonth" inputmode="numeric" placeholder="0">
+            </div>
+          </div>
+          <div class="hint">비서별로 따로 정하려면 <b>📊 비서현황</b> 카드의 <b>한도 수정</b>을 누르세요. 비서 한도를 <b>0</b>으로 두면 무제한(사용량만 표시)입니다. 한도는 '목표 예산'이라, 실제 API 잔여 크레딧을 조회하는 값은 아니에요.</div>
+          <div class="tkgsub" id="tokTotalSum" style="margin-top:6px"></div>
+        </div>
+      </div>
+
+      <div class="sect">
         <div class="st">데이터</div>
         <div class="box">
           <div style="display:flex;gap:7px;flex-wrap:wrap">
@@ -698,7 +738,7 @@
           <div class="hint" style="margin-top:8px">대화·작업·메모·비서 설정이 모두 이 브라우저에만 저장됩니다. 기기를 바꿀 때는 내보내기 → 새 기기에서 불러오기.</div>
         </div>
       </div>
-      <div class="note">앱 정보 · <b>동현님 비서실</b> v1.2 — 졸라맨 미니 오피스(7명) · 정적 웹앱(GitHub Pages), 서버 없이 동작.</div>
+      <div class="note">앱 정보 · <b>동현님 비서실</b> v1.3 — 졸라맨 미니 오피스 2줄 배치(4+3) · 비서별 토큰 게이지 · 정적 웹앱(GitHub Pages), 서버 없이 동작.</div>
     </div>
   </div>
 </div>
@@ -754,6 +794,80 @@
   ];
   const ST = {todo:'할 일', doing:'진행 중', done:'완료'};
 
+  /* ────────── 토큰 사용량 추적 ──────────
+     · 비서별로 오늘/이번 달/누적 사용량과 요청 횟수를 localStorage(state)에 쌓는다.
+     · Gemini usageMetadata / Claude usage / OpenAI usage를 실제로 파싱해 넣고,
+       데모 모드에서는 같은 방식(글자 수 추정)으로 소량 누적해 게이지가 움직이게 한다. */
+  const TOK_DEFAULT_DAY = 1000000;               // 기본 일일 한도(토큰)
+  const TOK_SEED_LIMITS = { content:34000, claude:78000, hermes:0 };  // 토큰 한도 예시: 콘텐츠 34k, 클로드(유료) 78k, 헤르메스(로컬) 무제한
+  const TOK_SEED_USE = {                          // 데모 모드 예시 사용량 [오늘 사용, 요청 수]
+    hana:[42800,31], simsa:[88000,44], content:[26400,14], hermes:[9600,7],
+    aside:[61300,38], gemini:[15200,9], claude:[71500,26]
+  };
+  const dayKey = (d)=>{ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+  const monKey = (d)=>{ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); };
+  function seedTokensFor(id){
+    const u = TOK_SEED_USE[id] || [12000, 6];
+    return {day:dayKey(), month:monKey(), todayTokens:u[0], monthTokens:u[0]*3, totalTokens:u[0]*9,
+      requestCount:u[1], seeded:true, lastAt:Date.now()};
+  }
+  function tokOf(a){
+    if(!a) return {todayTokens:0, monthTokens:0, totalTokens:0, requestCount:0};
+    if(!a.tokens || typeof a.tokens!=='object') a.tokens = {};
+    const t = a.tokens;
+    if(t.day !== dayKey()){ t.day = dayKey(); t.todayTokens = 0; }
+    if(t.month !== monKey()){ t.month = monKey(); t.monthTokens = 0; }
+    t.todayTokens = Number(t.todayTokens)||0;
+    t.monthTokens = Number(t.monthTokens)||0;
+    t.totalTokens = Number(t.totalTokens)||0;
+    t.requestCount = Number(t.requestCount)||0;
+    return t;
+  }
+  function tokLimitOf(a){
+    const raw = a ? a.tokenLimit : null;
+    if(raw!==null && raw!==undefined && raw!==''){
+      const v = Math.round(Number(raw));
+      if(isFinite(v) && v>=0) return v;
+    }
+    const d = Number((state && state.settings && state.settings.tokens || {}).dayLimit);
+    return (isFinite(d) && d>=0) ? Math.round(d) : TOK_DEFAULT_DAY;
+  }
+  function fmtTok(n){
+    n = Math.max(0, Math.round(Number(n)||0));
+    if(n >= 1000000) return (n/1000000).toFixed(n>=10000000?0:1).replace(/\.0$/,'')+'M';
+    if(n >= 1000) return (n/1000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'k';
+    return String(n);
+  }
+  function numFmt(n){ try{ return Math.round(Number(n)||0).toLocaleString('ko-KR'); }catch(e){ return String(Math.round(Number(n)||0)); } }
+  function estTokens(s){ return Math.max(1, Math.round(String(s==null?'':s).replace(/\s+/g,'').length / 1.5)); }
+  function tokInfo(a){
+    const t = tokOf(a);
+    const limit = tokLimitOf(a);
+    const used = t.todayTokens;
+    if(!limit){
+      return {unlimited:true, used:used, limit:0, remain:0, pct:100, cls:'',
+        short:'∞ · '+fmtTok(used), full:'오늘 '+numFmt(used)+' 토큰 사용 (무제한)'};
+    }
+    const remain = Math.max(0, limit - used);
+    const pct = Math.max(0, Math.min(100, Math.round(remain/limit*100)));
+    const cls = pct<=10 ? 'low' : (pct<=30 ? 'mid' : '');
+    return {unlimited:false, used:used, limit:limit, remain:remain, pct:pct, cls:cls,
+      short:pct+'% · '+fmtTok(remain),
+      full:'남은 토큰 '+numFmt(remain)+' / '+numFmt(limit)+' ('+pct+'% 남음) · 오늘 사용 '+numFmt(used)+' · 요청 '+t.requestCount+'회'};
+  }
+  function tokAdd(a, total, promptTok, outTok, live){
+    if(!a) return;
+    const t = tokOf(a);
+    if(live && t.seeded){ t.todayTokens=0; t.monthTokens=0; t.totalTokens=0; t.requestCount=0; t.seeded=false; }
+    const v = Math.max(0, Math.round(Number(total)||0));
+    t.todayTokens += v; t.monthTokens += v; t.totalTokens += v;
+    t.requestCount += 1; t.lastAt = Date.now();
+    if(live) t.seeded = false;
+    save();
+    if(typeof refreshOffice==='function') refreshOffice();
+    if(state && state.ui && state.ui.tab==='team' && typeof renderTeam==='function') renderTeam();
+  }
+
   /* ────────── 기본 프롬프트 ────────── */
   function defaultPrompts(){
     return {
@@ -799,7 +913,8 @@
   function seedState(){
     const P = defaultPrompts();
     const t = Date.now();
-    const mk = (id,emoji,name,role,fields,prompt)=>({id,emoji,name,role,fields,prompt,provider:'inherit'});
+    const mk = (id,emoji,name,role,fields,prompt)=>({id,emoji,name,role,fields,prompt,provider:'inherit',
+      tokenLimit:(TOK_SEED_LIMITS[id]!=null ? TOK_SEED_LIMITS[id] : null), tokens:seedTokensFor(id)});
     return {
       version:2,
       assistants:[
@@ -816,6 +931,7 @@
         gemini:{key:'',model:'gemini-2.5-flash'},
         claude:{key:'',model:'claude-sonnet-4-5'},
         custom:{url:'',token:'',model:''},
+        tokens:{dayLimit:TOK_DEFAULT_DAY, monthLimit:0},
         lastTest:null
       },
       tasks:[
@@ -870,12 +986,19 @@
       s.settings.gemini = Object.assign({}, base.settings.gemini, (s.settings||{}).gemini||{});
       s.settings.custom = Object.assign({}, base.settings.custom, (s.settings||{}).custom||{});
       s.settings.claude = Object.assign({}, base.settings.claude, (s.settings||{}).claude||{});
+      s.settings.tokens = Object.assign({}, base.settings.tokens, (s.settings||{}).tokens||{});
       s.ui = Object.assign({}, base.ui, s.ui||{});
       ['assistants','tasks','memos'].forEach(k=>{ if(!Array.isArray(s[k])) s[k]=base[k]; });
       s.messages = (s.messages && typeof s.messages==='object') ? s.messages : base.messages;
       ROOMS.forEach(r=>{ if(!Array.isArray(s.messages[r.id])) s.messages[r.id]=[]; });
       s.processed = (s.processed && typeof s.processed==='object') ? s.processed : {};
       if(!s.assistants.length) s.assistants = base.assistants;
+      /* 토큰 기록이 없는 기존 저장본 보완 (데모 모드면 예시 사용량으로 시작) */
+      s.assistants.forEach(function(a){
+        const rawProv = (a.provider && a.provider!=='inherit') ? a.provider : s.settings.provider;
+        if(!a.tokens || typeof a.tokens!=='object'){ if(rawProv==='demo') a.tokens = seedTokensFor(a.id); }
+        if(a.tokenLimit===undefined) a.tokenLimit = (TOK_SEED_LIMITS[a.id]!=null ? TOK_SEED_LIMITS[a.id] : null);
+      });
       /* v1 → v2: 기본 비서실에 제미나이·클로드를 추가 (한 번만) */
       if(!(s.version >= 2)){
         ['gemini','claude'].forEach(function(id){
@@ -977,6 +1100,12 @@
     if(tab==='team') renderTeam();
     if(tab==='memo') renderMemos();
     if(tab==='chat') scrollBottom();
+    /* 화면이 보이게 된 뒤에 앞줄 바닥선·게이지를 다시 맞춘다 */
+    setTimeout(function(){
+      ofPaintFloor(document.getElementById('officeChat'));
+      ofPaintFloor(document.getElementById('officeTasks'));
+      refreshOffice();
+    }, 30);
   }
   function setRoom(room){
     state.ui.room = room; save();
@@ -1107,6 +1236,17 @@
       const doing = mine.filter(t=>t.status==='doing').length;
       const doneN = mine.filter(t=>t.status==='done').length;
       const fields = (a.fields||[]).map(f=>'<span class="tag">'+esc(f)+'</span>').join('');
+      const tk = tokInfo(a);
+      const tkv = tk.unlimited
+        ? '무제한 · 오늘 ' + numFmt(tk.used) + ' 사용'
+        : numFmt(tk.remain) + ' / ' + numFmt(tk.limit) + ' (' + tk.pct + '% 남음)';
+      const tkBox = '<div class="tkg">'
+        + '<div class="tkgh"><span class="tl">🪙 남은 토큰</span><b class="tv ' + tk.cls + '">' + tkv + '</b></div>'
+        + (tk.unlimited ? '' : '<div class="tkgbar ' + tk.cls + '"><i style="width:' + tk.pct + '%"></i></div>')
+        + '<div class="tkgsub">오늘 사용: ' + numFmt(tk.used) + ' · 요청 ' + tokOf(a).requestCount + '회 · 이번 달: ' + fmtTok(tokOf(a).monthTokens) + ' · 누적: ' + fmtTok(tokOf(a).totalTokens) + '</div>'
+        + '<div class="tkgact"><button class="btn sm ghost" data-toklimit="' + a.id + '">한도 수정</button>'
+        + '<button class="btn sm ghost" data-tokreset="' + a.id + '">오늘 사용량 초기화</button></div>'
+        + '</div>';
       return '<div class="tcard" data-id="'+a.id+'">'
         +'<div class="thead"><div class="av">'+esc(a.emoji)+'</div>'
         +'<div style="min-width:0"><div class="nm">'+esc(a.name)+'</div><div class="rl">'+esc(a.role)+'</div></div>'
@@ -1119,6 +1259,7 @@
         +'<span class="kpi">📌 진행 '+doing+'</span><span class="kpi">✅ 처리 '+doneN+'</span>'+pBadge
         +'<span class="kpi">@'+esc(a.name)+'</span></div>'
         +(fields?'<div class="tagrow">'+fields+'</div>':'')
+        +tkBox
         +'<details class="prompt"><summary>📜 담당 프롬프트 보기·편집</summary><div class="pbody">'
         +'<textarea class="pEdit" data-pid="'+a.id+'" style="width:100%;min-height:130px;padding:10px;border-radius:11px;border:1.5px solid #E7D7C0;background:#FFFDF9;font-size:12.5px;line-height:1.6;resize:vertical">'+esc(a.prompt)+'</textarea>'
         +'<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:7px">'
@@ -1255,16 +1396,23 @@
       const prov = resolveProvider(a);
       if(prov==='demo'){
         await sleep(420 + Math.random()*520);
-        msg = {from:id, text: demoReply(a, text, {task: first && created}), src:'demo'};
+        const rtext = demoReply(a, text, {task: first && created});
+        msg = {from:id, text: rtext, src:'demo'};
+        tokAdd(a, estTokens(a.prompt) + estTokens(text) + estTokens(rtext), 0, 0, false);
       }else{
         try{
           const out = await askAI(a, prov, room);
-          if(!out) throw new Error('빈 응답');
-          msg = {from:id, text: out, src:'live'};
+          const rtext = (out && out.text) ? out.text : '';
+          if(!rtext) throw new Error('빈 응답');
+          msg = {from:id, text: rtext, src:'live'};
+          const u = (out && out.usage) || {};
+          tokAdd(a, u.total || (estTokens(a.prompt) + estTokens(text) + estTokens(rtext)), u.prompt||0, u.completion||0, true);
         }catch(e){
           state.messages[room].push({id:uid(), from:'system', ts:Date.now(),
             text:'⚠️ '+a.name+' 호출 실패 — '+(e && e.message ? e.message : '알 수 없는 오류')+'\n데모 응답으로 대신합니다. (⚙️ 설정에서 연결을 확인해 주세요)'});
-          msg = {from:id, text: demoReply(a, text, {task: first && created, err:true}), src:'demo'};
+          const rtext = demoReply(a, text, {task: first && created, err:true});
+          msg = {from:id, text: rtext, src:'demo'};
+          tokAdd(a, estTokens(a.prompt) + estTokens(text) + estTokens(rtext), 0, 0, false);
         }
       }
       typingIds = typingIds.filter(x=> x!==id);
@@ -1443,7 +1591,10 @@
     const parts = (cand && cand.content && cand.content.parts) || [];
     const out = parts.map(p=> p.text || '').join('').trim();
     if(!out) throw new Error('Gemini가 빈 응답을 보냈습니다 (안전 필터 가능)');
-    return out;
+    const u = (j && j.usageMetadata) || {};
+    const pt = Number(u.promptTokenCount)||0, ot = Number(u.candidatesTokenCount)||0;
+    const tt = Number(u.totalTokenCount) || (pt + ot) || (estTokens(systemText) + estTokens(out));
+    return {text:out, usage:{total:tt, prompt:pt, completion:ot, raw:u}};
   }
   async function customCall(cfg, systemText, msgs){
     let base = String(cfg.url||'').trim().replace(/\/+$/,'');
@@ -1466,7 +1617,10 @@
     const out = (j && j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content)
       || (j && j.response) || (j && j.content) || '';
     if(!out || !String(out).trim()) throw new Error('빈 응답');
-    return String(out).trim();
+    const u = (j && j.usage) || {};
+    const pt = Number(u.prompt_tokens)||0, ot = Number(u.completion_tokens)||0;
+    const tt = Number(u.total_tokens) || (pt + ot);
+    return {text:String(out).trim(), usage:{total:tt, prompt:pt, completion:ot, raw:u}};
   }
   async function claudeCall(cfg, systemText, msgs){
     const model = cfg.model || 'claude-sonnet-4-5';
@@ -1494,7 +1648,10 @@
     }
     const out = ((j && j.content) || []).map(c=> c.text || '').join('').trim();
     if(!out) throw new Error('Claude가 빈 응답을 보냈습니다');
-    return out;
+    const u = (j && j.usage) || {};
+    const pt = Number(u.input_tokens)||0, ot = Number(u.output_tokens)||0;
+    const tt = pt + ot || (estTokens(systemText) + estTokens(out));
+    return {text:out, usage:{total:tt, prompt:pt, completion:ot, raw:u}};
   }
   async function askAI(a, prov, room){
     const sys = a.prompt + '\n\n' + commonRules();
@@ -1551,13 +1708,24 @@
     else { $('#clModel').value='__custom'; $('#clModelCustom').value = cs.model||''; $('#clModelCustom').classList.remove('hide'); }
     $('#testOut').className = 'testout';
     $('#testOut').textContent = '';
+    const tk = s.tokens || {};
+    $('#tokDay').value = String(tk.dayLimit!=null ? tk.dayLimit : TOK_DEFAULT_DAY);
+    $('#tokMonth').value = String(tk.monthLimit!=null ? tk.monthLimit : 0);
+    paintTokSum();
     paintProvSeg();
     renderPerAssistant();
     open('settingsModal');
   }
+  function paintTokSum(){
+    const el = $('#tokTotalSum');
+    if(!el) return;
+    let used = 0, reqs = 0;
+    state.assistants.forEach(function(a){ const t = tokOf(a); used += t.todayTokens; reqs += t.requestCount; });
+    el.textContent = '오늘 전체 사용 ' + numFmt(used) + ' 토큰 · 요청 ' + reqs + '회';
+  }
   function renderPerAssistant(){
     $('#perAssistant').innerHTML = state.assistants.map(a=>
-      '<div class="prow"><div class="who">'+esc(a.emoji)+' <span class="n">'+esc(a.name)+'</span></div>'
+      '<div class="prow"><div class="who">'+esc(a.emoji)+' <span class="n">'+esc(a.name)+'</span><span class="ptok">'+esc(tokInfo(a).short)+'</span></div>'
       +'<select class="psel" data-passign="'+a.id+'">'
       +'<option value="inherit"'+(a.provider==='inherit'?' selected':'')+'>기본값 따름</option>'
       +'<option value="demo"'+(a.provider==='demo'?' selected':'')+'>데모</option>'
@@ -1589,7 +1757,9 @@
           : cfg.provider==='claude' ? await claudeCall(cfg.claude, sys, msgs)
           : await customCall(cfg.custom, sys, msgs);
       el.className = 'testout ok';
-      el.textContent = '✅ 연결 성공 — 응답: ' + String(out).slice(0,70);
+      const oText = (out && out.text) ? out.text : String(out||'');
+      const oTok = (out && out.usage && out.usage.total) ? out.usage.total : 0;
+      el.textContent = '✅ 연결 성공 — 응답: ' + oText.slice(0,70) + (oTok ? ' (이번 호출 ' + numFmt(oTok) + ' 토큰)' : '');
       state.settings.lastTest = {ok:true, at:Date.now(), mode:cfg.provider};
     }catch(e){
       el.className = 'testout err';
@@ -1604,7 +1774,13 @@
     state.settings.gemini = cfg.gemini;
     state.settings.claude = cfg.claude;
     state.settings.custom = cfg.custom;
-    save(); paintStatus(); renderTeam(); close('settingsModal');
+    const rawDay = ($('#tokDay').value||'').replace(/[^0-9]/g,'');
+    const rawMon = ($('#tokMonth').value||'').replace(/[^0-9]/g,'');
+    state.settings.tokens = {
+      dayLimit: rawDay==='' ? TOK_DEFAULT_DAY : Math.round(Number(rawDay)),
+      monthLimit: rawMon==='' ? 0 : Math.round(Number(rawMon))
+    };
+    save(); paintStatus(); renderTeam(); refreshOffice(); close('settingsModal');
     toast('설정을 저장했어요');
   }
 
@@ -1829,10 +2005,13 @@
   function ofStageHtml(kind){
     const col = ofCollapsed(kind);
     const cells = state.assistants.map(function(a,i){
-      return '<div class="ofcell" data-aid="'+a.id+'" data-kind="'+kind+'" role="button" tabindex="0" aria-label="'+esc(a.name)+' 졸라맨">'
+      const tk = tokInfo(a);
+      return '<div class="ofcell" data-aid="'+a.id+'" data-kind="'+kind+'" role="button" tabindex="0" aria-label="'+esc(a.name)+' 졸라맨 · '+esc(tk.full)+'" title="'+esc(a.name)+' · '+esc(tk.full)+'">'
         + '<span class="ofbub"></span>'
         + ofStick(a,i)
         + '<span class="ofname">'+esc(a.name)+'</span>'
+        + '<span class="oftok '+tk.cls+'"><i style="width:'+tk.pct+'%"></i></span>'
+        + '<span class="oftokt">'+esc(tk.short)+'</span>'
       + '</div>';
     }).join('');
     return '<div class="ofhead">'
@@ -1855,8 +2034,32 @@
       if(!el) return;
       el.className = 'office' + (ofCollapsed(kv[0]) ? ' ofcollapsed' : '');
       el.innerHTML = ofStageHtml(kv[0]);
+      ofPaintFloor(el);
     });
     refreshOffice();
+  }
+  /* 둘째 줄(앞줄) 발밑에 바닥선이 오도록 벽 배경 비율을 실측해서 맞춘다 */
+  function ofPaintFloor(root){
+    if(!root) return;
+    const svc = root.querySelector('.ofsvc');
+    const wall = svc && svc.querySelector('.ofwall');
+    const cells = svc ? $$('.ofcell', svc) : [];
+    if(!svc || !wall || !cells.length) return;
+    const svcRect = svc.getBoundingClientRect();
+    if(svcRect.height < 60) return;
+    const tops = [];
+    cells.forEach(function(c){
+      const r = c.getBoundingClientRect();
+      if(r.height < 4) return;
+      const t = Math.round(r.top - svcRect.top);
+      if(!tops.some(function(v){ return Math.abs(v-t) < 12; })) tops.push(t);
+    });
+    const y = tops.length > 1 ? Math.max(70, Math.max.apply(null, tops) - 12) : 0;
+    if(y){
+      if(wall.dataset.floorY !== String(y)){ wall.dataset.floorY = String(y); wall.style.setProperty('--offloor', y+'px'); }
+    }else if(wall.dataset.floorY){
+      delete wall.dataset.floorY; wall.style.removeProperty('--offloor');
+    }
   }
   function ofStatusOf(id, now){
     const t = ofTmp[id];
@@ -1885,12 +2088,33 @@
         const bub = cell.querySelector('.ofbub');
         if(bub && bub.textContent !== txt) bub.textContent = txt;
         cell.classList.toggle('bub', !!txt);
+        /* 졸라맨 발밑 토큰 게이지 */
+        const a = findA(id);
+        if(a){
+          const tk = tokInfo(a);
+          const bar = cell.querySelector('.oftok');
+          const pctEl = cell.querySelector('.oftokt');
+          if(bar){
+            const cls = 'oftok ' + tk.cls;
+            if(bar.className !== cls) bar.className = cls;
+            const fill = bar.firstChild;
+            const w = tk.pct + '%';
+            if(fill && fill.style.width !== w) fill.style.width = w;
+          }
+          if(pctEl && pctEl.textContent !== tk.short) pctEl.textContent = tk.short;
+          const ttl = a.name + ' · ' + tk.full;
+          if(cell.getAttribute('title') !== ttl) cell.setAttribute('title', ttl);
+        }
       });
+      ofPaintFloor(root);
       const sum = root.querySelector('.ofsum');
       if(sum){
         const parts = [state.assistants.length+'명'];
         if(workingN) parts.push('💻 '+workingN);
         if(idleN) parts.push('☕ '+idleN);
+        let usedToday = 0;
+        state.assistants.forEach(function(a){ usedToday += tokOf(a).todayTokens; });
+        if(usedToday) parts.push('🪙 '+fmtTok(usedToday));
         sum.textContent = parts.join(' · ');
       }
     });
@@ -1971,6 +2195,10 @@
       });
     });
     setInterval(refreshOffice, 800);
+    window.addEventListener('resize', function(){
+      ofPaintFloor(document.getElementById('officeChat'));
+      ofPaintFloor(document.getElementById('officeTasks'));
+    });
 
     $('#newTaskBtn').addEventListener('click', ()=>{
       if(!state.assistants.length){ toast('먼저 비서를 추가해 주세요'); return; }
@@ -2031,6 +2259,31 @@
           save(); renderTeam(); renderSenderChips(); renderMentionChips(); renderRooms(); renderOwnerSelect(); renderOffice();
           toast('내보냈어요');
         }
+        return;
+      }
+      const tl = e.target.closest('button[data-toklimit]');
+      if(tl){
+        const a = findA(tl.dataset.toklimit); if(!a) return;
+        const cur = tokLimitOf(a);
+        const v = prompt('@'+a.name+'의 일일 토큰 한도 (숫자만, 0 = 무제한)\n비워 두면 설정의 기본값을 따릅니다.', String(cur));
+        if(v==null) return;
+        if(String(v).trim()===''){ a.tokenLimit = null; }
+        else {
+          const n = Math.round(Number(String(v).replace(/[^0-9]/g,'')));
+          if(!isFinite(n)){ toast('숫자로 입력해 주세요'); return; }
+          a.tokenLimit = n;
+        }
+        save(); renderTeam(); refreshOffice(); paintTokSum();
+        toast(a.tokenLimit ? ('한도를 '+numFmt(a.tokenLimit)+' 토큰으로 설정했어요') : ('@'+a.name+'을(를) 무제한으로 설정했어요'));
+        return;
+      }
+      const tr = e.target.closest('button[data-tokreset]');
+      if(tr){
+        const a = findA(tr.dataset.tokreset); if(!a) return;
+        if(!confirm('@'+a.name+'의 오늘 사용량을 0으로 초기화할까요?\n(누적·이번 달 기록은 그대로 남습니다)')) return;
+        const t = tokOf(a); t.todayTokens = 0; t.seeded = false; save();
+        renderTeam(); refreshOffice(); paintTokSum();
+        toast('오늘 사용량을 초기화했어요');
         return;
       }
       const sv = e.target.closest('button[data-saveprompt]');
