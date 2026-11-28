@@ -371,10 +371,12 @@
   ["kids"].forEach(function(id){ document.getElementById(id).addEventListener("change", render); });
 
   function reportHeight(){
-    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    if (window.innerWidth < 280) return;
+    var h = Math.ceil(document.body.getBoundingClientRect().height);
+    if (h < 400 || h > 4200) return;
     try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: "careCalcHeight", height: h }, "*"); } catch (e) {}
   }
-  window.addEventListener("load", reportHeight);
+  window.addEventListener("load", function(){ reportHeight(); setTimeout(reportHeight, 500); });
   window.addEventListener("resize", reportHeight);
   if (window.ResizeObserver) { try { new ResizeObserver(reportHeight).observe(document.body); } catch (e) {} }
 
