@@ -68,6 +68,7 @@
   .row .r.minus{color:var(--warn)}
   .row.sum{font-size:14.5px}
   .row.sum .l{color:var(--ink);font-weight:800}
+  .sm{display:block;font-size:11.5px;line-height:1.42;color:#8a9d92;font-weight:500}
   .advice{margin:12px 0 0;padding:13px 14px;border-radius:14px;background:var(--mint);border:1px solid #cfe6d8}
   .advice .h{font-size:12px;font-weight:800;color:var(--green);letter-spacing:.02em;margin:0 0 5px}
   .advice p{margin:0;font-size:14px;line-height:1.68}
@@ -273,16 +274,16 @@
 
     // 내역
     var rows = [];
-    function row(l, r, cls){
-      rows.push("<div class='row" + (cls ? " " + cls : "") + "'><span class='l'>" + l + "</span><span class='r" + (cls === "sum" ? "" : "") + "'>" + r + "</span></div>");
-    }
     rows.push("<div class='row'><span class='l'>신용카드 15%</span><span class='r'>" + man(D.creditAmt * 0.15) + "</span></div>");
     rows.push("<div class='row'><span class='l'>체크카드·현금영수증" + (o.culture > 0 && o.salary <= 70000000 ? "·문화체육" : "") + " 30%</span><span class='r'>" + man(D.debitAmt * 0.30) + "</span></div>");
     rows.push("<div class='row'><span class='l'>전통시장·대중교통 40%</span><span class='r'>" + man(D.marketAmt * 0.40) + "</span></div>");
     var used = Math.round(D.creditAmt * 0.15 + D.debitAmt * 0.30 + D.marketAmt * 0.40);
-    rows.push("<div class='row'><span class='l'>계산된 공제액<br><span style='font-size:11.5px;color:#8a9d92'>문턱 " + man(D.T) + "을 뺀 뒤 금액에 공제율을 곱한 값</span></span><span class='r'>" + man(used) + "</span></div>");
+    rows.push("<div class='row'><span class='l'>계산된 공제액<span class='sm'>문턱 " + man(D.T) + "을 뺀 뒤 금액에 공제율을 곱한 값</span></span><span class='r'>" + man(used) + "</span></div>");
     if (D.excess > 0){
-      rows.push("<div class='row'><span class='l'>기본한도 넘은 금액</span><span class='r minus'>" + man(D.excess) + " (한도 적용)</span></div>");
+      rows.push("<div class='row'><span class='l'>기본한도 넘은 금액<span class='sm'>한도 때문에 이만큼은 깎여요</span></span><span class='r minus'>" + man(D.excess) + "</span></div>");
+    }
+    if (o.culture > 0 && o.salary > 70000000){
+      rows.push("<div class='row'><span class='l'>문화체육 사용분<span class='sm'>총급여 7,000만원 초과라 공제 대상에서 빠졌어요</span></span><span class='r'>0만원</span></div>");
     }
     rows.push("<div class='row sum'><span class='l'>최종 예상 공제액</span><span class='r'>" + wonStr(D.total) + "</span></div>");
     document.getElementById("rows").innerHTML = rows.join("");
@@ -304,8 +305,8 @@
       a1 = "공제 한도를 이미 다 채웠어요. 지금부터 얼마를 더 써도 공제는 안 늘어요.";
       a2 = "남은 12월은 그냥 포인트·적립·할인이 좋은 카드로 쓰세요. 억지로 쓰는 건 손해예요.";
     } else if (dD === 0 && dM > 0){
-      a1 = "기본 한도는 찼지만 전통시장·대중교통 추가한도가 <b>" + man(Math.max(0, D.addLimit - D.extra)) + "</b> 남아 있어요. 여기서 쓰면 40%로 추가 공제를 받을 수 있어요.";
-      a2 = "그 외 가맹점에서는 공제가 더 안 늘어요. 대중교통은 지하철·버스 정기결제를 그 카드로 바꾸면 자연스럽게 채워져요.";
+      a1 = "기본 한도(" + man(D.baseLimit) + ")는 이미 찼고, 남은 건 전통시장·대중교통 추가공제뿐이에요. 여기서 <b>100만원</b>을 더 쓰면 공제가 " + man(dM) + " 늘어나요.";
+      a2 = "추가한도는 " + man(D.addLimit) + "까지인데 지금 " + man(D.extra) + "만 썼어요. 다만 추가공제도 전통시장·대중교통에서 쓴 금액의 40%까지만 인정되니, 그쪽에서 쓸 일이 없다면 억지로 채우지는 마세요.";
     } else {
       var best = Math.max(dC, dD, dM);
       if (dD > 0 && dD >= dC){
@@ -344,12 +345,7 @@
   }
 
   document.getElementById("go").addEventListener("click", render);
-  var ids = ["salary","credit","debit","market","culture","kids"];
-  ids.forEach(function(id){
-    var el = document.getElementById(id);
-    el.addEventListener("change", render);
-    el.addEventListener("input", function(){ /* 입력 중에는 계산하지 않음 */ });
-  });
+  ["kids"].forEach(function(id){ document.getElementById(id).addEventListener("change", render); });
 
   render();
 })();
