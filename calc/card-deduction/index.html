@@ -268,7 +268,8 @@
 
     document.getElementById("k2").textContent = man(D.total);
     var limTag = D.total >= D.limitTotal ? "<span class='tag mid'>한도 다 채움</span>"
-               : D.total >= D.baseLimit ? "<span class='tag mid'>추가한도 사용 중</span>"
+               : D.total > D.baseLimit ? "<span class='tag mid'>추가한도 사용 중</span>"
+               : D.total >= D.baseLimit ? "<span class='tag ok'>기본한도 꽉 참</span>"
                : "<span class='tag ok'>기본한도 여유</span>";
     document.getElementById("k2d").innerHTML = "기본 " + man(D.base) + " + 추가 " + man(D.extra) + " " + limTag + "<br>한도 " + man(D.baseLimit) + " (+추가 " + man(D.addLimit) + ")";
 
@@ -305,7 +306,7 @@
       a1 = "공제 한도를 이미 다 채웠어요. 지금부터 얼마를 더 써도 공제는 안 늘어요.";
       a2 = "남은 12월은 그냥 포인트·적립·할인이 좋은 카드로 쓰세요. 억지로 쓰는 건 손해예요.";
     } else if (dD === 0 && dM > 0){
-      a1 = "기본 한도(" + man(D.baseLimit) + ")는 이미 찼고, 남은 건 전통시장·대중교통 추가공제뿐이에요. 여기서 <b>100만원</b>을 더 쓰면 공제가 " + man(dM) + " 늘어나요.";
+      a1 = "기본 한도(" + man(D.baseLimit) + ")는 이미 찼고, 신용카드·체크카드는 더 써도 공제가 안 늘어요. 남은 건 전통시장·대중교통 추가공제뿐인데, 여기서 <b>100만원</b>을 더 쓰면 공제가 " + man(dM) + " 늘어나요.";
       a2 = "추가한도는 " + man(D.addLimit) + "까지인데 지금 " + man(D.extra) + "만 썼어요. 다만 추가공제도 전통시장·대중교통에서 쓴 금액의 40%까지만 인정되니, 그쪽에서 쓸 일이 없다면 억지로 채우지는 마세요.";
     } else {
       var best = Math.max(dC, dD, dM);
