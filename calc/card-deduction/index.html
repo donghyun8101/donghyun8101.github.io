@@ -82,7 +82,21 @@
   tr.on td{background:#fff8e8;font-weight:800}
   .foot{margin:10px 2px 0;font-size:11.5px;line-height:1.6;color:#7b8f84}
   .foot b{color:#5c7166}
-  .warn{background:var(--warnbg);border-color:#f3d9cb}
+  .foot.memo{margin:10px 2px 0}
+  .foot.memo summary{font-size:11.5px;color:#7b8f84;font-weight:600}
+  .foot.memo summary::before{content:"▸";color:#9aa8a0}
+  .foot.memo[open] summary::before{content:"▾"}
+  .foot.memo .body{margin-top:6px;font-size:11.5px;line-height:1.62;color:#7b8f84}
+  @media(max-width:430px){
+    body{padding:10px 9px 16px}
+    .card{padding:12px;margin-bottom:10px}
+    h1{font-size:19px}
+    .sub{font-size:12.5px}
+    .box .v{font-size:19px}
+    table{font-size:11.5px}
+    th,td{padding:6px 4px}
+    thead td{font-size:11px}
+  }
   .warn .t{color:var(--warn)}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
@@ -160,9 +174,12 @@
         <tbody id="taxbody"></tbody>
       </table>
       <p class="foot" id="taxnote"></p>
-      <p class="foot">
-        <b>계산 기준</b> 조세특례제한법 제126조의2(2026.1.1 시행 개정 반영), 국세청 연말정산 안내. 공제율은 신용카드 15%, 체크·직불·선불카드와 현금영수증 30%, 전통시장·대중교통 40%, 문화체육 30%(총급여 7,000만원 이하)이고, 총급여의 25%를 넘는 금액부터 문턱을 낮은 공제율 순서(신용 → 체크·문화 → 전통시장·대중교통)로 먼저 채웁니다. 기본한도는 7,000만원 이하 300만원(자녀 1명 350만·2명 이상 400만), 초과 250만원(275만·300만)이고, 전통시장·대중교통·문화체육은 추가로 300만원(초과 200만원)까지 더 받을 수 있어요. 실제 공제액은 회사·홈택스 계산과 다를 수 있으니 참고값으로만 봐 주세요.
-      </p>
+      <details class="foot memo">
+        <summary>계산 기준 자세히 보기</summary>
+        <div class="body">
+          조세특례제한법 제126조의2(2026.1.1 시행 개정 반영), 국세청 연말정산 안내를 기준으로 했어요. 공제율은 신용카드 15%, 체크·직불·선불카드와 현금영수증 30%, 전통시장·대중교통 40%, 문화체육 30%입니다. 총급여의 25%를 넘는 금액부터 문턱을 낮은 공제율 순서(신용 → 체크·문화 → 전통시장·대중교통)로 먼저 채워요. 기본한도는 7,000만원 이하 300만원(자녀 1명 350만·2명 이상 400만), 초과 250만원(275만·300만)이고, 전통시장·대중교통·문화체육은 추가로 300만원(초과 200만원)까지 더 받을 수 있어요. 문화체육은 총급여 7,000만원 이하만 해당합니다. 실제 공제액은 회사·홈택스 계산과 다를 수 있으니 참고값으로만 봐 주세요.
+        </div>
+      </details>
     </div>
   </section>
 </div>
@@ -244,8 +261,8 @@
   ];
   function label(lo, hi){
     if (hi === Infinity) return "10억원 초과";
-    if (lo === 0) return "1,400만원 이하";
-    return (lo / MAN).toLocaleString("ko-KR") + "만원 초과 ~ " + (hi / MAN).toLocaleString("ko-KR") + "만원 이하";
+    if (lo === 0) return "1,400만 이하";
+    return (lo / MAN).toLocaleString("ko-KR") + "~" + (hi / MAN).toLocaleString("ko-KR") + "만";
   }
 
   function render(){
