@@ -343,10 +343,19 @@
     document.getElementById("taxnote").innerHTML = "노란 줄이 총급여 " + man(o.salary) + " 기준으로 아주 대략 잡은 구간이에요(근로소득공제와 기본공제만 반영). 실제 과세표준은 연금보험료·의료비·연금저축 같은 공제 때문에 더 낮아지고, 절세액도 그만큼 줄어요. 지방소득세 10%를 포함한 값입니다.";
 
     out.hidden = false;
+    reportHeight();
   }
 
   document.getElementById("go").addEventListener("click", render);
   ["kids"].forEach(function(id){ document.getElementById(id).addEventListener("change", render); });
+
+  function reportHeight(){
+    var h = Math.max(document.body.scrollHeight, document.documentElement.scrollHeight);
+    try { if (window.parent && window.parent !== window) window.parent.postMessage({ type: "careCalcHeight", height: h }, "*"); } catch (e) {}
+  }
+  window.addEventListener("load", reportHeight);
+  window.addEventListener("resize", reportHeight);
+  if (window.ResizeObserver) { try { new ResizeObserver(reportHeight).observe(document.body); } catch (e) {} }
 
   render();
 })();
