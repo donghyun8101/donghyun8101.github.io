@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#2f6f52">
+<title>2026 연말정산 신용카드·체크카드 소득공제 계산기</title>
+<style>
+  :root{
+    --ink:#12211b; --ink2:#43574d; --mint:#eaf6ef; --mint2:#d8ecdf;
+    --green:#2f6f52; --green2:#3f8a67; --line:#e0ebe4; --warn:#b4552f; --warnbg:#fdf1ea;
+    --card:#ffffff; --bg:#f7fbf8;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+    font-size:15px; line-height:1.62; -webkit-text-size-adjust:100%;
+    padding:14px 12px 22px;
+  }
+  .wrap{max-width:720px;margin:0 auto}
+  .eyebrow{margin:0 0 2px;font-size:12px;letter-spacing:.02em;color:var(--green2);font-weight:700}
+  h1{margin:0 0 6px;font-size:21px;line-height:1.32;letter-spacing:-.02em}
+  .sub{margin:0 0 14px;font-size:13.5px;color:var(--ink2)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:0 0 12px;box-shadow:0 2px 10px rgba(24,58,42,.045)}
+  .grid{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:560px){ .grid{grid-template-columns:1fr 1fr} .grid.three{grid-template-columns:1fr 1fr 1fr} }
+  label{display:block;font-size:13px;font-weight:700;color:var(--ink2)}
+  label .u{font-weight:500;color:#7b8f84}
+  input[type=number],select{
+    width:100%;margin-top:5px;padding:11px 12px;font-size:16px;font-family:inherit;color:var(--ink);
+    border:1px solid #d9e6de;border-radius:11px;background:#fbfdfc;appearance:none;
+  }
+  input[type=number]:focus,select:focus{outline:2px solid var(--green2);outline-offset:1px;background:#fff}
+  select{background-image:linear-gradient(45deg,transparent 50%,#7b8f84 50%),linear-gradient(135deg,#7b8f84 50%,transparent 50%);
+    background-position:calc(100% - 18px) 20px,calc(100% - 13px) 20px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px}
+  details{margin-top:11px;border-top:1px dashed var(--line);padding-top:10px}
+  summary{cursor:pointer;font-size:13px;font-weight:700;color:var(--green);list-style:none;display:flex;align-items:center;gap:6px}
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"＋";font-weight:700}
+  details[open] summary::before{content:"－"}
+  details .grid{margin-top:10px}
+  button#go{
+    display:block;width:100%;margin-top:13px;padding:14px 16px;font-size:16.5px;font-weight:800;letter-spacing:-.01em;
+    color:#fff;background:var(--green);border:0;border-radius:13px;cursor:pointer;font-family:inherit;
+    box-shadow:0 3px 0 #245740;
+  }
+  button#go:active{transform:translateY(2px);box-shadow:0 1px 0 #245740}
+  .hint{margin:8px 2px 0;font-size:12px;color:#7b8f84}
+  #out[hidden]{display:none}
+  .kpi{display:grid;grid-template-columns:1fr;gap:10px}
+  @media(min-width:560px){ .kpi{grid-template-columns:1fr 1fr} }
+  .box{border-radius:14px;padding:12px 13px;border:1px solid var(--line);background:#fbfdfc}
+  .box.mint{background:var(--mint);border-color:#cfe6d8}
+  .box .t{font-size:12px;font-weight:800;color:var(--green);margin:0 0 3px}
+  .box .v{font-size:20px;font-weight:800;letter-spacing:-.02em;margin:0}
+  .box .d{font-size:12.5px;color:var(--ink2);margin:4px 0 0}
+  .box .d b{color:var(--ink)}
+  .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 7px;border-radius:999px;vertical-align:2px;margin-left:4px}
+  .tag.ok{background:#d9efe1;color:#24614a}
+  .tag.no{background:#fde8de;color:#a3492a}
+  .tag.mid{background:#eef2f6;color:#42566b}
+  .rows{margin:12px 0 0;border-top:1px solid var(--line)}
+  .row{display:flex;justify-content:space-between;gap:10px;padding:8px 1px;border-bottom:1px solid var(--line);font-size:13.5px}
+  .row .l{color:var(--ink2)}
+  .row .r{font-weight:800;white-space:nowrap}
+  .row .r.minus{color:var(--warn)}
+  .row.sum{font-size:14.5px}
+  .row.sum .l{color:var(--ink);font-weight:800}
+  .advice{margin:12px 0 0;padding:13px 14px;border-radius:14px;background:var(--mint);border:1px solid #cfe6d8}
+  .advice .h{font-size:12px;font-weight:800;color:var(--green);letter-spacing:.02em;margin:0 0 5px}
+  .advice p{margin:0;font-size:14px;line-height:1.68}
+  .advice p+p{margin-top:7px}
+  .advice b{background:linear-gradient(transparent 62%, #cfead9 62%);padding:0 1px}
+  h2.sec{font-size:14px;font-weight:800;margin:2px 0 8px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:7px 6px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  thead td{background:var(--mint);font-weight:800;color:#2b5442;font-size:12.5px}
+  tr.on td{background:#fff8e8;font-weight:800}
+  .foot{margin:10px 2px 0;font-size:11.5px;line-height:1.6;color:#7b8f84}
+  .foot b{color:#5c7166}
+  .warn{background:var(--warnbg);border-color:#f3d9cb}
+  .warn .t{color:var(--warn)}
+  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">2026년 귀속 · 2027년 초 연말정산 기준</p>
+  <h1>신용카드·체크카드 소득공제 계산기</h1>
+  <p class="sub">총급여와 카드 사용액을 넣으면 공제 문턱, 예상 공제액, 남은 12월에 뭘 쓰는 게 유리한지까지 한 번에 나와요.</p>
+
+  <form class="card" id="f" autocomplete="off" onsubmit="return false">
+    <div class="grid">
+      <label for="salary">총급여 <span class="u">(만원)</span>
+        <input id="salary" type="number" inputmode="numeric" min="0" step="100" value="5000">
+      </label>
+      <label for="credit">신용카드 사용액 <span class="u">(만원)</span>
+        <input id="credit" type="number" inputmode="numeric" min="0" step="10" value="1800">
+      </label>
+      <label for="debit">체크카드·현금영수증 <span class="u">(만원)</span>
+        <input id="debit" type="number" inputmode="numeric" min="0" step="10" value="900">
+      </label>
+      <label for="market">전통시장·대중교통 <span class="u">(만원)</span>
+        <input id="market" type="number" inputmode="numeric" min="0" step="10" value="120">
+      </label>
+    </div>
+    <details>
+      <summary>문화체육·자녀 수까지 넣어 정확하게</summary>
+      <div class="grid">
+        <label for="culture">문화체육 사용액 <span class="u">(만원 · 도서·공연·영화·헬스장)</span>
+          <input id="culture" type="number" inputmode="numeric" min="0" step="10" value="0">
+        </label>
+        <label for="kids">자녀 등 부양가족 수 <span class="u">(기본한도 가산)</span>
+          <select id="kids">
+            <option value="0" selected>없음</option>
+            <option value="1">1명</option>
+            <option value="2">2명 이상</option>
+          </select>
+        </label>
+      </div>
+    </details>
+    <button type="button" id="go">내 공제액 계산하기</button>
+    <p class="hint">예시 숫자가 채워져 있어요. 내 값으로 바꾸고 버튼을 눌러 주세요. 만원 단위입니다.</p>
+  </form>
+
+  <section id="out" hidden aria-live="polite">
+    <div class="card">
+      <div class="kpi">
+        <div class="box mint">
+          <p class="t">공제 문턱 (총급여의 25%)</p>
+          <p class="v" id="k1">-</p>
+          <p class="d" id="k1d"></p>
+        </div>
+        <div class="box">
+          <p class="t">예상 소득공제액</p>
+          <p class="v" id="k2">-</p>
+          <p class="d" id="k2d"></p>
+        </div>
+      </div>
+
+      <div class="rows" id="rows"></div>
+
+      <div class="advice" id="advice">
+        <p class="h">그래서 12월엔 뭘 써야 할까</p>
+        <p id="adv1"></p>
+        <p id="adv2"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="sec">이 공제액이 만드는 절세 효과 <span class="foot" style="font-weight:500">(참고용)</span></h2>
+      <table>
+        <thead>
+          <tr><td>과세표준</td><td>세율</td><td>내 공제액 기준</td></tr>
+        </thead>
+        <tbody id="taxbody"></tbody>
+      </table>
+      <p class="foot" id="taxnote"></p>
+      <p class="foot">
+        <b>계산 기준</b> 조세특례제한법 제126조의2(2026.1.1 시행 개정 반영), 국세청 연말정산 안내. 공제율은 신용카드 15%, 체크·직불·선불카드와 현금영수증 30%, 전통시장·대중교통 40%, 문화체육 30%(총급여 7,000만원 이하)이고, 총급여의 25%를 넘는 금액부터 문턱을 낮은 공제율 순서(신용 → 체크·문화 → 전통시장·대중교통)로 먼저 채웁니다. 기본한도는 7,000만원 이하 300만원(자녀 1명 350만·2명 이상 400만), 초과 250만원(275만·300만)이고, 전통시장·대중교통·문화체육은 추가로 300만원(초과 200만원)까지 더 받을 수 있어요. 실제 공제액은 회사·홈택스 계산과 다를 수 있으니 참고값으로만 봐 주세요.
+      </p>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var MAN = 10000;
+
+  function won(id){
+    var el = document.getElementById(id);
+    var v = (el.value || "").replace(/[^0-9.]/g, "");
+    var n = parseFloat(v);
+    return (isNaN(n) || n < 0) ? 0 : n * MAN;
+  }
+  function kids(){
+    var n = parseInt(document.getElementById("kids").value, 10);
+    return isNaN(n) ? 0 : Math.min(n, 2);
+  }
+
+  // 순수 계산 함수(원 단위)
+  function calc(o){
+    var T = Math.floor(o.salary * 0.25);              // 최저사용금액(문턱)
+    var over70 = o.salary > 70000000;
+    var baseLimit = (over70 ? [2500000, 2750000, 3000000] : [3000000, 3500000, 4000000])[o.kids];
+    var addLimit  = over70 ? 2000000 : 3000000;
+    var culture = over70 ? 0 : o.culture;             // 문화체육은 총급여 7천만 이하만
+
+    var rem = T, takeC = 0, takeD = 0, takeM = 0;
+    takeC = Math.min(o.credit, rem); rem -= takeC;
+    takeD = Math.min(o.debit + culture, rem); rem -= takeD;
+    takeM = Math.min(o.market, rem); rem -= takeM;
+
+    var creditAmt = o.credit - takeC;
+    var debitAmt  = o.debit + culture - takeD;
+    var marketAmt = o.market - takeM;
+
+    var raw = creditAmt * 0.15 + debitAmt * 0.30 + marketAmt * 0.40;
+    var base = Math.min(raw, baseLimit);
+    var excess = Math.max(0, raw - baseLimit);
+    var extraCap = o.market * 0.40 + culture * 0.30;
+    var extra = Math.min(excess, extraCap, addLimit);
+    var total = Math.round(base + extra);
+
+    return {
+      T: T, baseLimit: baseLimit, addLimit: addLimit,
+      usage: o.credit + o.debit + o.market + culture,
+      creditAmt: creditAmt, debitAmt: debitAmt, marketAmt: marketAmt,
+      raw: raw, base: Math.round(base), extra: Math.round(extra),
+      total: total, excess: Math.round(excess),
+      extraCap: Math.round(extraCap), remThreshold: Math.max(0, T - (o.credit + o.debit + o.market + culture)),
+      limitTotal: baseLimit + addLimit
+    };
+  }
+
+  function man(n){ var v = n / MAN; return (Math.round(v * 10) / 10).toLocaleString("ko-KR") + "만원"; }
+  function wonStr(n){ return n.toLocaleString("ko-KR") + "원"; }
+  function pct(n){ return (Math.round(n * 10) / 10) + "%"; }
+
+  // 과세표준 대략 추정용 근로소득공제
+  function workDeduction(s){
+    var m = s / MAN;
+    if (m <= 500) return s * 0.70;
+    if (m <= 1500) return (350 + (m - 500) * 0.40) * MAN;
+    if (m <= 4500) return (750 + (m - 1500) * 0.15) * MAN;
+    if (m <= 10000) return (1200 + (m - 4500) * 0.05) * MAN;
+    return (1475 + (m - 10000) * 0.02) * MAN;
+  }
+
+  var BRACKETS = [
+    [0,        14000000,  0.06],
+    [14000000, 50000000,  0.15],
+    [50000000, 88000000,  0.24],
+    [88000000, 150000000, 0.35],
+    [150000000,300000000, 0.38],
+    [300000000,500000000, 0.40],
+    [500000000,1000000000,0.42],
+    [1000000000, Infinity,0.45]
+  ];
+  function label(lo, hi){
+    if (hi === Infinity) return "10억원 초과";
+    if (lo === 0) return "1,400만원 이하";
+    return (lo / MAN).toLocaleString("ko-KR") + "만원 초과 ~ " + (hi / MAN).toLocaleString("ko-KR") + "만원 이하";
+  }
+
+  function render(){
+    var o = {
+      salary: won("salary"), credit: won("credit"), debit: won("debit"),
+      market: won("market"), culture: won("culture"), kids: kids()
+    };
+    var out = document.getElementById("out");
+    var D = calc(o);
+
+    document.getElementById("k1").innerHTML = man(D.T);
+    var over = D.usage - D.T;
+    if (o.salary <= 0){
+      document.getElementById("k1d").textContent = "총급여를 먼저 넣어 주세요.";
+    } else if (over >= 0){
+      document.getElementById("k1d").innerHTML = "쓴 돈 " + man(D.usage) + " <span class='tag ok'>문턱 통과</span><br>문턱보다 " + man(over) + " 더 썼어요.";
+    } else {
+      document.getElementById("k1d").innerHTML = "쓴 돈 " + man(D.usage) + " <span class='tag no'>아직 문턱 아래</span><br>공제가 시작되려면 " + man(-over) + " 더 써야 해요.";
+    }
+
+    document.getElementById("k2").textContent = man(D.total);
+    var limTag = D.total >= D.limitTotal ? "<span class='tag mid'>한도 다 채움</span>"
+               : D.total >= D.baseLimit ? "<span class='tag mid'>추가한도 사용 중</span>"
+               : "<span class='tag ok'>기본한도 여유</span>";
+    document.getElementById("k2d").innerHTML = "기본 " + man(D.base) + " + 추가 " + man(D.extra) + " " + limTag + "<br>한도 " + man(D.baseLimit) + " (+추가 " + man(D.addLimit) + ")";
+
+    // 내역
+    var rows = [];
+    function row(l, r, cls){
+      rows.push("<div class='row" + (cls ? " " + cls : "") + "'><span class='l'>" + l + "</span><span class='r" + (cls === "sum" ? "" : "") + "'>" + r + "</span></div>");
+    }
+    rows.push("<div class='row'><span class='l'>신용카드 15%</span><span class='r'>" + man(D.creditAmt * 0.15) + "</span></div>");
+    rows.push("<div class='row'><span class='l'>체크카드·현금영수증" + (o.culture > 0 && o.salary <= 70000000 ? "·문화체육" : "") + " 30%</span><span class='r'>" + man(D.debitAmt * 0.30) + "</span></div>");
+    rows.push("<div class='row'><span class='l'>전통시장·대중교통 40%</span><span class='r'>" + man(D.marketAmt * 0.40) + "</span></div>");
+    var used = Math.round(D.creditAmt * 0.15 + D.debitAmt * 0.30 + D.marketAmt * 0.40);
+    rows.push("<div class='row'><span class='l'>계산된 공제액<br><span style='font-size:11.5px;color:#8a9d92'>문턱 " + man(D.T) + "을 뺀 뒤 금액에 공제율을 곱한 값</span></span><span class='r'>" + man(used) + "</span></div>");
+    if (D.excess > 0){
+      rows.push("<div class='row'><span class='l'>기본한도 넘은 금액</span><span class='r minus'>" + man(D.excess) + " (한도 적용)</span></div>");
+    }
+    rows.push("<div class='row sum'><span class='l'>최종 예상 공제액</span><span class='r'>" + wonStr(D.total) + "</span></div>");
+    document.getElementById("rows").innerHTML = rows.join("");
+
+    // 조언 — 100만원을 더 쓸 때 늘어나는 공제액 비교
+    function add(k, amt){ var c = Object.assign({}, o); c[k] = c[k] + amt; return calc(c).total; }
+    var dC = add("credit", 100 * MAN) - D.total;
+    var dD = add("debit", 100 * MAN) - D.total;
+    var dM = add("market", 100 * MAN) - D.total;
+
+    var a1 = "", a2 = "";
+    if (o.salary <= 0){
+      a1 = "총급여를 넣으면 여기에 뭐가 유리한지 바로 나와요.";
+      a2 = "";
+    } else if (D.remThreshold > 0){
+      a1 = "아직 공제 문턱(총급여의 25%)까지 <b>" + man(D.remThreshold) + "</b> 남았어요. 이 구간은 어느 카드로 써도 공제가 0원이라, 남은 금액은 신용카드로 채우는 게 유리해요. 체크카드 30%를 문턱에서 써 버리면 그만큼 나중에 2배 공제를 못 받거든요.";
+      a2 = "문턱을 넘긴 뒤부터는 체크카드·현금영수증이 신용카드의 두 배(30% 대 15%)예요. 다만 문턱 채우려고 안 쓸 물건을 사면 남는 게 없어요. 공제는 쓴 돈을 돌려주는 게 아니라 세금을 깎아 주는 거라서요.";
+    } else if (dC === 0 && dD === 0 && dM === 0){
+      a1 = "공제 한도를 이미 다 채웠어요. 지금부터 얼마를 더 써도 공제는 안 늘어요.";
+      a2 = "남은 12월은 그냥 포인트·적립·할인이 좋은 카드로 쓰세요. 억지로 쓰는 건 손해예요.";
+    } else if (dD === 0 && dM > 0){
+      a1 = "기본 한도는 찼지만 전통시장·대중교통 추가한도가 <b>" + man(Math.max(0, D.addLimit - D.extra)) + "</b> 남아 있어요. 여기서 쓰면 40%로 추가 공제를 받을 수 있어요.";
+      a2 = "그 외 가맹점에서는 공제가 더 안 늘어요. 대중교통은 지하철·버스 정기결제를 그 카드로 바꾸면 자연스럽게 채워져요.";
+    } else {
+      var best = Math.max(dC, dD, dM);
+      if (dD > 0 && dD >= dC){
+        a1 = "지금부터 <b>100만원</b>을 더 쓴다면 체크카드·현금영수증으로 쓸 때 공제가 <b>" + man(dD) + "</b> 늘어요. 신용카드로 쓰면 " + man(dC) + "이라 두 배 차이예요.";
+        a2 = "공제 여유가 " + man(Math.max(0, D.limitTotal - D.total)) + " 남았어요. 체크카드 결제를 기본으로 두고, 신용카드 혜택이 큰 큰 지출만 신용으로 쓰는 식이 무난해요.";
+      } else if (dC > 0){
+        a1 = "지금부터 100만원을 더 쓰면 신용카드 +" + man(dC) + ", 체크카드 +" + man(dD) + " 늘어나요.";
+        a2 = "공제 여유가 " + man(Math.max(0, D.limitTotal - D.total)) + " 남았어요.";
+      } else {
+        a1 = "지금 숫자로는 추가 지출로 늘어나는 공제가 거의 없어요.";
+        a2 = "한도 계산을 다시 확인해 보세요.";
+      }
+      if (dM > dD){
+        a2 += " 전통시장·대중교통에서 쓴다면 40%라 100만원당 " + man(dM) + "까지 늘어나요.";
+      }
+    }
+    document.getElementById("adv1").innerHTML = a1;
+    document.getElementById("adv2").innerHTML = a2;
+
+    // 절세액 표
+    var est = Math.max(0, o.salary - workDeduction(o.salary) - 1500000);
+    var estIdx = 0;
+    for (var i = 0; i < BRACKETS.length; i++){
+      if (est > BRACKETS[i][0]) estIdx = i;
+    }
+    var tb = [];
+    for (var j = 0; j < BRACKETS.length; j++){
+      var rate = BRACKETS[j][2];
+      var save = Math.round(D.total * rate * 1.1);
+      tb.push("<tr" + (j === estIdx ? " class='on'" : "") + "><td>" + label(BRACKETS[j][0], BRACKETS[j][1]) + "</td><td>" + (rate * 100) + "%</td><td>" + man(save) + "</td></tr>");
+    }
+    document.getElementById("taxbody").innerHTML = tb.join("");
+    document.getElementById("taxnote").innerHTML = "노란 줄이 총급여 " + man(o.salary) + " 기준으로 아주 대략 잡은 구간이에요(근로소득공제와 기본공제만 반영). 실제 과세표준은 연금보험료·의료비·연금저축 같은 공제 때문에 더 낮아지고, 절세액도 그만큼 줄어요. 지방소득세 10%를 포함한 값입니다.";
+
+    out.hidden = false;
+  }
+
+  document.getElementById("go").addEventListener("click", render);
+  var ids = ["salary","credit","debit","market","culture","kids"];
+  ids.forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener("change", render);
+    el.addEventListener("input", function(){ /* 입력 중에는 계산하지 않음 */ });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
